@@ -1,0 +1,45 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: sample-handling
+  title: Sample Handling
+  description: Sample Handling API
+spec:
+  owner: group:lims
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: sample-handling-backend
+  title: Sample Handling Backend
+  description: >
+    Sample Handling API
+  #links:
+  #  - url: https://ebic-pato.diamond.ac.uk/api/docs
+  #    title: Live server API documentation
+  tags:
+    - python
+    - ispyb
+spec:
+  type: service
+  lifecycle: production
+  owner: group:lims
+  system: pato
+  providesApis:
+    - sample-handling-api
+  dependsOn:
+    - resource:ispyb-database
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: sample-handling-api
+  description: >
+    Sample Handling API
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:lims
+  system: sample-handling
+  #definition:
+  #  $text: https://ebic-pato.diamond.ac.uk/api/openapi.json
