@@ -19,7 +19,7 @@ integration-test-job:
   before_script:
     - pip install .[dev]
   script:
-    - pytest tests -W ignore::DeprecationWarning
+    - pytest tests -W ignore::DeprecationWarning -W ignore::sqlalchemy.exc.SAWarning
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     reports:
