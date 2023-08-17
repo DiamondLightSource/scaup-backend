@@ -1,65 +1,45 @@
-import typing
-from dataclasses import dataclass
 from typing import Any, Optional
 
-from ispyb.models import Base, BLSample, Container, Dewar
-from pydantic import BaseModel, field_validator
-
-from .table import NewContainer
+from pydantic import BaseModel, Field
 
 
-@dataclass
-class ItemTypeToTable:
-    parent_column: str = "dewarId"
-    table: Base = NewContainer
-    id_column = Container.containerId
+class ItemWithExtra(BaseModel):
+    @property
+    def base_fields(self) -> dict:
+        return {
+            key: value
+            for [key, value] in self.__dict__.items()
+            if key in self.__fields__
+        }
+
+    @property
+    def extra_fields(self) -> dict:
+        """Get extra fields, excluding 'type'"""
+        extra_items = self.model_extra or {}
+        return {key: value for [key, value] in extra_items.items() if key != "type"}
+
+    class Config:
+        extra = "allow"
 
 
-@dataclass
-class DewarTypeToTable(ItemTypeToTable):
-    parent_column = "shippingId"
-    table = Dewar
-    id_column = Dewar.dewarId
+class Sample(ItemWithExtra):
+    proteinId: int
+    name: Optional[str] = Field(
+        default=None,
+        description=(
+            "Sample name, if not provided, the provided protein's name followed "
+            "by the sample index is used"
+        ),
+    )
+    containerId: Optional[int] = None
+    location: Optional[int] = None
 
 
-@dataclass
-class GridBoxTypeToTable(ItemTypeToTable):
-    parent_column = "parentContainerId"
-
-
-@dataclass
-class SampleTypeToTable(ItemTypeToTable):
-    parent_column = "containerId"
-    table = BLSample
-    id_column = BLSample.blSampleId
-
-
-table_data_mapping: typing.Dict[str, typing.Type[ItemTypeToTable]] = {
-    "dewar": DewarTypeToTable,
-    "falconTube": ItemTypeToTable,
-    "puck": ItemTypeToTable,
-    "gridBox": GridBoxTypeToTable,
-    "sample": SampleTypeToTable,
-}
-
-
-class GenericItem(BaseModel):
-    type: str
-    data: dict[str, Any]
-    children: Optional[list["GenericItem"]] = None
-
-    @field_validator("type")
-    @classmethod
-    def check_type(cls, v: str) -> str:
-        keys = list(table_data_mapping.keys())
-        assert v in keys, f"{v} must be one of {','.join(keys)}"
-
-        return v
-
-
-class Shipment(BaseModel):
-    children: list[GenericItem]
-
-
-class FullShipment(BaseModel):
-    shipment: Shipment
+class SampleOut(BaseModel):
+    sampleId: int
+    shipmentId: int
+    proteinId: int
+    name: str
+    location: Optional[int]
+    details: dict[str, Any]
+    containerId: Optional[int]

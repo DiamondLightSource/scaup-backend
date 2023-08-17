@@ -1,8 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Body, Depends, status
 
 from ..auth import Permissions
+from ..crud import shipment as crud
+from ..models.shipment import Sample, SampleOut
 
-auth = Permissions.autoproc_program
+auth = Permissions.shipment
 
 router = APIRouter(
     tags=["Shipments"],
@@ -10,64 +12,19 @@ router = APIRouter(
 )
 
 
-mock = [
-    {
-        "label": "Dewar",
-        "id": "dewar-1",
-        "data": {"type": "dewar"},
-        "children": [
-            {
-                "label": "Falcon Tube",
-                "id": "ftube",
-                "data": {"type": "falconTube"},
-                "children": [
-                    {
-                        "label": "Grid Box 1",
-                        "data": {"type": "gridBox"},
-                        "id": "grid-box-1",
-                        "children": [
-                            {
-                                "label": "Sample 1",
-                                "id": "sample-1",
-                                "data": {
-                                    "type": "sample",
-                                    "position": 1,
-                                    "foil": "Cu-flat",
-                                    "film": "Lacey carbon",
-                                    "mesh": "100",
-                                    "ratio": "R 0.6/1",
-                                },
-                            }
-                        ],
-                    },
-                ],
-            },
-            {
-                "label": "Puck",
-                "id": "puck",
-                "data": {"type": "puck"},
-                "children": [
-                    {
-                        "label": "Grid Box 2",
-                        "data": {"type": "gridBox"},
-                        "id": "grid-box-2",
-                        "children": [
-                            {
-                                "label": "Sample 2",
-                                "id": "sample-2",
-                                "data": {
-                                    "type": "sample",
-                                    "position": 1,
-                                    "foil": "Au-flat",
-                                    "film": "Lacey carbon",
-                                    "mesh": "200",
-                                    "ratio": "R 0.6/1",
-                                },
-                            }
-                        ],
-                    },
-                ],
-            },
-        ],
-    },
-]
+@router.post(
+    "/{shipmentId}/samples",
+    status_code=status.HTTP_201_CREATED,
+    response_model=SampleOut,
+)
+def create_sample(shipmentId=Depends(auth), parameters: Sample = Body()):
+    """Create new sample in shipment"""
+    return crud.create_sample(shipmentId=shipmentId, params=parameters)
+
+
+@router.put(
+    "/{shipmentId}/samples/{sampleId}",
+)
+def edit_sample(sampleId: int, shipmentId=Depends(auth), parameters: Sample = Body()):
+    """Create new shipment in proposal"""
+    return crud.edit_sample(shipmentId=shipmentId, sampleId=sampleId, params=parameters)

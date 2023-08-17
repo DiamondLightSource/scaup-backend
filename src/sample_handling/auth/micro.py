@@ -1,8 +1,11 @@
 import requests
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException, Request, status
+from sqlalchemy import select
 
+from ..models.inner_db.tables import Shipment
 from ..utils.bearer import OAuth2PasswordBearerCookie
 from ..utils.config import Config
+from ..utils.database import inner_db
 from .template import GenericPermissions, GenericUser
 
 oauth2_scheme = OAuth2PasswordBearerCookie(tokenUrl="token")
@@ -51,21 +54,20 @@ def _check_perms(data_id: str | int, endpoint: str, token=str):
 
 class Permissions(GenericPermissions):
     @staticmethod
-    def collection(collectionId: int, token=Depends(oauth2_scheme)):
-        return _check_perms(collectionId, "collection", token)
+    def proposal(proposalReference: str, token=Depends(oauth2_scheme)) -> str:
+        return _check_perms(proposalReference, "proposals", token)
 
     @staticmethod
-    def tomogram(tomogramId: int, token=Depends(oauth2_scheme)):
-        return _check_perms(tomogramId, "tomogram", token)
+    def shipment(shipmentId: int, token=Depends(oauth2_scheme)) -> int:
+        proposalReference = inner_db.session.scalar(
+            select(Shipment.proposalReference).filter_by(shipmentId=shipmentId)
+        )
 
-    @staticmethod
-    def movie(movieId: int, token=Depends(oauth2_scheme)):
-        return _check_perms(movieId, "movie", token)
+        if proposalReference is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Shipment does not exist"
+            )
 
-    @staticmethod
-    def autoproc_program(autoProcId: int, token=Depends(oauth2_scheme)):
-        return _check_perms(autoProcId, "autoProc", token)
+        # _check_perms(proposalReference, "proposals", token)
 
-    @staticmethod
-    def processing_job(processingJobId: int, token=Depends(oauth2_scheme)):
-        return _check_perms(processingJobId, "processingJob", token)
+        return shipmentId
