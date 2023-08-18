@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, Depends, status
 
 from ..auth import Permissions
 from ..crud import shipment as crud
-from ..models.shipment import Sample, SampleOut
+from ..models.shipment import OptionalSample, Sample, SampleOut
 
 auth = Permissions.shipment
 
@@ -22,9 +22,9 @@ def create_sample(shipmentId=Depends(auth), parameters: Sample = Body()):
     return crud.create_sample(shipmentId=shipmentId, params=parameters)
 
 
-@router.put(
-    "/{shipmentId}/samples/{sampleId}",
-)
-def edit_sample(sampleId: int, shipmentId=Depends(auth), parameters: Sample = Body()):
-    """Create new shipment in proposal"""
-    return crud.edit_sample(shipmentId=shipmentId, sampleId=sampleId, params=parameters)
+@router.patch("/{shipmentId}/samples/{sampleId}", response_model=SampleOut)
+def edit_sample(
+    sampleId: int, shipmentId=Depends(auth), parameters: OptionalSample = Body()
+):
+    """Edit existing sample"""
+    return crud.edit_sample(sampleId=sampleId, params=parameters)

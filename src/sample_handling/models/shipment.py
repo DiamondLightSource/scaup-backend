@@ -1,14 +1,28 @@
-from typing import Any, Optional
+from datetime import datetime
+from typing import Any, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 
 class ItemWithExtra(BaseModel):
-    @property
-    def base_fields(self) -> dict:
+    @validator("name")
+    def empty_str_to_none(cls, v):
+        if v == "":
+            return None
+        return v
+
+    name: Optional[str] = Field(
+        default=None,
+        description=(
+            "Sample name, if not provided, the provided protein's name followed "
+            "by the sample index is used"
+        ),
+    )
+
+    def base_fields(self, exclude_none=False) -> dict:
         return {
             key: value
-            for [key, value] in self.__dict__.items()
+            for [key, value] in self.model_dump(exclude_none=exclude_none).items()
             if key in self.__fields__
         }
 
@@ -22,17 +36,17 @@ class ItemWithExtra(BaseModel):
         extra = "allow"
 
 
-class Sample(ItemWithExtra):
-    proteinId: int
-    name: Optional[str] = Field(
-        default=None,
-        description=(
-            "Sample name, if not provided, the provided protein's name followed "
-            "by the sample index is used"
-        ),
-    )
+class BaseSample(ItemWithExtra):
     containerId: Optional[int] = None
     location: Optional[int] = None
+
+
+class Sample(BaseSample):
+    proteinId: int
+
+
+class OptionalSample(BaseSample):
+    proteinId: Optional[int] = None
 
 
 class SampleOut(BaseModel):
@@ -43,3 +57,25 @@ class SampleOut(BaseModel):
     location: Optional[int]
     details: dict[str, Any]
     containerId: Optional[int]
+
+
+class ShipmentIn(BaseModel):
+    name: str
+    comments: Optional[str] = None
+
+
+class ShipmentOut(BaseModel):
+    shipmentId: int
+    proposalReference: str
+
+    name: str
+    comments: Optional[str] = None
+    creationDate: Optional[datetime]
+
+
+class MixedShipment(ShipmentOut):
+    creationStatus: Literal["draft", "submitted"] = "draft"
+
+    class Config:
+        from_attributes = True
+        arbitrary_types_allowed = True
