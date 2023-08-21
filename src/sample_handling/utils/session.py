@@ -19,4 +19,4 @@ inner_engine = create_engine(
 
 _inner_session = sessionmaker(autocommit=False, autoflush=False, bind=inner_engine)
 
-Base.metadata.create_all(inner_engine)
+# Base.metadata.create_all(inner_engine)

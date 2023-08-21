@@ -42,6 +42,18 @@ def test_create(client):
 
 
 @responses.activate
+def test_create_valid_container(client):
+    """Should create new sample when provided with valid parent container"""
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"proteinId": 1, "containerId": 1},
+    )
+
+    assert resp.status_code == 201
+
+
+@responses.activate
 def test_create_no_name(client):
     """Should automatically generate name if not provided in request"""
 
@@ -80,6 +92,18 @@ def test_create_invalid_protein(client):
     resp = client.post(
         "/shipments/1/samples",
         json={"proteinId": 3},
+    )
+
+    assert resp.status_code == 404
+
+
+@responses.activate
+def test_create_invalid_container(client):
+    """Should not create new sample when provided with inexistent parent container"""
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"proteinId": 1, "containerId": 999},
     )
 
     assert resp.status_code == 404

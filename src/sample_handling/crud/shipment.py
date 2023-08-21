@@ -19,7 +19,7 @@ def sample_update_context():
     except IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid proposal/shipment provided",
+            detail="Invalid proposal, shipment or container provided",
         )
 
 

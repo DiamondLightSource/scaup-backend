@@ -68,6 +68,10 @@ class Container(Base):
     type: Mapped[ContainerTypes] = mapped_column(Enum(*get_args(ContainerTypes)))
     capacity: Mapped[int | None] = mapped_column(SmallInteger)
     comments: Mapped[str | None] = mapped_column(String(255))
+    details: Mapped[dict | None] = mapped_column(
+        JSON, comment="Generic additional details"
+    )
+
     requestedReturn: Mapped[bool] = mapped_column(default=False)
 
     topLevelContainer: Mapped[Optional["TopLevelContainer"]] = relationship(
@@ -88,8 +92,9 @@ class Sample(Base):
 
     name: Mapped[str] = mapped_column(String(40))
     location: Mapped[int | None] = mapped_column(SmallInteger)
-
-    details = mapped_column(JSON)
+    details: Mapped[dict | None] = mapped_column(
+        JSON, comment="Generic additional details"
+    )
 
     containerId: Mapped[int | None] = mapped_column(
         ForeignKey("Container.containerId"), index=True
