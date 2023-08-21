@@ -1,0 +1,8 @@
+{
+  "auth": {
+    "endpoint": "http://localhost:8050/",
+    "type": "dummy"
+  },
+  "db": { "pool": 3, "overflow": 6 },
+  "ispyb_api": "http://localhost/api"
+}
