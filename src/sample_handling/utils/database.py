@@ -27,7 +27,7 @@ class InnerDatabase:
             return current_session
         except (AttributeError, LookupError):
             raise Exception(
-                "Can't get session. Please call IspybDatabase.set_session()"
+                "Can't get session. Please call InnerDatabase.set_session()"
             )
 
 
