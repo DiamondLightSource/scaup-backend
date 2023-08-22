@@ -1,6 +1,6 @@
 import contextlib
 import contextvars
-from typing import Generic, Optional, TypeVar
+from typing import Generator, Generic, Optional, TypeVar
 
 import sqlalchemy.orm
 from fastapi import HTTPException, status
@@ -8,41 +8,44 @@ from ispyb.models import Base
 from pydantic import BaseModel
 from sqlalchemy import Select, func, literal_column, select
 
-from .session import _session as sqlsession
+from .session import _inner_session as innersession
 
-_session = contextvars.ContextVar("_session", default=None)
+_inner_session = contextvars.ContextVar("_inner_session", default=None)
 
 
-class Database:
+class InnerDatabase:
     @classmethod
     def set_session(cls, session):
-        _session.set(session)
+        _inner_session.set(session)
 
     @property
     def session(cls) -> sqlalchemy.orm.Session:
         try:
-            if _session.get() is None:
+            current_session = _inner_session.get()
+            if current_session is None:
                 raise AttributeError
-            return _session.get()
+            return current_session
         except (AttributeError, LookupError):
-            raise Exception("Can't get session. Please call Database.set_session()")
+            raise Exception(
+                "Can't get session. Please call InnerDatabase.set_session()"
+            )
 
 
-db = Database()
+inner_db = InnerDatabase()
 
 
 @contextlib.contextmanager
-def get_session() -> sqlalchemy.orm.Session:
-    db_session = sqlsession()
+def get_session() -> Generator[sqlalchemy.orm.Session, None, None]:
+    inner_db_session = innersession()
     try:
-        Database.set_session(db_session)
-        yield db_session
+        InnerDatabase.set_session(inner_db_session)
+        yield inner_db_session
     except Exception:
-        db_session.rollback()
+        inner_db_session.rollback()
         raise
     finally:
-        Database.set_session(None)
-        db_session.close()
+        InnerDatabase.set_session(None)
+        inner_db_session.close()
 
 
 T = TypeVar("T")
@@ -60,7 +63,7 @@ class Paged(BaseModel, Generic[T]):
 
 
 def fast_count(query: Select) -> int:
-    return db.session.execute(
+    return inner_db.session.execute(
         query.with_only_columns(func.count(literal_column("1"))).order_by(None)
     ).scalar_one()
 
@@ -72,10 +75,11 @@ def paginate(
     slow_count=True,
     precounted_total: Optional[int] = None,
 ):
+    """Paginate a query before querying ISPyB"""
     if precounted_total is not None:
         total = precounted_total
     elif slow_count:
-        total = db.session.execute(
+        total = inner_db.session.execute(
             select(func.count(literal_column("1"))).select_from(query.subquery())
         ).scalar_one()
     else:
@@ -90,7 +94,7 @@ def paginate(
     if page < 0:
         page = (total // items) + page
 
-    data = db.session.execute(query.limit(items).offset((page) * items)).all()
+    data = inner_db.session.execute(query.limit(items).offset((page) * items)).all()
 
     return Paged(items=data, total=total, limit=items, page=page)
 

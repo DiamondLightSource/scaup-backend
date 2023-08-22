@@ -4,10 +4,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from sample_handling.main import app
-from sample_handling.utils.database import db
+from sample_handling.utils.database import inner_db
 
 engine = create_engine(
-    url="mysql://root:ispyb-root@127.0.0.1/ispyb",
+    url="mysql://root:sample_root@127.0.0.1:3666/sample_handling",
     pool_pre_ping=True,
     pool_recycle=3600,
     pool_size=3,
@@ -26,7 +26,7 @@ def client():
     transaction = conn.begin()
     session = Session(bind=conn, join_transaction_mode="create_savepoint")
 
-    db.set_session(session)
+    inner_db.set_session(session)
 
     yield client
 

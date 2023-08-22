@@ -50,4 +50,4 @@ ENV PATH=/venv/bin:$PATH
 
 # change this entrypoint if it is not the same as the repo
 ENTRYPOINT ["uvicorn"]
-CMD ["sample-handling.main:app", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/api"]
+CMD ["sample_handling.main:app", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/api"]

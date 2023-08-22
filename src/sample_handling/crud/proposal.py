@@ -1,64 +1,48 @@
-from itertools import chain
-from typing import Optional
-
+import requests
 from fastapi import HTTPException, status
-from ispyb.models import Proposal, Shipping
-from sqlalchemy import func, insert, select
+from sqlalchemy import insert, select
 
-from ..models.shipment import FullShipment, GenericItem, table_data_mapping
-from ..utils.database import db
-
-
-def _insert_children(parent_ids: list[int], children: list[list[GenericItem]]):
-    type_data = table_data_mapping[children[0][0].type]
-    grandchildren: list[list[GenericItem]] = []
-    data: list[dict] = []
-
-    for [i, group] in enumerate(children):
-        for child in group:
-            data.append({**child.data, type_data.parent_column: parent_ids[i]})
-            print(data)
-            if child.children:
-                grandchildren.append(child.children)
-
-    children_ids = db.session.scalars(
-        insert(type_data.table).returning(type_data.id_column), data
-    )
-    flattened_children = list(chain(*children))
-
-    filtered_ids = [
-        child_id
-        for [i, child_id] in enumerate(children_ids)
-        if flattened_children[i].children
-    ]
-
-    if grandchildren:
-        _insert_children(filtered_ids, grandchildren)
+from ..models.inner_db.tables import Shipment
+from ..models.shipment import MixedShipment, ShipmentIn
+from ..utils.config import Config
+from ..utils.database import inner_db
 
 
-def create_shipment(proposalId: str, params: FullShipment):
-    actual_proposal_id = db.session.scalar(
-        select(Proposal.proposalId).where(
-            func.concat(Proposal.proposalCode, Proposal.proposalNumber) == proposalId
-        )
+def create_shipment(proposalReference: str, params: ShipmentIn):
+    # TODO: add proposal check when core Expeye module is available
+    inner_db.session.scalar(
+        insert(Shipment).returning(Shipment),
+        {"proposalReference": proposalReference, **params.model_dump()},
     )
 
-    if not actual_proposal_id:
+
+def get_shipments(proposalReference: str):
+    # TODO: add pagination
+    shipments: list[MixedShipment | Shipment] = []
+    res = requests.get(f"{Config.ispyb_api}/proposals/{proposalReference}/shipments")
+
+    if res.status_code == 200:
+        shipments = [
+            MixedShipment(
+                shipmentId=item["shippingId"],
+                name=item["shippingName"],
+                proposalReference=proposalReference,
+                creationDate=item["creationDate"],
+                comments=item["comments"],
+                creationStatus="submitted",
+            )
+            for item in res.json()["items"]
+        ]
+
+    inner_shipments = inner_db.session.scalars(
+        select(Shipment).filter(Shipment.proposalReference == proposalReference)
+    ).all()
+
+    shipments += inner_shipments
+
+    if not shipments:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Proposal not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="No shipments found"
         )
 
-    shipment_id: Optional[int] = db.session.scalar(
-        insert(Shipping).returning(Shipping.shippingId),
-        {"proposalId": actual_proposal_id},
-    )
-
-    if not shipment_id:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Could not create shipment",
-        )
-
-    _insert_children([shipment_id], [params.shipment.children])
-
-    db.session.commit()
+    return shipments

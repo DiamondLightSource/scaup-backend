@@ -71,5 +71,3 @@ lockfiles/
 *.pem
 
 *.db
-
-config.json

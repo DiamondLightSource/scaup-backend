@@ -1,65 +1,81 @@
-import typing
-from dataclasses import dataclass
-from typing import Any, Optional
+from datetime import datetime
+from typing import Any, Literal, Optional
 
-from ispyb.models import Base, BLSample, Container, Dewar
-from pydantic import BaseModel, field_validator
-
-from .table import NewContainer
+from pydantic import BaseModel, Field, validator
 
 
-@dataclass
-class ItemTypeToTable:
-    parent_column: str = "dewarId"
-    table: Base = NewContainer
-    id_column = Container.containerId
-
-
-@dataclass
-class DewarTypeToTable(ItemTypeToTable):
-    parent_column = "shippingId"
-    table = Dewar
-    id_column = Dewar.dewarId
-
-
-@dataclass
-class GridBoxTypeToTable(ItemTypeToTable):
-    parent_column = "parentContainerId"
-
-
-@dataclass
-class SampleTypeToTable(ItemTypeToTable):
-    parent_column = "containerId"
-    table = BLSample
-    id_column = BLSample.blSampleId
-
-
-table_data_mapping: typing.Dict[str, typing.Type[ItemTypeToTable]] = {
-    "dewar": DewarTypeToTable,
-    "falconTube": ItemTypeToTable,
-    "puck": ItemTypeToTable,
-    "gridBox": GridBoxTypeToTable,
-    "sample": SampleTypeToTable,
-}
-
-
-class GenericItem(BaseModel):
-    type: str
-    data: dict[str, Any]
-    children: Optional[list["GenericItem"]] = None
-
-    @field_validator("type")
-    @classmethod
-    def check_type(cls, v: str) -> str:
-        keys = list(table_data_mapping.keys())
-        assert v in keys, f"{v} must be one of {','.join(keys)}"
-
+class ItemWithExtra(BaseModel):
+    @validator("name")
+    def empty_str_to_none(cls, v):
+        if v == "":
+            return None
         return v
 
+    name: Optional[str] = Field(
+        default=None,
+        description=(
+            "Sample name, if not provided, the provided protein's name followed "
+            "by the sample index is used"
+        ),
+    )
 
-class Shipment(BaseModel):
-    children: list[GenericItem]
+    def base_fields(self, exclude_none=False) -> dict:
+        return {
+            key: value
+            for [key, value] in self.model_dump(exclude_none=exclude_none).items()
+            if key in self.__fields__
+        }
+
+    @property
+    def extra_fields(self) -> dict:
+        """Get extra fields, excluding 'type'"""
+        extra_items = self.model_extra or {}
+        return {key: value for [key, value] in extra_items.items() if key != "type"}
+
+    class Config:
+        extra = "allow"
 
 
-class FullShipment(BaseModel):
-    shipment: Shipment
+class BaseSample(ItemWithExtra):
+    containerId: Optional[int] = None
+    location: Optional[int] = None
+
+
+class Sample(BaseSample):
+    proteinId: int
+
+
+class OptionalSample(BaseSample):
+    proteinId: Optional[int] = None
+
+
+class SampleOut(BaseModel):
+    sampleId: int
+    shipmentId: int
+    proteinId: int
+    name: str
+    location: Optional[int]
+    details: dict[str, Any]
+    containerId: Optional[int]
+
+
+class ShipmentIn(BaseModel):
+    name: str
+    comments: Optional[str] = None
+
+
+class ShipmentOut(BaseModel):
+    shipmentId: int
+    proposalReference: str
+
+    name: str
+    comments: Optional[str] = None
+    creationDate: Optional[datetime]
+
+
+class MixedShipment(ShipmentOut):
+    creationStatus: Literal["draft", "submitted"] = "draft"
+
+    class Config:
+        from_attributes = True
+        arbitrary_types_allowed = True

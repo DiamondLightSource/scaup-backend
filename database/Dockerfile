@@ -1,20 +1,15 @@
-FROM mariadb:10.9.4-jammy
+FROM mariadb:10.9.7-jammy
 
 WORKDIR /docker-entrypoint-initdb.d
-RUN apt-get update -y && \
-    apt-get install -y git && \
-    git clone https://github.com/DiamondLightSource/ispyb-database && \
-    mv ispyb-database/schemas/ispyb/tables.sql 1.sql && \
-    mv ispyb-database/schemas/ispyb/lookups.sql 2.sql
 
-ADD data.sql /docker-entrypoint-initdb.d/3.sql
-RUN chown -R mysql:mysql /docker-entrypoint-initdb.d/
+ADD data.sql /docker-entrypoint-initdb.d/data.sql
 
-ENV MYSQL_ROOT_PASSWORD ispyb-root
-ENV MYSQL_DATABASE ispyb
-ENV MYSQL_USER ispyb
-ENV MYSQL_PASSWORD ispyb-user
+ENV MYSQL_ROOT_PASSWORD sample_root
+ENV MYSQL_DATABASE sample_handling
+ENV MYSQL_USER sample_handling
+ENV MYSQL_PASSWORD sample_handling
+ENV MYSQL_TCP_PORT 3666
 
-EXPOSE 3306
+EXPOSE 3666
 
 CMD ["mysqld"]

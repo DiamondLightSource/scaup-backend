@@ -15,14 +15,15 @@ class Auth:
 
 
 @dataclass
-class ISPyB:
+class DB:
     pool: int = 10
     overflow: int = 20
 
 
 class Config:
     auth: Auth
-    ispyb: ISPyB
+    ispyb_api: str
+    db: DB
 
     @staticmethod
     def set():
@@ -30,7 +31,8 @@ class Config:
             with open(os.environ.get("CONFIG_PATH") or "config.json", "r") as fp:
                 conf = json.load(fp)
                 Config.auth = Auth(**conf["auth"])
-                Config.ispyb = ISPyB(**conf["ispyb"])
+                Config.db = DB(**conf["db"])
+                Config.ispyb_api = conf["ispyb_api"]
 
         except (FileNotFoundError, TypeError) as exc:
             raise ConfigurationError(str(exc).replace(".__init__()", "")) from exc
