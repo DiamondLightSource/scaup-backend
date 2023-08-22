@@ -1,7 +1,21 @@
+import re
+
+import pytest
+import responses
 from sqlalchemy import select
 
 from sample_handling.models.inner_db.tables import Sample
 from sample_handling.utils.database import inner_db
+from tests.shipment.sample.responses import protein_callback
+
+
+@pytest.fixture(scope="function", autouse=True)
+def register_responses():
+    responses.add_callback(
+        responses.GET,
+        re.compile("http://localhost/api/proposals/cm00001/proteins/([0-9].*)"),
+        callback=protein_callback,
+    )
 
 
 def test_edit(client):
@@ -22,6 +36,18 @@ def test_edit(client):
         inner_db.session.scalar(select(Sample).filter(Sample.name == "New Sample Name"))
         is not None
     )
+
+
+@responses.activate
+def test_edit_invalid_protein(client):
+    """Should not allow invalid proteins in edited fields"""
+
+    resp = client.patch(
+        "/shipments/1/samples/1",
+        json={"name": "New Sample Name", "proteinId": 9999},
+    )
+
+    assert resp.status_code == 404
 
 
 def test_edit_inexistent_sample(client):

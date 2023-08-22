@@ -1,6 +1,6 @@
 import contextlib
 import contextvars
-from typing import Generator, Generic, Optional, TypeVar
+from typing import Generator, Generic, Optional, Sequence, TypeVar
 
 import sqlalchemy.orm
 from fastapi import HTTPException, status
@@ -52,7 +52,7 @@ T = TypeVar("T")
 
 
 class Paged(BaseModel, Generic[T]):
-    items: list[T]
+    items: Sequence[T]
     total: int
     page: int
     limit: int

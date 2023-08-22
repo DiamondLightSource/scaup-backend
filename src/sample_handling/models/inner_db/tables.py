@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional, get_args
+from typing import Any, List, Literal, Optional, get_args
 
 from sqlalchemy import JSON, DateTime, Enum, ForeignKey, SmallInteger, String, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -15,7 +15,7 @@ TopLevelContainerTypes = Literal["dewar", "toolbox", "parcel"]
 class Shipment(Base):
     __tablename__ = "Shipment"
 
-    shipmentId: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[int] = mapped_column("shipmentId", primary_key=True, index=True)
     proposalReference: Mapped[str] = mapped_column(String(10), index=True)
 
     name: Mapped[str] = mapped_column(String(40))
@@ -32,7 +32,7 @@ class Shipment(Base):
 class TopLevelContainer(Base):
     __tablename__ = "TopLevelContainer"
 
-    topLevelContainerId: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column("topLevelContainerId", primary_key=True)
     shipment: Mapped["Shipment"] = relationship(back_populates="children")
     shipmentId: Mapped[int] = mapped_column(
         ForeignKey("Shipment.shipmentId"), index=True
@@ -55,7 +55,7 @@ class TopLevelContainer(Base):
 class Container(Base):
     __tablename__ = "Container"
 
-    containerId: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[int] = mapped_column("containerId", primary_key=True, index=True)
     shipmentId: Mapped[int] = mapped_column(
         ForeignKey("Shipment.shipmentId"), index=True
     )
@@ -68,7 +68,7 @@ class Container(Base):
     type: Mapped[ContainerTypes] = mapped_column(Enum(*get_args(ContainerTypes)))
     capacity: Mapped[int | None] = mapped_column(SmallInteger)
     comments: Mapped[str | None] = mapped_column(String(255))
-    details: Mapped[dict | None] = mapped_column(
+    details: Mapped[dict[str, Any] | None] = mapped_column(
         JSON, comment="Generic additional details"
     )
 
@@ -84,15 +84,16 @@ class Container(Base):
 class Sample(Base):
     __tablename__ = "Sample"
 
-    sampleId: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[int] = mapped_column("sampleId", primary_key=True, index=True)
     shipmentId: Mapped[int] = mapped_column(
         ForeignKey("Shipment.shipmentId"), index=True
     )
     proteinId: Mapped[int] = mapped_column()
 
+    type: Mapped[str] = mapped_column(String(40), server_default="sample")
     name: Mapped[str] = mapped_column(String(40))
     location: Mapped[int | None] = mapped_column(SmallInteger)
-    details: Mapped[dict | None] = mapped_column(
+    details: Mapped[dict[str, Any] | None] = mapped_column(
         JSON, comment="Generic additional details"
     )
 
