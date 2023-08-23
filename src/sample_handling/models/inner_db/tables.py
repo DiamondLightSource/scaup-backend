@@ -2,13 +2,7 @@ from datetime import datetime
 from typing import Any, List, Literal, Optional, get_args
 
 from sqlalchemy import JSON, DateTime, Enum, ForeignKey, SmallInteger, String, func
-from sqlalchemy.orm import (
-    DeclarativeBase,
-    Mapped,
-    column_property,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):

@@ -1,10 +1,7 @@
-import requests
-from fastapi import HTTPException, status
 from sqlalchemy import case, insert, select
 
 from ..models.inner_db.tables import Shipment
-from ..models.shipment import MixedShipment, ShipmentIn
-from ..utils.config import Config
+from ..models.shipment import ShipmentIn
 from ..utils.database import inner_db, paginate, unravel
 
 
