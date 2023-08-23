@@ -14,7 +14,7 @@ from tests.shipment.sample.responses import protein_callback
 def register_responses():
     responses.add_callback(
         responses.GET,
-        re.compile("http://localhost/api/proposals/cm00001/proteins/([0-9].*)"),
+        re.compile("http://127.0.0.1:8060/proposals/cm00001/proteins/([0-9].*)"),
         callback=protein_callback,
     )
 
@@ -78,7 +78,7 @@ def test_create_invalid_protein(client):
     """Should not create new sample when provided with inexistent sample protein/
     compound"""
 
-    responses.get("http://localhost/api/proteins/1", status=404)
+    responses.get("http://127.0.0.1:8060/proteins/1", status=404)
 
     resp = client.post(
         "/shipments/1/samples",

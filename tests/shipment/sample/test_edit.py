@@ -13,7 +13,7 @@ from tests.shipment.sample.responses import protein_callback
 def register_responses():
     responses.add_callback(
         responses.GET,
-        re.compile("http://localhost/api/proposals/cm00001/proteins/([0-9].*)"),
+        re.compile("http://127.0.0.1:8060/proposals/cm00001/proteins/([0-9].*)"),
         callback=protein_callback,
     )
 
