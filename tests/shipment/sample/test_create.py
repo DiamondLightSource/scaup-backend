@@ -7,23 +7,14 @@ from sqlalchemy import select
 
 from sample_handling.models.inner_db.tables import Sample
 from sample_handling.utils.database import inner_db
-
-
-def protein_callback(request):
-    # Return valid response for proteinId 1, return 404 for all else
-    protein_id = request.path_url.split("/")[3]
-
-    if protein_id == "1":
-        return (200, {}, json.dumps({"name": "Protein 01"}))
-
-    return (404, {}, "")
+from tests.shipment.sample.responses import protein_callback
 
 
 @pytest.fixture(scope="function", autouse=True)
 def register_responses():
     responses.add_callback(
         responses.GET,
-        re.compile("http://localhost/api/proteins/([0-9].*)"),
+        re.compile("http://127.0.0.1:8060/proposals/cm00001/proteins/([0-9].*)"),
         callback=protein_callback,
     )
 
@@ -35,7 +26,7 @@ def test_create(client):
 
     resp = client.post(
         "/shipments/1/samples",
-        json={"proteinId": 1},
+        json={"proteinId": 4407},
     )
 
     assert resp.status_code == 201
@@ -47,7 +38,7 @@ def test_create_valid_container(client):
 
     resp = client.post(
         "/shipments/1/samples",
-        json={"proteinId": 1, "containerId": 1},
+        json={"proteinId": 4407, "containerId": 1},
     )
 
     assert resp.status_code == 201
@@ -59,13 +50,13 @@ def test_create_no_name(client):
 
     resp = client.post(
         "/shipments/1/samples",
-        json={"proteinId": 1},
+        json={"proteinId": 4407},
     )
 
     assert resp.status_code == 201
 
     assert (
-        inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein 01 2"))
+        inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein 01 3"))
         is not None
     )
 
@@ -76,7 +67,7 @@ def test_create_invalid_shipment(client):
 
     resp = client.post(
         "/shipments/999999/samples",
-        json={"proteinId": 1},
+        json={"proteinId": 4407},
     )
 
     assert resp.status_code == 404
@@ -87,7 +78,7 @@ def test_create_invalid_protein(client):
     """Should not create new sample when provided with inexistent sample protein/
     compound"""
 
-    responses.get("http://localhost/api/proteins/1", status=404)
+    responses.get("http://127.0.0.1:8060/proteins/1", status=404)
 
     resp = client.post(
         "/shipments/1/samples",
@@ -103,7 +94,7 @@ def test_create_invalid_container(client):
 
     resp = client.post(
         "/shipments/1/samples",
-        json={"proteinId": 1, "containerId": 999},
+        json={"proteinId": 4407, "containerId": 999},
     )
 
     assert resp.status_code == 404

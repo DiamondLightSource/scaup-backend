@@ -11,7 +11,7 @@ from sample_handling.utils.database import inner_db
 
 def shipment_callback(request):
     # Return valid response for proteinId 1, return 404 for all else
-    proposal = request.path_url.split("/")[3]
+    proposal = request.path_url.split("/")[2]
 
     if proposal in ["cm00001", "cm99999"]:
         return (
@@ -40,7 +40,7 @@ def shipment_callback(request):
 def register_responses():
     responses.add_callback(
         responses.GET,
-        re.compile("http://localhost/api/proposals/(.+)/shipments"),
+        re.compile("http://127.0.0.1:8060/proposals/(.+)/shipments"),
         callback=shipment_callback,
     )
 

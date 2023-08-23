@@ -33,6 +33,7 @@ CREATE TABLE `Container` (
   `comments` varchar(255) DEFAULT NULL,
   `details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'Generic additional details' CHECK (json_valid(`details`)),
   `requestedReturn` tinyint(1) NOT NULL,
+  `externalId` int(11) DEFAULT NULL,
   PRIMARY KEY (`containerId`),
   KEY `parentId` (`parentId`),
   KEY `ix_Container_topLevelContainerId` (`topLevelContainerId`),
@@ -41,7 +42,7 @@ CREATE TABLE `Container` (
   CONSTRAINT `Container_ibfk_1` FOREIGN KEY (`shipmentId`) REFERENCES `Shipment` (`shipmentId`),
   CONSTRAINT `Container_ibfk_2` FOREIGN KEY (`topLevelContainerId`) REFERENCES `TopLevelContainer` (`topLevelContainerId`),
   CONSTRAINT `Container_ibfk_3` FOREIGN KEY (`parentId`) REFERENCES `Container` (`containerId`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -50,7 +51,7 @@ CREATE TABLE `Container` (
 
 LOCK TABLES `Container` WRITE;
 /*!40000 ALTER TABLE `Container` DISABLE KEYS */;
-INSERT INTO `Container` VALUES (1,1,NULL,1,'Container 01','puck',NULL,NULL,NULL,0);
+INSERT INTO `Container` VALUES (1,1,1,NULL,'Container 01','puck',NULL,NULL,NULL,0,NULL),(2,1,NULL,1,'Grid Box 01','gridBox',NULL,'Test Comment!',NULL,0,NULL),(3,1,NULL,NULL,'Container 02','falconTube',NULL,NULL,NULL,0,NULL),(4,1,NULL,NULL,'Grid Box 02','gridBox',NULL,NULL,NULL,0,NULL);
 /*!40000 ALTER TABLE `Container` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -65,17 +66,19 @@ CREATE TABLE `Sample` (
   `sampleId` int(11) NOT NULL AUTO_INCREMENT,
   `shipmentId` int(11) NOT NULL,
   `proteinId` int(11) NOT NULL,
+  `type` varchar(40) NOT NULL DEFAULT 'sample',
   `name` varchar(40) NOT NULL,
   `location` smallint(6) DEFAULT NULL,
   `details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'Generic additional details' CHECK (json_valid(`details`)),
   `containerId` int(11) DEFAULT NULL,
+  `externalId` int(11) DEFAULT NULL,
   PRIMARY KEY (`sampleId`),
   KEY `ix_Sample_shipmentId` (`shipmentId`),
   KEY `ix_Sample_containerId` (`containerId`),
   KEY `ix_Sample_sampleId` (`sampleId`),
   CONSTRAINT `Sample_ibfk_1` FOREIGN KEY (`shipmentId`) REFERENCES `Shipment` (`shipmentId`),
   CONSTRAINT `Sample_ibfk_2` FOREIGN KEY (`containerId`) REFERENCES `Container` (`containerId`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -84,7 +87,7 @@ CREATE TABLE `Sample` (
 
 LOCK TABLES `Sample` WRITE;
 /*!40000 ALTER TABLE `Sample` DISABLE KEYS */;
-INSERT INTO `Sample` VALUES (1,1,1,'Sample 01',NULL,NULL,NULL);
+INSERT INTO `Sample` VALUES (1,1,4407,'sample','Sample 01',NULL,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',2,NULL),(2,1,4407,'sample','Sample 02',NULL,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',NULL,NULL);
 /*!40000 ALTER TABLE `Sample` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -101,10 +104,11 @@ CREATE TABLE `Shipment` (
   `name` varchar(40) NOT NULL,
   `comments` varchar(255) DEFAULT NULL,
   `creationDate` datetime NOT NULL DEFAULT current_timestamp(),
+  `externalId` int(11) DEFAULT NULL,
   PRIMARY KEY (`shipmentId`),
   KEY `ix_Shipment_proposalReference` (`proposalReference`),
   KEY `ix_Shipment_shipmentId` (`shipmentId`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -113,7 +117,7 @@ CREATE TABLE `Shipment` (
 
 LOCK TABLES `Shipment` WRITE;
 /*!40000 ALTER TABLE `Shipment` DISABLE KEYS */;
-INSERT INTO `Shipment` VALUES (1,'cm00001','Shipment 01',NULL,'2023-08-21 08:16:56');
+INSERT INTO `Shipment` VALUES (1,'cm00001','Shipment 01',NULL,'2023-08-21 08:16:56',NULL),(2,'cm00002','Shipment 02',NULL,'2023-08-22 14:21:43',NULL);
 /*!40000 ALTER TABLE `Shipment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -133,10 +137,11 @@ CREATE TABLE `TopLevelContainer` (
   `code` varchar(20) NOT NULL,
   `barCode` varchar(20) NOT NULL,
   `type` enum('dewar','toolbox','parcel') NOT NULL,
+  `externalId` int(11) DEFAULT NULL,
   PRIMARY KEY (`topLevelContainerId`),
   KEY `ix_TopLevelContainer_shipmentId` (`shipmentId`),
   CONSTRAINT `TopLevelContainer_ibfk_1` FOREIGN KEY (`shipmentId`) REFERENCES `Shipment` (`shipmentId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -145,7 +150,31 @@ CREATE TABLE `TopLevelContainer` (
 
 LOCK TABLES `TopLevelContainer` WRITE;
 /*!40000 ALTER TABLE `TopLevelContainer` DISABLE KEYS */;
+INSERT INTO `TopLevelContainer` VALUES (1,1,'Dewar 01',NULL,NULL,'DLS-1','DLS-1','dewar',NULL),(2,2,'Dewar 02',NULL,NULL,'DLS-2','DLS-2','dewar',NULL),(3,2,'Dewar 03',NULL,NULL,'DLS-3','DLS-3','dewar',NULL);
 /*!40000 ALTER TABLE `TopLevelContainer` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `alembic_version`
+--
+
+DROP TABLE IF EXISTS `alembic_version`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `alembic_version` (
+  `version_num` varchar(32) NOT NULL,
+  PRIMARY KEY (`version_num`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `alembic_version`
+--
+
+LOCK TABLES `alembic_version` WRITE;
+/*!40000 ALTER TABLE `alembic_version` DISABLE KEYS */;
+INSERT INTO `alembic_version` VALUES ('b39d8fe01630');
+/*!40000 ALTER TABLE `alembic_version` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -161,4 +190,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-21  9:17:25
+-- Dump completed on 2023-08-23  9:35:17

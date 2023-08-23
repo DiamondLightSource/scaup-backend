@@ -24,7 +24,7 @@ def get_shipments(proposalReference: str):
     if res.status_code == 200:
         shipments = [
             MixedShipment(
-                shipmentId=item["shippingId"],
+                id=item["shippingId"],
                 name=item["shippingName"],
                 proposalReference=proposalReference,
                 creationDate=item["creationDate"],
