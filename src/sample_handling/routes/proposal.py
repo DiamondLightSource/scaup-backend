@@ -1,10 +1,13 @@
 import requests
 from fastapi import APIRouter, Body, Depends, status
 
+from sample_handling.utils.database import Paged
+
 from ..auth import Permissions
 from ..crud import proposal as crud
 from ..models.shipment import MixedShipment, ShipmentIn
 from ..utils.config import Config
+from ..utils.dependencies import pagination
 
 auth = Permissions.proposal
 
@@ -25,10 +28,12 @@ def create_shipment(
     return crud.create_shipment(proposalReference, params=parameters)
 
 
-@router.get("/{proposalReference}/shipments", response_model=list[MixedShipment])
-def get_shipments(proposalReference: str = Depends(auth)):
+@router.get("/{proposalReference}/shipments", response_model=Paged[MixedShipment])
+def get_shipments(
+    proposalReference: str = Depends(auth), page: dict[str, int] = Depends(pagination)
+):
     """Get shipments in proposal"""
-    return crud.get_shipments(proposalReference)
+    return crud.get_shipments(proposalReference, **page)
 
 
 @router.get("/{proposalReference}/data")

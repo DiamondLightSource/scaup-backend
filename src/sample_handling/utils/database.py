@@ -75,7 +75,7 @@ def paginate(
     slow_count=True,
     precounted_total: Optional[int] = None,
 ):
-    """Paginate a query before querying ISPyB"""
+    """Paginate a query before querying database"""
     if precounted_total is not None:
         total = precounted_total
     elif slow_count:
@@ -95,7 +95,7 @@ def paginate(
         page = (total // items) + page
 
     data = inner_db.session.execute(query.limit(items).offset((page) * items)).all()
-
+    print(data)
     return Paged(items=data, total=total, limit=items, page=page)
 
 

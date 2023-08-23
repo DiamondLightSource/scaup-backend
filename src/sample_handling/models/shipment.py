@@ -3,6 +3,7 @@ from typing import Any, Literal, Optional
 
 from ispyb.models import Base
 from pydantic import BaseModel, Field, model_validator, validator
+from sqlalchemy import DateTime
 
 from ..models.inner_db.tables import Container as ContainerItem
 from ..models.inner_db.tables import Sample as SampleItem
@@ -71,10 +72,10 @@ class ShipmentOut(BaseModel):
 
 
 class MixedShipment(ShipmentOut):
+    id: int = Field(validation_alias="shipmentId")
     creationStatus: Literal["draft", "submitted"] = "draft"
 
     class Config:
-        from_attributes = True
         arbitrary_types_allowed = True
 
 
