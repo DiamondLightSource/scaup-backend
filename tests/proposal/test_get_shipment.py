@@ -17,8 +17,6 @@ def test_get_draft(client):
 
     data = resp.json()
 
-    print(data)
-
     assert data["items"][0]["creationStatus"] == "draft"
 
 

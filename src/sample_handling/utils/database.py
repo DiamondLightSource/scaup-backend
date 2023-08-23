@@ -95,7 +95,6 @@ def paginate(
         page = (total // items) + page
 
     data = inner_db.session.execute(query.limit(items).offset((page) * items)).all()
-    print(data)
     return Paged(items=data, total=total, limit=items, page=page)
 
 
