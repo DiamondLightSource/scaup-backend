@@ -1,11 +1,8 @@
-import requests
-from fastapi import HTTPException, status
-from sqlalchemy import insert, select
+from sqlalchemy import case, insert, select
 
 from ..models.inner_db.tables import Shipment
-from ..models.shipment import MixedShipment, ShipmentIn
-from ..utils.config import Config
-from ..utils.database import inner_db
+from ..models.shipment import ShipmentIn
+from ..utils.database import inner_db, paginate, unravel
 
 
 def create_shipment(proposalReference: str, params: ShipmentIn):
@@ -16,33 +13,12 @@ def create_shipment(proposalReference: str, params: ShipmentIn):
     )
 
 
-def get_shipments(proposalReference: str):
-    # TODO: add pagination
-    shipments: list[MixedShipment | Shipment] = []
-    res = requests.get(f"{Config.ispyb_api}/proposals/{proposalReference}/shipments")
+def get_shipments(proposalReference: str, limit: int, page: int):
+    query = select(
+        *unravel(Shipment),
+        case((Shipment.externalId != None, "submitted"), else_="draft").label(
+            "creationStatus"
+        ),
+    ).filter(Shipment.proposalReference == proposalReference)
 
-    if res.status_code == 200:
-        shipments = [
-            MixedShipment(
-                id=item["shippingId"],
-                name=item["shippingName"],
-                proposalReference=proposalReference,
-                creationDate=item["creationDate"],
-                comments=item["comments"],
-                creationStatus="submitted",
-            )
-            for item in res.json()["items"]
-        ]
-
-    inner_shipments = inner_db.session.scalars(
-        select(Shipment).filter(Shipment.proposalReference == proposalReference)
-    ).all()
-
-    shipments += inner_shipments
-
-    if not shipments:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="No shipments found"
-        )
-
-    return shipments
+    return paginate(query, limit, page)

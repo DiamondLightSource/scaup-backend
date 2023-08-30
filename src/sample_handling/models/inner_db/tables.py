@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, List, Literal, Optional, get_args
 
 from sqlalchemy import JSON, DateTime, Enum, ForeignKey, SmallInteger, String, func
@@ -24,7 +25,7 @@ class Shipment(Base, BaseColumns):
     proposalReference: Mapped[str] = mapped_column(String(10), index=True)
 
     comments: Mapped[str | None] = mapped_column(String(255))
-    creationDate: Mapped[DateTime] = mapped_column(
+    creationDate: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
 
