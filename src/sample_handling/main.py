@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 
 from . import __version__
-from .routes import proposal, shipment
+from .routes import proposal, samples, shipments
 from .utils.database import get_session
 from .utils.logging import EndpointFilter, app_logger, uvicorn_logger
 
@@ -46,5 +46,6 @@ async def log_exception_handler(request: Request, exc: HTTPException):
     return await http_exception_handler(request, exc)
 
 
-app.include_router(shipment.router)
+app.include_router(shipments.router)
 app.include_router(proposal.router)
+app.include_router(samples.router)

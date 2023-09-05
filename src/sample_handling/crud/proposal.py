@@ -1,7 +1,7 @@
 from sqlalchemy import case, insert, select
 
 from ..models.inner_db.tables import Shipment
-from ..models.shipment import ShipmentIn
+from ..models.shipments import ShipmentIn
 from ..utils.database import inner_db, paginate, unravel
 
 

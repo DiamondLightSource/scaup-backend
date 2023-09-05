@@ -5,7 +5,7 @@ from sample_handling.utils.database import Paged
 
 from ..auth import Permissions
 from ..crud import proposal as crud
-from ..models.shipment import MixedShipment, ShipmentIn
+from ..models.shipments import MixedShipment, ShipmentIn
 from ..utils.config import Config
 from ..utils.dependencies import pagination
 
