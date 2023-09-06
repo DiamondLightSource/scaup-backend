@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from sample_handling.models.inner_db.tables import Sample
 from sample_handling.utils.database import inner_db
-from tests.shipment.sample.responses import protein_callback
+from tests.shipments.samples.responses import protein_callback
 
 
 @pytest.fixture(scope="function", autouse=True)

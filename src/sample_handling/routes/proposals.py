@@ -1,12 +1,11 @@
 import requests
 from fastapi import APIRouter, Body, Depends, status
 
-from sample_handling.utils.database import Paged
-
 from ..auth import Permissions
-from ..crud import proposal as crud
+from ..crud import proposals as crud
 from ..models.shipments import MixedShipment, ShipmentIn
 from ..utils.config import Config
+from ..utils.database import Paged
 from ..utils.dependencies import pagination
 
 auth = Permissions.proposal

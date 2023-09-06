@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, Depends, status
 
 from ..auth import Permissions
 from ..crud import samples as crud
-from ..models.sample import OptionalSample, Sample, SampleOut
+from ..models.samples import OptionalSample, SampleIn, SampleOut
 
 auth = Permissions.shipment
 
@@ -17,7 +17,7 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
     response_model=SampleOut,
 )
-def create_sample(shipmentId=Depends(auth), parameters: Sample = Body()):
+def create_sample(shipmentId=Depends(auth), parameters: SampleIn = Body()):
     """Create new sample in shipment"""
     return crud.create_sample(shipmentId=shipmentId, params=parameters)
 
