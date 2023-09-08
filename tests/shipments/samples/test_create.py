@@ -56,7 +56,7 @@ def test_create_no_name(client):
     assert resp.status_code == 201
 
     assert (
-        inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein 01 3"))
+        inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein 01 4"))
         is not None
     )
 
