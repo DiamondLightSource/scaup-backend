@@ -44,4 +44,5 @@ class OptionalContainer(BaseContainer):
 
 
 class ContainerOut(BaseContainer):
+    id: int
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)

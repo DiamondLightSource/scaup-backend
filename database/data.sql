@@ -34,14 +34,15 @@ CREATE TABLE `Container` (
   `details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'Generic additional details' CHECK (json_valid(`details`)),
   `requestedReturn` tinyint(1) NOT NULL,
   `externalId` int(11) DEFAULT NULL,
+  `location` smallint(6) DEFAULT NULL,
   PRIMARY KEY (`containerId`),
   KEY `parentId` (`parentId`),
   KEY `ix_Container_topLevelContainerId` (`topLevelContainerId`),
   KEY `ix_Container_shipmentId` (`shipmentId`),
   KEY `ix_Container_containerId` (`containerId`),
   CONSTRAINT `Container_ibfk_1` FOREIGN KEY (`shipmentId`) REFERENCES `Shipment` (`shipmentId`),
-  CONSTRAINT `Container_ibfk_2` FOREIGN KEY (`topLevelContainerId`) REFERENCES `TopLevelContainer` (`topLevelContainerId`),
-  CONSTRAINT `Container_ibfk_3` FOREIGN KEY (`parentId`) REFERENCES `Container` (`containerId`)
+  CONSTRAINT `Container_ibfk_2` FOREIGN KEY (`parentId`) REFERENCES `Container` (`containerId`) ON DELETE SET NULL,
+  CONSTRAINT `Container_ibfk_3` FOREIGN KEY (`topLevelContainerId`) REFERENCES `TopLevelContainer` (`topLevelContainerId`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -51,7 +52,7 @@ CREATE TABLE `Container` (
 
 LOCK TABLES `Container` WRITE;
 /*!40000 ALTER TABLE `Container` DISABLE KEYS */;
-INSERT INTO `Container` VALUES (1,1,1,NULL,'Container 01','puck',NULL,NULL,NULL,0,NULL),(2,1,NULL,1,'Grid Box 01','gridBox',NULL,'Test Comment!',NULL,0,NULL),(3,1,NULL,NULL,'Container 02','falconTube',NULL,NULL,NULL,0,NULL),(4,1,NULL,NULL,'Grid Box 02','gridBox',NULL,NULL,NULL,0,NULL);
+INSERT INTO `Container` VALUES (1,1,1,NULL,'Container 01','puck',NULL,NULL,NULL,0,NULL,NULL),(2,1,NULL,1,'Grid Box 01','gridBox',NULL,'Test Comment!',NULL,0,NULL,NULL),(3,1,NULL,NULL,'Container 02','falconTube',NULL,NULL,NULL,0,NULL,NULL),(4,1,NULL,NULL,'Grid Box 02','gridBox',NULL,NULL,NULL,0,NULL,NULL);
 /*!40000 ALTER TABLE `Container` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -77,7 +78,7 @@ CREATE TABLE `Sample` (
   KEY `ix_Sample_containerId` (`containerId`),
   KEY `ix_Sample_sampleId` (`sampleId`),
   CONSTRAINT `Sample_ibfk_1` FOREIGN KEY (`shipmentId`) REFERENCES `Shipment` (`shipmentId`),
-  CONSTRAINT `Sample_ibfk_2` FOREIGN KEY (`containerId`) REFERENCES `Container` (`containerId`)
+  CONSTRAINT `Sample_ibfk_2` FOREIGN KEY (`containerId`) REFERENCES `Container` (`containerId`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -87,7 +88,7 @@ CREATE TABLE `Sample` (
 
 LOCK TABLES `Sample` WRITE;
 /*!40000 ALTER TABLE `Sample` DISABLE KEYS */;
-INSERT INTO `Sample` VALUES (1,1,4407,'sample','Sample 01',NULL,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',2,NULL),(2,1,4407,'sample','Sample 02',NULL,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',NULL,NULL);
+INSERT INTO `Sample` VALUES (1,1,4407,'sample','Sample 01',1,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',2,NULL),(2,1,4407,'sample','Sample 02',NULL,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',NULL,NULL);
 /*!40000 ALTER TABLE `Sample` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -173,7 +174,7 @@ CREATE TABLE `alembic_version` (
 
 LOCK TABLES `alembic_version` WRITE;
 /*!40000 ALTER TABLE `alembic_version` DISABLE KEYS */;
-INSERT INTO `alembic_version` VALUES ('b39d8fe01630');
+INSERT INTO `alembic_version` VALUES ('10383934c70b');
 /*!40000 ALTER TABLE `alembic_version` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -190,4 +191,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-23  9:35:17
+-- Dump completed on 2023-09-08 14:35:39
