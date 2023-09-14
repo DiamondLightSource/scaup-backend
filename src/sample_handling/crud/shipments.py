@@ -90,8 +90,6 @@ def get_unassigned(shipmentId: int):
         )
     )
 
-    print(samples)
-
     grid_boxes = _table_query_to_generic(
         select(Container)
         .filter(
@@ -101,8 +99,6 @@ def get_unassigned(shipmentId: int):
         )
         .options(joinedload(Container.samples))
     )
-
-    print(grid_boxes)
 
     containers = _table_query_to_generic(
         select(Container)
