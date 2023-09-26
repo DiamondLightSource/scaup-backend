@@ -1,11 +1,4 @@
-import json
-import re
-
-import pytest
 import responses
-
-from sample_handling.models.inner_db.tables import Shipment
-from sample_handling.utils.database import inner_db
 
 
 @responses.activate

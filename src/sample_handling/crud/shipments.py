@@ -64,8 +64,6 @@ def get_shipment(shipmentId: int):
             status_code=status.HTTP_404_NOT_FOUND, detail="No shipment found"
         )
 
-    print(_query_result_to_object(raw_shipment_data.children))
-
     return ShipmentChildren(
         id=shipmentId,
         name=raw_shipment_data.name,

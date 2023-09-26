@@ -1,4 +1,3 @@
-import responses
 from sqlalchemy import select
 
 from sample_handling.models.inner_db.tables import Shipment
