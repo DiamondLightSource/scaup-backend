@@ -19,8 +19,6 @@ def test_get_nested(client):
 
     data = resp.json()
 
-    print(data["gridBoxes"][0])
-
     assert len(data["gridBoxes"][0]["children"]) == 1
 
 
