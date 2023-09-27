@@ -1,9 +1,11 @@
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, validator
+from pydantic import BaseModel, ConfigDict, Field
+
+from ..utils.models import BaseModelWithNameValidator
 
 
-class BaseSample(BaseModel):
+class BaseSample(BaseModelWithNameValidator):
     containerId: Optional[int] = None
     location: Optional[int] = None
     details: Optional[dict[str, Any]] = None
@@ -15,14 +17,8 @@ class BaseSample(BaseModel):
         ),
     )
 
-    @validator("name")
-    def empty_str_to_none(cls, v):
-        if v == "":
-            return None
-        return v
 
-
-class Sample(BaseSample):
+class SampleIn(BaseSample):
     proteinId: int
 
 
@@ -36,7 +32,6 @@ class SampleOut(BaseModel):
     proteinId: int
     name: str
     location: Optional[int]
-    details: Optional[dict[str, Any]]
     containerId: Optional[int]
 
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)

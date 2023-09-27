@@ -6,8 +6,7 @@ from sqlalchemy import delete, func, insert, select, update
 from sqlalchemy.exc import IntegrityError
 
 from ..models.inner_db.tables import Sample, Shipment
-from ..models.sample import OptionalSample
-from ..models.sample import Sample as SampleBody
+from ..models.samples import OptionalSample, SampleIn
 from ..utils.config import Config
 from ..utils.database import inner_db
 
@@ -47,7 +46,7 @@ def _get_protein(shipmentId: int, proteinId: int):
     return upstream_compound.json()
 
 
-def create_sample(shipmentId: int, params: SampleBody):
+def create_sample(shipmentId: int, params: SampleIn):
     upstream_compound = _get_protein(shipmentId, params.proteinId)
 
     if not (params.name):

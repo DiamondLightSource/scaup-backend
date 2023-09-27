@@ -14,6 +14,15 @@ from ..models.shipments import (
 from ..utils.database import inner_db
 
 
+def _filter_fields(item: TopLevelContainer | Container | Sample):
+    _unwanted_fields = ["samples", "children"]
+    return {
+        key: value
+        for [key, value] in item.__dict__.items()
+        if key not in _unwanted_fields
+    }
+
+
 def _query_result_to_object(
     result: Sequence[TopLevelContainer | Container | Sample],
 ):
@@ -22,7 +31,7 @@ def _query_result_to_object(
         parsed_item = GenericItem(
             id=item.id,
             name=item.name,
-            data=GenericItemData(**item.__dict__),
+            data=GenericItemData(**_filter_fields(item)),
         )
         if not isinstance(item, Sample):
             if isinstance(item, Container) and item.samples:
@@ -65,12 +74,11 @@ def get_shipment(shipmentId: int):
 
 def _table_query_to_generic(query: Select[Tuple[Sample]] | Select[Tuple[Container]]):
     """Perform queries and convert result to generic items"""
-    results: Sequence[Sample | Container] = inner_db.session.scalars(query).all()
+    results: Sequence[Sample | Container] = (
+        inner_db.session.scalars(query).unique().all()
+    )
 
-    return [
-        GenericItem(id=item.id, name=item.name, data=GenericItemData(**item.__dict__))
-        for item in results
-    ]
+    return _query_result_to_object(results)
 
 
 def get_unassigned(shipmentId: int):
@@ -81,19 +89,23 @@ def get_unassigned(shipmentId: int):
     )
 
     grid_boxes = _table_query_to_generic(
-        select(Container).filter(
+        select(Container)
+        .filter(
             Container.shipmentId == shipmentId,
             Container.type == "gridBox",
             Container.parentId == None,
         )
+        .options(joinedload(Container.samples))
     )
 
     containers = _table_query_to_generic(
-        select(Container).filter(
+        select(Container)
+        .filter(
             Container.shipmentId == shipmentId,
             Container.type != "gridBox",
             Container.topLevelContainerId == None,
         )
+        .options(joinedload(Container.children))
     )
 
     if not samples and not grid_boxes and not containers:

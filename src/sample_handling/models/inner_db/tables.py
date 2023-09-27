@@ -64,12 +64,16 @@ class Container(Base, BaseColumns):
         ForeignKey("Shipment.shipmentId"), index=True
     )
     topLevelContainerId: Mapped[int | None] = mapped_column(
-        ForeignKey("TopLevelContainer.topLevelContainerId"), index=True
+        ForeignKey("TopLevelContainer.topLevelContainerId", ondelete="SET NULL"),
+        index=True,
     )
-    parentId: Mapped[int | None] = mapped_column(ForeignKey("Container.containerId"))
+    parentId: Mapped[int | None] = mapped_column(
+        ForeignKey("Container.containerId", ondelete="SET NULL")
+    )
 
     type: Mapped[ContainerTypes] = mapped_column(Enum(*get_args(ContainerTypes)))
     capacity: Mapped[int | None] = mapped_column(SmallInteger)
+    location: Mapped[int | None] = mapped_column(SmallInteger)
     comments: Mapped[str | None] = mapped_column(String(255))
     details: Mapped[dict[str, Any] | None] = mapped_column(
         JSON, comment="Generic additional details"
@@ -100,6 +104,6 @@ class Sample(Base, BaseColumns):
     )
 
     containerId: Mapped[int | None] = mapped_column(
-        ForeignKey("Container.containerId"), index=True
+        ForeignKey("Container.containerId", ondelete="SET NULL"), index=True
     )
     container: Mapped[Optional["Container"]] = relationship(back_populates="samples")

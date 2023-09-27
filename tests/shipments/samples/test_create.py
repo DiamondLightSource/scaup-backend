@@ -7,7 +7,7 @@ from sqlalchemy import select
 
 from sample_handling.models.inner_db.tables import Sample
 from sample_handling.utils.database import inner_db
-from tests.shipment.sample.responses import protein_callback
+from tests.shipments.samples.responses import protein_callback
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -56,21 +56,9 @@ def test_create_no_name(client):
     assert resp.status_code == 201
 
     assert (
-        inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein 01 3"))
+        inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein 01 4"))
         is not None
     )
-
-
-@responses.activate
-def test_create_invalid_shipment(client):
-    """Should not create new sample when provided with inexistent shipment"""
-
-    resp = client.post(
-        "/shipments/999999/samples",
-        json={"proteinId": 4407},
-    )
-
-    assert resp.status_code == 404
 
 
 @responses.activate

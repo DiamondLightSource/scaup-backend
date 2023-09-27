@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from ..auth import Permissions
-from ..crud import shipment as crud
+from ..crud import shipments as crud
 from ..models.shipments import ShipmentChildren, UnassignedItems
 
 auth = Permissions.shipment

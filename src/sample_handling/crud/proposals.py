@@ -21,4 +21,4 @@ def get_shipments(proposalReference: str, limit: int, page: int):
         ),
     ).filter(Shipment.proposalReference == proposalReference)
 
-    return paginate(query, limit, page)
+    return paginate(query, limit, page, slow_count=False)

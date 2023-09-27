@@ -1,10 +1,14 @@
 from fastapi import APIRouter, Body, Depends, status
 
 from ..auth import Permissions
+from ..auth.template import GenericPermissions
 from ..crud import samples as crud
-from ..models.sample import OptionalSample, Sample, SampleOut
+from ..models.samples import OptionalSample, SampleIn, SampleOut
 
-auth = Permissions.shipment
+auth_shipment = Permissions.shipment
+auth_sample = Permissions.sample
+
+no_auth_shipment = GenericPermissions.shipment
 
 router = APIRouter(
     tags=["Samples"],
@@ -17,20 +21,22 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
     response_model=SampleOut,
 )
-def create_sample(shipmentId=Depends(auth), parameters: Sample = Body()):
+def create_sample(shipmentId=Depends(auth_shipment), parameters: SampleIn = Body()):
     """Create new sample in shipment"""
     return crud.create_sample(shipmentId=shipmentId, params=parameters)
 
 
 @router.patch("/{sampleId}", response_model=SampleOut)
 def edit_sample(
-    sampleId: int, shipmentId=Depends(auth), parameters: OptionalSample = Body()
+    sampleId=Depends(auth_sample),
+    shipmentId=Depends(no_auth_shipment),
+    parameters: OptionalSample = Body(),
 ):
     """Edit existing sample"""
     return crud.edit_sample(shipmentId=shipmentId, sampleId=sampleId, params=parameters)
 
 
 @router.delete("/{sampleId}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_sample(sampleId: int, shipmentId=Depends(auth)):
+def delete_sample(sampleId=Depends(auth_sample)):
     """Create new sample in shipment"""
     return crud.delete_sample(sampleId=sampleId)
