@@ -1,4 +1,4 @@
-image: python
+image: python:3.11
 services:
   - gcr.io/diamond-privreg/lims/sample-handling-db:v0.2.1
 stages:
