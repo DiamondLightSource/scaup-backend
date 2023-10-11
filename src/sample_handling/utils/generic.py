@@ -1,12 +1,3 @@
-import requests
-from fastapi import Depends
-
-from ..utils.bearer import OAuth2PasswordBearerCookie
-from ..utils.config import Config
-
-oauth2_scheme = OAuth2PasswordBearerCookie(tokenUrl="token")
-
-
 def pascal_to_title(original_str: str):
     """Convert a pascal-cased string to a capitalised title"""
 
@@ -23,9 +14,3 @@ def pascal_to_title(original_str: str):
     new_strs.append(new_str.capitalize())
 
     return " ".join(new_strs)
-
-
-def get_item_from_expeye(request_url: str, token=Depends(oauth2_scheme)):
-    return requests.get(
-        f"{Config.ispyb_api}{request_url}", headers={"Authorization": f"Bearer {token}"}
-    )
