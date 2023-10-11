@@ -1,0 +1,92 @@
+import re
+
+import pytest
+import responses
+from sqlalchemy import select
+
+from sample_handling.models.inner_db.tables import TopLevelContainer
+from sample_handling.utils.database import inner_db
+from tests.shipments.top_level_containers.responses import (
+    lab_contact_callback,
+    registered_dewar_callback,
+)
+
+
+@pytest.fixture(scope="function", autouse=True)
+def register_responses():
+    responses.add_callback(
+        responses.GET,
+        re.compile("http://127.0.0.1:8060/proposals/cm00001/dewars/registry/([0-9].*)"),
+        callback=registered_dewar_callback,
+    )
+
+    responses.add_callback(
+        responses.GET,
+        re.compile("http://127.0.0.1:8060/proposals/cm00001/contacts/([0-9].*)"),
+        callback=lab_contact_callback,
+    )
+
+
+def test_edit(client):
+    """Should edit values in DB"""
+    resp = client.patch(
+        "/shipments/1/topLevelContainers/1",
+        json={"name": "New Container Name"},
+    )
+
+    assert resp.status_code == 200
+
+    data = resp.json()
+    assert data["name"] == "New Container Name"
+
+    assert (
+        inner_db.session.scalar(
+            select(TopLevelContainer).filter(
+                TopLevelContainer.name == "New Container Name"
+            )
+        )
+        is not None
+    )
+
+
+def test_edit_lab_contact(client):
+    """Should update top level container if lab contact is valid"""
+    resp = client.patch(
+        "/shipments/1/topLevelContainers/1",
+        json={"name": "New Container Name", "labContact": 1},
+    )
+
+    assert resp.status_code == 200
+
+
+def test_edit_code(client):
+    """Should update top level container if facility code is valid"""
+    resp = client.patch(
+        "/shipments/1/topLevelContainers/1",
+        json={"name": "New Container Name", "code": "DLS-EM-0000"},
+    )
+
+    assert resp.status_code == 200
+
+
+def test_edit_invalid_lab_contact(client):
+    """Should not update top level container if lab contact is not valid"""
+    resp = client.patch(
+        "/shipments/1/topLevelContainers/1",
+        json={"name": "New Container Name", "labContact": 9999},
+    )
+
+    assert resp.status_code == 404
+
+
+def test_edit_invalid_code(client):
+    """Should not update top level container if code is not valid"""
+    resp = client.patch(
+        "/shipments/1/topLevelContainers/1",
+        json={"name": "New Container Name", "code": "DOESNOTEXIST"},
+    )
+
+
+def test_push_to_ispyb(client):
+    """Should push to ISPyB if container has externalId present"""
+    pass
