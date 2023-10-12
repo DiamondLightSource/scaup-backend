@@ -4,6 +4,8 @@ from ..auth import Permissions
 from ..auth.template import GenericPermissions
 from ..crud import containers as crud
 from ..models.containers import ContainerIn, ContainerOut, OptionalContainer
+from ..models.inner_db.tables import Container
+from ..utils import crud as crud_gen
 
 auth_shipment = Permissions.shipment
 auth_container = Permissions.container
@@ -25,7 +27,9 @@ def create_container(
     shipmentId=Depends(auth_shipment), parameters: ContainerIn = Body()
 ):
     """Create new container in shipment"""
-    return crud.create_container(shipmentId=shipmentId, params=parameters)
+    return crud_gen.insert_with_name(
+        Container, shipmentId=shipmentId, params=parameters
+    )
 
 
 @router.patch("/{containerId}", response_model=ContainerOut)

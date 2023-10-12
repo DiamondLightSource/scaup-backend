@@ -16,6 +16,7 @@ TopLevelContainerTypes = Literal["dewar", "toolbox", "parcel"]
 class BaseColumns:
     name: Mapped[str] = mapped_column(String(40))
     externalId: Mapped[int | None] = mapped_column()
+    comments: Mapped[str | None] = mapped_column(String(255))
 
 
 class Shipment(Base, BaseColumns):
@@ -24,7 +25,6 @@ class Shipment(Base, BaseColumns):
     id: Mapped[int] = mapped_column("shipmentId", primary_key=True, index=True)
     proposalReference: Mapped[str] = mapped_column(String(10), index=True)
 
-    comments: Mapped[str | None] = mapped_column(String(255))
     creationDate: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -44,7 +44,8 @@ class TopLevelContainer(Base, BaseColumns):
     )
 
     status: Mapped[str | None] = mapped_column(String(25))
-    comments: Mapped[str | None] = mapped_column(String(255))
+    labContact: Mapped[int] = mapped_column()
+    details: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     code: Mapped[str] = mapped_column(String(20))
     barCode: Mapped[str] = mapped_column(String(20))
     type: Mapped[TopLevelContainerTypes] = mapped_column(
@@ -74,7 +75,6 @@ class Container(Base, BaseColumns):
     type: Mapped[ContainerTypes] = mapped_column(Enum(*get_args(ContainerTypes)))
     capacity: Mapped[int | None] = mapped_column(SmallInteger)
     location: Mapped[int | None] = mapped_column(SmallInteger)
-    comments: Mapped[str | None] = mapped_column(String(255))
     details: Mapped[dict[str, Any] | None] = mapped_column(
         JSON, comment="Generic additional details"
     )

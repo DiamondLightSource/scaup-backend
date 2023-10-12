@@ -3,7 +3,7 @@ from fastapi import APIRouter, Body, Depends, status
 
 from ..auth import Permissions
 from ..crud import proposals as crud
-from ..models.shipments import MixedShipment, ShipmentIn
+from ..models.shipments import MixedShipment, ShipmentIn, ShipmentOut
 from ..utils.config import Config
 from ..utils.database import Paged
 from ..utils.dependencies import pagination
@@ -19,6 +19,7 @@ router = APIRouter(
 @router.post(
     "/{proposalReference}/shipments",
     status_code=status.HTTP_201_CREATED,
+    response_model=ShipmentOut,
 )
 def create_shipment(
     proposalReference: str = Depends(auth), parameters: ShipmentIn = Body()

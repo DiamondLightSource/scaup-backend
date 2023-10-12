@@ -7,10 +7,14 @@ from ..utils.database import inner_db, paginate, unravel
 
 def create_shipment(proposalReference: str, params: ShipmentIn):
     # TODO: add proposal check when core Expeye module is available
-    inner_db.session.scalar(
+    new_shipment = inner_db.session.scalar(
         insert(Shipment).returning(Shipment),
         {"proposalReference": proposalReference, **params.model_dump()},
     )
+
+    inner_db.session.commit()
+
+    return new_shipment
 
 
 def get_shipments(proposalReference: str, limit: int, page: int):
