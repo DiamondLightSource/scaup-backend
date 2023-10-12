@@ -1,11 +1,9 @@
 import os
-from contextlib import contextmanager
 
-from fastapi import HTTPException, status
 from sqlalchemy import create_engine
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
+from ..models.inner_db.tables import Base
 from .config import Config
 
 inner_engine = create_engine(
@@ -22,14 +20,3 @@ inner_engine = create_engine(
 _inner_session = sessionmaker(autocommit=False, autoflush=False, bind=inner_engine)
 
 # Base.metadata.create_all(inner_engine)
-
-
-@contextmanager
-def update_context():
-    try:
-        yield
-    except IntegrityError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid container provided",
-        )

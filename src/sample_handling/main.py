@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 
 from . import __version__
-from .routes import containers, proposals, samples, shipments, top_level_containers
+from .routes import containers, proposals, samples, shipments
 from .utils.database import get_session
 from .utils.logging import EndpointFilter, app_logger, uvicorn_logger
 
@@ -50,4 +50,3 @@ app.include_router(shipments.router)
 app.include_router(proposals.router)
 app.include_router(samples.router)
 app.include_router(containers.router)
-app.include_router(top_level_containers.router)
