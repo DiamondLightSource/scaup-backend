@@ -16,17 +16,18 @@ from tests.shipments.top_level_containers.responses import (
 def register_responses():
     responses.add_callback(
         responses.GET,
-        re.compile("http://127.0.0.1:8060/proposals/cm00001/dewars/registry/([0-9].*)"),
+        re.compile("http://127.0.0.1:8060/proposals/(.*)/dewars/registry/(.*)"),
         callback=registered_dewar_callback,
     )
 
     responses.add_callback(
         responses.GET,
-        re.compile("http://127.0.0.1:8060/proposals/cm00001/contacts/([0-9].*)"),
+        re.compile("http://127.0.0.1:8060/proposals/(.*)/contacts/([0-9].*)"),
         callback=lab_contact_callback,
     )
 
 
+@responses.activate
 def test_edit(client):
     """Should edit values in DB"""
     resp = client.patch(
@@ -49,6 +50,7 @@ def test_edit(client):
     )
 
 
+@responses.activate
 def test_edit_lab_contact(client):
     """Should update top level container if lab contact is valid"""
     resp = client.patch(
@@ -59,6 +61,7 @@ def test_edit_lab_contact(client):
     assert resp.status_code == 200
 
 
+@responses.activate
 def test_edit_code(client):
     """Should update top level container if facility code is valid"""
     resp = client.patch(
@@ -69,6 +72,7 @@ def test_edit_code(client):
     assert resp.status_code == 200
 
 
+@responses.activate
 def test_edit_invalid_lab_contact(client):
     """Should not update top level container if lab contact is not valid"""
     resp = client.patch(
@@ -79,12 +83,15 @@ def test_edit_invalid_lab_contact(client):
     assert resp.status_code == 404
 
 
+@responses.activate
 def test_edit_invalid_code(client):
     """Should not update top level container if code is not valid"""
     resp = client.patch(
         "/shipments/1/topLevelContainers/1",
         json={"name": "New Container Name", "code": "DOESNOTEXIST"},
     )
+
+    assert resp.status_code == 404
 
 
 def test_push_to_ispyb(client):

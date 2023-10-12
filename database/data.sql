@@ -43,7 +43,7 @@ CREATE TABLE `Container` (
   CONSTRAINT `Container_ibfk_1` FOREIGN KEY (`shipmentId`) REFERENCES `Shipment` (`shipmentId`),
   CONSTRAINT `Container_ibfk_2` FOREIGN KEY (`parentId`) REFERENCES `Container` (`containerId`) ON DELETE SET NULL,
   CONSTRAINT `Container_ibfk_3` FOREIGN KEY (`topLevelContainerId`) REFERENCES `TopLevelContainer` (`topLevelContainerId`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=155 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -80,7 +80,7 @@ CREATE TABLE `Sample` (
   KEY `ix_Sample_sampleId` (`sampleId`),
   CONSTRAINT `Sample_ibfk_1` FOREIGN KEY (`shipmentId`) REFERENCES `Shipment` (`shipmentId`),
   CONSTRAINT `Sample_ibfk_2` FOREIGN KEY (`containerId`) REFERENCES `Container` (`containerId`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=155 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=219 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -110,7 +110,7 @@ CREATE TABLE `Shipment` (
   PRIMARY KEY (`shipmentId`),
   KEY `ix_Shipment_proposalReference` (`proposalReference`),
   KEY `ix_Shipment_shipmentId` (`shipmentId`)
-) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -145,7 +145,7 @@ CREATE TABLE `TopLevelContainer` (
   PRIMARY KEY (`topLevelContainerId`),
   KEY `ix_TopLevelContainer_shipmentId` (`shipmentId`),
   CONSTRAINT `TopLevelContainer_ibfk_1` FOREIGN KEY (`shipmentId`) REFERENCES `Shipment` (`shipmentId`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -154,7 +154,7 @@ CREATE TABLE `TopLevelContainer` (
 
 LOCK TABLES `TopLevelContainer` WRITE;
 /*!40000 ALTER TABLE `TopLevelContainer` DISABLE KEYS */;
-INSERT INTO `TopLevelContainer` VALUES (1,1,'Dewar 01',NULL,NULL,'DLS-1','DLS-1','dewar',NULL,0,''),(2,2,'Dewar 02',NULL,NULL,'DLS-2','DLS-2','dewar',NULL,0,''),(3,2,'Dewar 03',NULL,NULL,'DLS-3','DLS-3','dewar',NULL,0,'');
+INSERT INTO `TopLevelContainer` VALUES (1,1,'Dewar 01',NULL,NULL,'DLS-1','DLS-1','dewar',NULL,0,'{}'),(2,2,'Dewar 02',NULL,NULL,'DLS-2','DLS-2','dewar',NULL,0,'{}'),(3,2,'Dewar 03',NULL,NULL,'DLS-3','DLS-3','dewar',NULL,0,'{}');
 /*!40000 ALTER TABLE `TopLevelContainer` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -194,4 +194,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-10-12  9:08:19
+-- Dump completed on 2023-10-12  9:43:30

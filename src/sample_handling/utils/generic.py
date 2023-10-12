@@ -26,6 +26,7 @@ def pascal_to_title(original_str: str):
 
 
 def get_item_from_expeye(request_url: str, token=Depends(oauth2_scheme)):
+    print(f"{Config.ispyb_api}{request_url}")
     return requests.get(
         f"{Config.ispyb_api}{request_url}", headers={"Authorization": f"Bearer {token}"}
     )

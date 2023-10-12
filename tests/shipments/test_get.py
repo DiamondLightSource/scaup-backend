@@ -1,9 +1,3 @@
-from sqlalchemy import select
-
-from sample_handling.models.inner_db.tables import Shipment
-from sample_handling.utils.database import inner_db
-
-
 def test_get(client):
     """Should get shipment details as tree of generic items"""
     resp = client.get("/shipments/1")
@@ -35,7 +29,8 @@ def test_get(client):
 
 
 def test_get_multiple(client):
-    """Should get shipment details on shipment with multiple top level container children"""
+    """Should get shipment details on shipment with multiple top level container
+    children"""
     resp = client.get("/shipments/2")
 
     assert resp.status_code == 200

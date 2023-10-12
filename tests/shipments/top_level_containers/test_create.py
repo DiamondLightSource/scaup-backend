@@ -16,17 +16,18 @@ from tests.shipments.top_level_containers.responses import (
 def register_responses():
     responses.add_callback(
         responses.GET,
-        re.compile("http://127.0.0.1:8060/proposals/cm00001/dewars/registry/([0-9].*)"),
+        re.compile("http://127.0.0.1:8060/proposals/(.*)/dewars/registry/(.*)"),
         callback=registered_dewar_callback,
     )
 
     responses.add_callback(
         responses.GET,
-        re.compile("http://127.0.0.1:8060/proposals/cm00001/contacts/([0-9].*)"),
+        re.compile("http://127.0.0.1:8060/proposals/(.*)/contacts/([0-9].*)"),
         callback=lab_contact_callback,
     )
 
 
+@responses.activate
 def test_create(client):
     """Should create container when provided with valid info"""
 
@@ -43,6 +44,7 @@ def test_create(client):
     assert resp.status_code == 201
 
 
+@responses.activate
 def test_create_invalid_lab_contact(client):
     """Should not create new top level container if lab contact is not valid"""
     resp = client.post(
@@ -59,6 +61,7 @@ def test_create_invalid_lab_contact(client):
     assert resp.status_code == 404
 
 
+@responses.activate
 def test_create_invalid_code(client):
     """Should not create new top level container if code is not valid"""
     resp = client.post(
@@ -75,6 +78,7 @@ def test_create_invalid_code(client):
     assert resp.status_code == 404
 
 
+@responses.activate
 def test_create_no_name(client):
     """Should automatically generate name if not provided in request"""
 
