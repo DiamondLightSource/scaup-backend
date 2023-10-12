@@ -73,6 +73,7 @@ CREATE TABLE `Sample` (
   `details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'Generic additional details' CHECK (json_valid(`details`)),
   `containerId` int(11) DEFAULT NULL,
   `externalId` int(11) DEFAULT NULL,
+  `comments` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`sampleId`),
   KEY `ix_Sample_shipmentId` (`shipmentId`),
   KEY `ix_Sample_containerId` (`containerId`),
@@ -88,7 +89,7 @@ CREATE TABLE `Sample` (
 
 LOCK TABLES `Sample` WRITE;
 /*!40000 ALTER TABLE `Sample` DISABLE KEYS */;
-INSERT INTO `Sample` VALUES (1,1,4407,'sample','Sample 01',1,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',2,NULL),(2,1,4407,'sample','Sample 02',NULL,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',NULL,NULL),(3,1,4407,'sample','Sample 03',1,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',4,NULL);
+INSERT INTO `Sample` VALUES (1,1,4407,'sample','Sample 01',1,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',2,NULL,NULL),(2,1,4407,'sample','Sample 02',NULL,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',NULL,NULL,NULL),(3,1,4407,'sample','Sample 03',1,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',4,NULL,NULL);
 /*!40000 ALTER TABLE `Sample` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -139,6 +140,8 @@ CREATE TABLE `TopLevelContainer` (
   `barCode` varchar(20) NOT NULL,
   `type` enum('dewar','toolbox','parcel') NOT NULL,
   `externalId` int(11) DEFAULT NULL,
+  `labContact` int(11) NOT NULL,
+  `details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   PRIMARY KEY (`topLevelContainerId`),
   KEY `ix_TopLevelContainer_shipmentId` (`shipmentId`),
   CONSTRAINT `TopLevelContainer_ibfk_1` FOREIGN KEY (`shipmentId`) REFERENCES `Shipment` (`shipmentId`)
@@ -151,7 +154,7 @@ CREATE TABLE `TopLevelContainer` (
 
 LOCK TABLES `TopLevelContainer` WRITE;
 /*!40000 ALTER TABLE `TopLevelContainer` DISABLE KEYS */;
-INSERT INTO `TopLevelContainer` VALUES (1,1,'Dewar 01',NULL,NULL,'DLS-1','DLS-1','dewar',NULL),(2,2,'Dewar 02',NULL,NULL,'DLS-2','DLS-2','dewar',NULL),(3,2,'Dewar 03',NULL,NULL,'DLS-3','DLS-3','dewar',NULL);
+INSERT INTO `TopLevelContainer` VALUES (1,1,'Dewar 01',NULL,NULL,'DLS-1','DLS-1','dewar',NULL,0,''),(2,2,'Dewar 02',NULL,NULL,'DLS-2','DLS-2','dewar',NULL,0,''),(3,2,'Dewar 03',NULL,NULL,'DLS-3','DLS-3','dewar',NULL,0,'');
 /*!40000 ALTER TABLE `TopLevelContainer` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -174,7 +177,7 @@ CREATE TABLE `alembic_version` (
 
 LOCK TABLES `alembic_version` WRITE;
 /*!40000 ALTER TABLE `alembic_version` DISABLE KEYS */;
-INSERT INTO `alembic_version` VALUES ('10383934c70b');
+INSERT INTO `alembic_version` VALUES ('5ebbd7c2b164');
 /*!40000 ALTER TABLE `alembic_version` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -191,4 +194,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-09-08 15:01:42
+-- Dump completed on 2023-10-12  9:08:19
