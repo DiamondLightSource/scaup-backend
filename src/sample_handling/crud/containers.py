@@ -1,41 +1,11 @@
-from contextlib import contextmanager
-
 from fastapi import HTTPException, status
-from sqlalchemy import delete, func, insert, select, update
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import delete, select, update
 
-from ..models.containers import ContainerIn, OptionalContainer
-from ..models.inner_db.tables import Container, Sample
+from sample_handling.utils.session import update_context
+
+from ..models.containers import OptionalContainer
+from ..models.inner_db.tables import Container
 from ..utils.database import inner_db
-from ..utils.generic import pascal_to_title
-
-
-@contextmanager
-def container_update_context():
-    try:
-        yield
-    except IntegrityError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid parent provided",
-        )
-
-
-def create_container(shipmentId: int, params: ContainerIn):
-    if not (params.name):
-        container_count = inner_db.session.scalar(
-            select(func.count(Container.id)).filter(Container.shipmentId == shipmentId)
-        )
-        params.name = f"{pascal_to_title(params.type)} {((container_count or 0) + 1)}"
-
-    with container_update_context():
-        container = inner_db.session.scalar(
-            insert(Container).returning(Container),
-            {"shipmentId": shipmentId, **params.model_dump(exclude_unset=True)},
-        )
-
-        inner_db.session.commit()
-        return container
 
 
 def edit_container(shipmentId: int, containerId: int, params: OptionalContainer):
@@ -45,7 +15,7 @@ def edit_container(shipmentId: int, containerId: int, params: OptionalContainer)
         # Name is set to None, but is not considered as unset, so we need to check again
         exclude_fields = set()
 
-    with container_update_context():
+    with update_context():
         update_status = inner_db.session.execute(
             update(Container)
             .where(Container.id == containerId)
