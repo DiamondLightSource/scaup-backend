@@ -1,21 +1,8 @@
-import re
-
-import pytest
 import responses
 from sqlalchemy import select
 
 from sample_handling.models.inner_db.tables import Sample
 from sample_handling.utils.database import inner_db
-from tests.shipments.samples.responses import protein_callback
-
-
-@pytest.fixture(scope="function", autouse=True)
-def register_responses():
-    responses.add_callback(
-        responses.GET,
-        re.compile("http://127.0.0.1:8060/proposals/cm00001/proteins/([0-9].*)"),
-        callback=protein_callback,
-    )
 
 
 def test_edit(client):

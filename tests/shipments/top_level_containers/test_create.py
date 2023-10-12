@@ -1,30 +1,8 @@
-import re
-
-import pytest
 import responses
 from sqlalchemy import select
 
 from sample_handling.models.inner_db.tables import TopLevelContainer
 from sample_handling.utils.database import inner_db
-from tests.shipments.top_level_containers.responses import (
-    lab_contact_callback,
-    registered_dewar_callback,
-)
-
-
-@pytest.fixture(scope="function", autouse=True)
-def register_responses():
-    responses.add_callback(
-        responses.GET,
-        re.compile("http://127.0.0.1:8060/proposals/(.*)/dewars/registry/(.*)"),
-        callback=registered_dewar_callback,
-    )
-
-    responses.add_callback(
-        responses.GET,
-        re.compile("http://127.0.0.1:8060/proposals/(.*)/contacts/([0-9].*)"),
-        callback=lab_contact_callback,
-    )
 
 
 @responses.activate
