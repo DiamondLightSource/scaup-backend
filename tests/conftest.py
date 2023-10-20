@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from sample_handling.main import app
 from sample_handling.utils.config import Config
 from sample_handling.utils.database import inner_db
+from tests.proposals.responses import proposal_callback
 from tests.shipments.samples.responses import protein_callback
 from tests.shipments.top_level_containers.responses import (
     lab_contact_callback,
@@ -61,4 +62,10 @@ def register_responses():
         responses.GET,
         re.compile(f"{Config.ispyb_api}/proposals/cm00001/proteins/([0-9].*)"),
         callback=protein_callback,
+    )
+
+    responses.add_callback(
+        responses.GET,
+        re.compile(f"{Config.ispyb_api}/proposals/(.*)"),
+        callback=proposal_callback,
     )
