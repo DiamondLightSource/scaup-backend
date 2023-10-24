@@ -1,9 +1,11 @@
+import responses
 from sqlalchemy import select
 
 from sample_handling.models.inner_db.tables import Shipment
 from sample_handling.utils.database import inner_db
 
 
+@responses.activate
 def test_create(client):
     """Should create new shipment inside valid proposal"""
     resp = client.post("/proposals/cm00001/shipments", json={"name": "New Shipment"})
@@ -18,7 +20,9 @@ def test_create(client):
     )
 
 
+@responses.activate
 def test_create_no_proposal(client):
     """Should not create new shipment inside invalid proposal"""
-    # TODO: add test when endpoint checks for valid proposal
-    pass
+    resp = client.post("/proposals/xx12345/shipments", json={"name": "New Shipment"})
+
+    assert resp.status_code == 404
