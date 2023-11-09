@@ -9,8 +9,7 @@ def result_to_item_data(result: dict[str, Any]):
     result_as_dict = {
         key: value
         for [key, value] in result.items()
-        if key[0] != "_"
-        and key not in ["id", "topLevelContainerId", "parentId", "name", "children"]
+        if key[0] != "_" and key not in ["id", "name", "children"]
     }
 
     if "details" in result and result["details"] is not None:

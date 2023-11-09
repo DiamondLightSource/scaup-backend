@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy import delete, select, update
 
-from ..models.inner_db.tables import Shipment, TopLevelContainer
+from ..models.inner_db.tables import TopLevelContainer
 from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelContainerIn
 from ..utils.crud import insert_with_name
 from ..utils.database import inner_db
@@ -12,14 +12,12 @@ from ..utils.session import update_context
 def _check_fields(
     shipmentId: int, params: TopLevelContainerIn | OptionalTopLevelContainer
 ):
-    proposal_reference = inner_db.session.scalar(
+    """proposal_reference = inner_db.session.scalar(
         select(Shipment.proposalReference).filter(Shipment.id == shipmentId)
-    )
+    )"""
 
     if params.code is not None:
-        code_response = get_item_from_expeye(
-            f"/proposals/{proposal_reference}/dewars/registry/{params.code}"
-        )
+        code_response = get_item_from_expeye(f"/dewars/registry/{params.code}")
 
         if code_response.status_code != 200:
             raise HTTPException(
@@ -28,9 +26,7 @@ def _check_fields(
             )
 
     if params.labContact is not None:
-        contact_response = get_item_from_expeye(
-            f"/proposals/{proposal_reference}/contacts/{params.labContact}"
-        )
+        contact_response = get_item_from_expeye(f"/contacts/{params.labContact}")
 
         if contact_response.status_code != 200:
             raise HTTPException(

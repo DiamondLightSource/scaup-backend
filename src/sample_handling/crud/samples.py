@@ -8,7 +8,8 @@ from ..utils.generic import get_item_from_expeye
 from ..utils.session import update_context
 
 
-def _get_protein(shipmentId: int, proteinId: int):
+def _get_protein(proteinId: int):
+    """
     proposal_reference = inner_db.session.scalar(
         select(Shipment.proposalReference).filter(Shipment.id == shipmentId)
     )
@@ -18,10 +19,9 @@ def _get_protein(shipmentId: int, proteinId: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Invalid shipment provided",
         )
+    """
 
-    upstream_compound = get_item_from_expeye(
-        f"/proposals/{proposal_reference}/proteins/{proteinId}"
-    )
+    upstream_compound = get_item_from_expeye(f"/proteins/{proteinId}")
 
     if upstream_compound.status_code != 200:
         raise HTTPException(
@@ -33,7 +33,7 @@ def _get_protein(shipmentId: int, proteinId: int):
 
 
 def create_sample(shipmentId: int, params: SampleIn):
-    upstream_compound = _get_protein(shipmentId, params.proteinId)
+    upstream_compound = _get_protein(params.proteinId)
 
     if not (params.name):
         sample_count = inner_db.session.scalar(
@@ -54,7 +54,7 @@ def create_sample(shipmentId: int, params: SampleIn):
 def edit_sample(shipmentId: int, sampleId: int, params: OptionalSample):
     if params.proteinId is not None:
         # TODO: check with eBIC if they'd like to overwrite the user provided name on protein changes
-        _get_protein(shipmentId, params.proteinId)
+        _get_protein(params.proteinId)
 
     exclude_fields = set(["name"])
 

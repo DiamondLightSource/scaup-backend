@@ -22,3 +22,9 @@ def get_shipment(shipmentId=Depends(auth)):
 def get_unassigned(shipmentId=Depends(auth)):
     """Get unassigned items in shipment"""
     return crud.get_unassigned(shipmentId=shipmentId)
+
+
+@router.post("/{shipmentId}/push")
+def push_shipment(shipmentId=Depends(auth)):
+    """Push shipment to ISPyB"""
+    return crud.push_shipment(shipmentId=shipmentId)

@@ -9,7 +9,7 @@ class Base(DeclarativeBase):
     pass
 
 
-ContainerTypes = Literal["puck", "falconTube", "gridBox"]
+ContainerTypes = Literal["puck", "falconTube", "gridBox", "genericContainer"]
 TopLevelContainerTypes = Literal["dewar", "toolbox", "parcel"]
 
 

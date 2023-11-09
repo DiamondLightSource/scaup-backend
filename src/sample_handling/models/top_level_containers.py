@@ -23,15 +23,14 @@ class BaseTopLevelContainer(BaseModelWithNameValidator):
 
 class TopLevelContainerIn(BaseTopLevelContainer):
     type: Literal["dewar"]
-    barCode: str
     code: str
     labContact: int
 
 
 class OptionalTopLevelContainer(BaseTopLevelContainer):
     type: Optional[Literal["dewar"]] = None
-    barCode: Optional[str] = None
     code: Optional[str] = None
+    barCode: Optional[str] = None
     labContact: Optional[int] = None
 
 
