@@ -15,10 +15,10 @@ def test_create(client):
             "type": "dewar",
             "labContact": 1,
             "code": "DLS-EM-0000",
-            "barCode": "DLS-1",
             "name": "Test",
         },
     )
+
     assert resp.status_code == 201
 
 
@@ -31,7 +31,6 @@ def test_create_invalid_lab_contact(client):
             "type": "dewar",
             "labContact": 99999,
             "code": "DLS-EM-0000",
-            "barCode": "DLS-1",
             "name": "Test",
         },
     )
@@ -48,7 +47,6 @@ def test_create_invalid_code(client):
             "type": "dewar",
             "labContact": 1,
             "code": "DOESNOTEXIST",
-            "barCode": "DLS-1",
             "name": "Test",
         },
     )
@@ -66,7 +64,6 @@ def test_create_no_name(client):
             "type": "dewar",
             "labContact": 1,
             "code": "DLS-EM-0000",
-            "barCode": "DLS-1",
         },
     )
 

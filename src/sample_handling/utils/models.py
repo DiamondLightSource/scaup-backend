@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict, validator
 
 
 class BaseModelWithNameValidator(BaseModel):
@@ -7,3 +7,9 @@ class BaseModelWithNameValidator(BaseModel):
         if v == "":
             return None
         return v
+
+
+class OrmBaseModel(BaseModel):
+    model_config = ConfigDict(
+        from_attributes=True, arbitrary_types_allowed=True, extra="ignore"
+    )

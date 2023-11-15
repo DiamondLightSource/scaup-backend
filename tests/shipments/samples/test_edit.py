@@ -9,7 +9,7 @@ def test_edit(client):
     """Should edit values in DB"""
 
     resp = client.patch(
-        "/shipments/1/samples/1",
+        "/samples/1",
         json={"name": "New Sample Name"},
     )
 
@@ -30,7 +30,7 @@ def test_edit_invalid_protein(client):
     """Should not allow invalid proteins in edited fields"""
 
     resp = client.patch(
-        "/shipments/1/samples/1",
+        "/samples/1",
         json={"name": "New Sample Name", "proteinId": 9999},
     )
 
@@ -41,7 +41,7 @@ def test_edit_inexistent_sample(client):
     """Should return 404 for sample that does not exist"""
 
     resp = client.patch(
-        "/shipments/1/samples/999999",
+        "/samples/999999",
         json={"name": "New Sample Name"},
     )
 

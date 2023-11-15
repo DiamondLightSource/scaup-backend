@@ -1,9 +1,8 @@
 from typing import Any, Literal, Optional
 
-from pydantic import ConfigDict, Field, model_validator
+from pydantic import ConfigDict, Field
 
-from ..utils.models import BaseModelWithNameValidator
-from .inner_db.tables import ContainerTypes
+from ..utils.models import BaseModelWithNameValidator, OrmBaseModel
 
 
 class BaseTopLevelContainer(BaseModelWithNameValidator):
@@ -37,3 +36,8 @@ class OptionalTopLevelContainer(BaseTopLevelContainer):
 class TopLevelContainerOut(BaseTopLevelContainer):
     id: int
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
+
+
+class TopLevelContainerExternal(OrmBaseModel):
+    code: str
+    barCode: str

@@ -1,12 +1,9 @@
-from contextlib import contextmanager
 from typing import Type
 
-from fastapi import HTTPException, status
-from sqlalchemy import delete, func, insert, select, update
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func, insert, select
 
-from ..models.containers import ContainerIn, OptionalContainer
-from ..models.inner_db.tables import Container, Sample, TopLevelContainer
+from ..models.containers import ContainerIn
+from ..models.inner_db.tables import Container, TopLevelContainer
 from ..models.top_level_containers import TopLevelContainerIn
 from ..utils.database import inner_db
 from ..utils.generic import pascal_to_title

@@ -5,19 +5,13 @@ from ..models.inner_db.tables import TopLevelContainer
 from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelContainerIn
 from ..utils.crud import insert_with_name
 from ..utils.database import inner_db
-from ..utils.generic import get_item_from_expeye
+from ..utils.external import Expeye
 from ..utils.session import update_context
 
 
-def _check_fields(
-    shipmentId: int, params: TopLevelContainerIn | OptionalTopLevelContainer
-):
-    """proposal_reference = inner_db.session.scalar(
-        select(Shipment.proposalReference).filter(Shipment.id == shipmentId)
-    )"""
-
+def _check_fields(params: TopLevelContainerIn | OptionalTopLevelContainer):
     if params.code is not None:
-        code_response = get_item_from_expeye(f"/dewars/registry/{params.code}")
+        code_response = Expeye.request(url=f"/dewars/registry/{params.code}")
 
         if code_response.status_code != 200:
             raise HTTPException(
@@ -26,7 +20,7 @@ def _check_fields(
             )
 
     if params.labContact is not None:
-        contact_response = get_item_from_expeye(f"/contacts/{params.labContact}")
+        contact_response = Expeye.request(url=f"/contacts/{params.labContact}")
 
         if contact_response.status_code != 200:
             raise HTTPException(
@@ -36,14 +30,14 @@ def _check_fields(
 
 
 def create_top_level_container(shipmentId: int, params: TopLevelContainerIn):
-    _check_fields(shipmentId, params)
+    _check_fields(params)
     return insert_with_name(TopLevelContainer, shipmentId=shipmentId, params=params)
 
 
 def edit_top_level_container(
-    shipmentId: int, topLevelContainerId: int, params: OptionalTopLevelContainer
+    topLevelContainerId: int, params: OptionalTopLevelContainer
 ):
-    _check_fields(shipmentId, params)
+    _check_fields(params)
     exclude_fields = set(["name"])
 
     if params.name:

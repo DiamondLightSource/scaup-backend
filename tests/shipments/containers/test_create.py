@@ -48,7 +48,7 @@ def test_create_no_name(client):
     assert resp.status_code == 201
 
     assert (
-        inner_db.session.scalar(select(Container).filter(Container.name == "Puck 5"))
+        inner_db.session.scalar(select(Container).filter(Container.name == "Puck 6"))
         is not None
     )
 

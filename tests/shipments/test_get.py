@@ -41,7 +41,7 @@ def test_get_multiple(client):
 
 
 def test_get_inexistent(client):
-    """Should get shipment details as tree of generic items"""
+    """Should return 404 for inexistent shipment"""
     resp = client.get("/shipments/9999")
 
     assert resp.status_code == 404

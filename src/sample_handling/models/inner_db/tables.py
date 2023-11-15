@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Literal, Optional, get_args
+from typing import Any, List, Literal, NewType, Optional, get_args
 
 from sqlalchemy import JSON, DateTime, Enum, ForeignKey, SmallInteger, String, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -47,7 +47,7 @@ class TopLevelContainer(Base, BaseColumns):
     labContact: Mapped[int] = mapped_column()
     details: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     code: Mapped[str] = mapped_column(String(20))
-    barCode: Mapped[str] = mapped_column(String(20))
+    barCode: Mapped[str | None] = mapped_column(String(20))
     type: Mapped[TopLevelContainerTypes] = mapped_column(
         Enum(*get_args(TopLevelContainerTypes))
     )
@@ -107,3 +107,6 @@ class Sample(Base, BaseColumns):
         ForeignKey("Container.containerId", ondelete="SET NULL"), index=True
     )
     container: Mapped[Optional["Container"]] = relationship(back_populates="samples")
+
+
+AvailableTable = Sample | Container | TopLevelContainer | Shipment

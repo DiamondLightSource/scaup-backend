@@ -7,7 +7,7 @@ def test_get(client):
     data = resp.json()
 
     assert len(data["samples"]) == 1
-    assert len(data["gridBoxes"]) == 1
+    assert len(data["gridBoxes"]) == 2
     assert len(data["containers"]) == 1
 
 

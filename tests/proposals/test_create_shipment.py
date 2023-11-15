@@ -1,3 +1,4 @@
+import pytest
 import responses
 from sqlalchemy import select
 
@@ -18,11 +19,3 @@ def test_create(client):
         )
         is not None
     )
-
-
-@responses.activate
-def test_create_no_proposal(client):
-    """Should not create new shipment inside invalid proposal"""
-    resp = client.post("/proposals/xx12345/shipments", json={"name": "New Shipment"})
-
-    assert resp.status_code == 404

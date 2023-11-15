@@ -1,11 +1,17 @@
-from functools import reduce
-from typing import Generator, List, NewType, Sequence, Tuple, Type
+from random import randint
+from typing import Generator, Sequence, Tuple
 
 from fastapi import HTTPException, status
 from sqlalchemy import Select, select
 from sqlalchemy.orm import joinedload
 
-from ..models.inner_db.tables import Container, Sample, Shipment, TopLevelContainer
+from ..models.inner_db.tables import (
+    AvailableTable,
+    Container,
+    Sample,
+    Shipment,
+    TopLevelContainer,
+)
 from ..models.shipments import (
     GenericItem,
     GenericItemData,
@@ -13,6 +19,7 @@ from ..models.shipments import (
     UnassignedItems,
 )
 from ..utils.database import inner_db
+from ..utils.external import Expeye
 
 
 def _filter_fields(item: TopLevelContainer | Container | Sample):
@@ -57,13 +64,8 @@ def _get_shipment_tree(shipmentId: int):
             )
         )
         .unique()
-        .scalar()
+        .scalar_one()
     )
-
-    if not raw_shipment_data:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="No shipment found"
-        )
 
     return raw_shipment_data
 
@@ -79,31 +81,42 @@ def get_shipment(shipmentId: int):
     )
 
 
-def _flatten_shipment(
-    items: Shipment | Container | Sample,
-) -> Generator[Shipment | Container | Sample, None, None]:
+def create_all_items_in_shipment(
+    parent: AvailableTable, parent_id: int | str
+) -> Generator[dict[str, int | str], None, None]:
     """Generator that traverses a shipment (or shipment item) down to the root of the tree"""
     # Avoid calling chidless Sample instance
-    if not isinstance(items, Sample):
-        child_type = (
-            "samples" if isinstance(items, Container) and items.samples else "children"
+
+    created_item = Expeye.create(parent, parent_id)
+    parent.externalId = created_item["externalId"]
+
+    if not isinstance(parent, Sample):
+        children = (
+            parent.samples
+            if isinstance(parent, Container) and parent.samples
+            else parent.children
         )
 
-        for item in getattr(items, child_type):
-            # Delegate issuing elements to next tree level
-            yield from _flatten_shipment(item)
-            # Issue itself
-            yield item
+        if children is not None:
+            for item in children:
+                # Delegate issuing elements to next tree level
+                yield from create_all_items_in_shipment(item, parent.externalId)
+                # Issue itself
+                yield created_item
 
 
 def push_shipment(shipmentId: int):
     shipment = _get_shipment_tree(shipmentId)
-    separated_items = {"Sample": [], "Container": [], "TopLevelContainer": []}
 
-    for item in _flatten_shipment(shipment):
-        separated_items[item.__tablename__].append(item)
+    modified_items = list(
+        create_all_items_in_shipment(shipment, shipment.proposalReference)
+    )
 
-    print(separated_items)
+    # Save all externalId updates in a single transaction
+    inner_db.session.commit()
+
+    # TODO: decide what is returned. List of links to Expeye, maybe?
+    return modified_items
 
 
 def _table_query_to_generic(query: Select[Tuple[Sample]] | Select[Tuple[Container]]):
