@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Literal, NewType, Optional, get_args
+from typing import Any, List, Literal, Optional, get_args
 
 from sqlalchemy import JSON, DateTime, Enum, ForeignKey, SmallInteger, String, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
