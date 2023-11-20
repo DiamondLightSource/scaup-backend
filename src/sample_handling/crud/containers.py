@@ -1,14 +1,13 @@
 from fastapi import HTTPException, status
 from sqlalchemy import delete, select, update
 
-from sample_handling.utils.session import update_context
-
 from ..models.containers import OptionalContainer
 from ..models.inner_db.tables import Container
 from ..utils.database import inner_db
+from ..utils.session import update_context
 
 
-def edit_container(shipmentId: int, containerId: int, params: OptionalContainer):
+def edit_container(containerId: int, params: OptionalContainer):
     exclude_fields = set(["name"])
 
     if params.name:

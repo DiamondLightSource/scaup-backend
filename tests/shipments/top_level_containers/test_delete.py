@@ -8,7 +8,7 @@ def test_delete(client):
     """Should delete existing container"""
 
     resp = client.delete(
-        "/shipments/1/topLevelContainers/1",
+        "/topLevelContainers/1",
     )
 
     assert resp.status_code == 204
@@ -25,7 +25,7 @@ def test_delete_inexistent(client):
     """Should return error when attempting to delete inexistent container"""
 
     resp = client.delete(
-        "/shipments/1/topLevelContainers/9999",
+        "/topLevelContainers/9999",
     )
 
     assert resp.status_code == 404

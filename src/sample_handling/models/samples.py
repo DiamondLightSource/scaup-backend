@@ -1,8 +1,8 @@
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
 
-from ..utils.models import BaseModelWithNameValidator
+from ..utils.models import BaseModelWithNameValidator, OrmBaseModel
 
 
 class BaseSample(BaseModelWithNameValidator):
@@ -26,7 +26,7 @@ class OptionalSample(BaseSample):
     proteinId: Optional[int] = None
 
 
-class SampleOut(BaseModel):
+class SampleOut(OrmBaseModel):
     id: int
     shipmentId: int
     proteinId: int
@@ -34,4 +34,9 @@ class SampleOut(BaseModel):
     location: Optional[int]
     containerId: Optional[int]
 
-    model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
+
+class SampleExternal(OrmBaseModel):
+    """Inner DB to ISPyB conversion model"""
+
+    location: int
+    name: str

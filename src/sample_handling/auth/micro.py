@@ -78,7 +78,7 @@ def _generic_table_check(table: type[Base], itemId: int, token=Depends(oauth2_sc
 
 class Permissions(GenericPermissions):
     @staticmethod
-    def proposal(proposalReference: str, token=Depends(oauth2_scheme)) -> str:
+    def proposal(proposalReference: str, token=Depends(oauth2_scheme)) -> str | int:
         return _check_perms(proposalReference, "proposals", token)
 
     @staticmethod
@@ -92,7 +92,7 @@ class Permissions(GenericPermissions):
                 status_code=status.HTTP_404_NOT_FOUND, detail="Shipment does not exist"
             )
 
-        # _check_perms(proposalReference, "proposals", token)
+        _check_perms(proposalReference, "proposals", token)
 
         return shipmentId
 

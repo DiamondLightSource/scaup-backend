@@ -9,7 +9,7 @@ from sample_handling.utils.database import inner_db
 def test_edit(client):
     """Should edit values in DB"""
     resp = client.patch(
-        "/shipments/1/topLevelContainers/1",
+        "/topLevelContainers/1",
         json={"name": "New Container Name"},
     )
 
@@ -32,7 +32,7 @@ def test_edit(client):
 def test_edit_lab_contact(client):
     """Should update top level container if lab contact is valid"""
     resp = client.patch(
-        "/shipments/1/topLevelContainers/1",
+        "/topLevelContainers/1",
         json={"name": "New Container Name", "labContact": 1},
     )
 
@@ -43,7 +43,7 @@ def test_edit_lab_contact(client):
 def test_edit_code(client):
     """Should update top level container if facility code is valid"""
     resp = client.patch(
-        "/shipments/1/topLevelContainers/1",
+        "/topLevelContainers/1",
         json={"name": "New Container Name", "code": "DLS-EM-0000"},
     )
 
@@ -54,7 +54,7 @@ def test_edit_code(client):
 def test_edit_invalid_lab_contact(client):
     """Should not update top level container if lab contact is not valid"""
     resp = client.patch(
-        "/shipments/1/topLevelContainers/1",
+        "/topLevelContainers/1",
         json={"name": "New Container Name", "labContact": 9999},
     )
 
@@ -65,7 +65,7 @@ def test_edit_invalid_lab_contact(client):
 def test_edit_invalid_code(client):
     """Should not update top level container if code is not valid"""
     resp = client.patch(
-        "/shipments/1/topLevelContainers/1",
+        "/topLevelContainers/1",
         json={"name": "New Container Name", "code": "DOESNOTEXIST"},
     )
 

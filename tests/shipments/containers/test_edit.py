@@ -8,7 +8,7 @@ def test_edit(client):
     """Should edit values in DB"""
 
     resp = client.patch(
-        "/shipments/1/containers/1",
+        "/containers/1",
         json={"name": "New Container Name"},
     )
 
@@ -30,7 +30,7 @@ def test_edit_inexistent_sample(client):
     """Should return 404 for container that does not exist"""
 
     resp = client.patch(
-        "/shipments/1/containers/999999",
+        "/containers/999999",
         json={"name": "New Container Name"},
     )
 

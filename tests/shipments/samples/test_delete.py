@@ -8,7 +8,7 @@ def test_delete(client):
     """Should delete existing sample"""
 
     resp = client.delete(
-        "/shipments/1/samples/1",
+        "/samples/1",
     )
 
     assert resp.status_code == 204
@@ -20,7 +20,7 @@ def test_delete_inexistent(client):
     """Should return error when attempting to delete inexistent sample"""
 
     resp = client.delete(
-        "/shipments/1/samples/9999",
+        "/samples/9999",
     )
 
     assert resp.status_code == 404

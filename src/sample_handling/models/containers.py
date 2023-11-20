@@ -1,8 +1,8 @@
 from typing import Any, Optional
 
-from pydantic import ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from ..utils.models import BaseModelWithNameValidator
+from ..utils.models import BaseModelWithNameValidator, OrmBaseModel
 from .inner_db.tables import ContainerTypes
 
 
@@ -12,6 +12,7 @@ class BaseContainer(BaseModelWithNameValidator):
     capacity: Optional[int] = None
     details: Optional[dict[str, Any]] = None
     location: Optional[int] = None
+    requestedReturn: Optional[bool] = False
     name: Optional[str] = Field(
         default=None,
         description=(
@@ -33,6 +34,7 @@ class BaseContainer(BaseModelWithNameValidator):
         return self
 
     # TODO: force 'capacity' field if type is puck or grid box?
+    # TODO: check capacity against container type, to see if type support given capacity
 
 
 class ContainerIn(BaseContainer):
@@ -46,3 +48,11 @@ class OptionalContainer(BaseContainer):
 class ContainerOut(BaseContainer):
     id: int
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
+
+
+class ContainerExternal(OrmBaseModel):
+    """Inner DB to ISPyB conversion model"""
+
+    capacity: Optional[int] = None
+    parentContainerId: Optional[int] = Field(default=None, alias="parentId")
+    requestedReturn: bool

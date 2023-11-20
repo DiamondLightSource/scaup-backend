@@ -1,7 +1,4 @@
-from fastapi import HTTPException, status
 from sqlalchemy import case, insert, select
-
-from sample_handling.utils.generic import get_item_from_expeye
 
 from ..models.inner_db.tables import Shipment
 from ..models.shipments import ShipmentIn
@@ -9,13 +6,7 @@ from ..utils.database import inner_db, paginate, unravel
 
 
 def create_shipment(proposalReference: str, params: ShipmentIn):
-    upstream_proposal = get_item_from_expeye(f"/proposals/{proposalReference}")
-
-    if upstream_proposal.status_code != 200:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid proposal reference provided",
-        )
+    # Proposal existence is already checked by Microauth
 
     new_shipment = inner_db.session.scalar(
         insert(Shipment).returning(Shipment),

@@ -3,14 +3,15 @@ from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from ..utils.models import OrmBaseModel
+
 
 def result_to_item_data(result: dict[str, Any]):
     # Ignore private properties
     result_as_dict = {
         key: value
         for [key, value] in result.items()
-        if key[0] != "_"
-        and key not in ["id", "topLevelContainerId", "parentId", "name", "children"]
+        if key[0] != "_" and key not in ["id", "name", "children"]
     }
 
     if "details" in result and result["details"] is not None:
@@ -59,10 +60,6 @@ class GenericItem(BaseModel):
     data: GenericItemData
     children: Optional[list["GenericItem"]] = None
 
-    model_config = ConfigDict(
-        from_attributes=True, arbitrary_types_allowed=True, extra="ignore"
-    )
-
 
 class ShipmentChildren(BaseModel):
     id: int
@@ -75,3 +72,8 @@ class UnassignedItems(BaseModel):
     samples: list[GenericItem]
     gridBoxes: list[GenericItem]
     containers: list[GenericItem]
+
+
+class ShipmentExternal(OrmBaseModel):
+    shippingName: str = Field(alias="name")
+    creationDate: datetime
