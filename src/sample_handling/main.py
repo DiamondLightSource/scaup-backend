@@ -1,13 +1,28 @@
-from fastapi import FastAPI
-from fastapi.exception_handlers import http_exception_handler
-from fastapi.exceptions import HTTPException
+import os
+
+from expeye_utils.database import get_session
+from expeye_utils.logging import log_exception_handler, register_loggers
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.requests import Request
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 from . import __version__
 from .routes import containers, proposals, samples, shipments, top_level_containers
-from .utils.database import get_session
-from .utils.logging import EndpointFilter, app_logger, uvicorn_logger
+from .utils.config import Config
+
+inner_engine = create_engine(
+    url=os.environ.get(
+        "SQL_DATABASE_URL", "mysql://root:ispyb-root@127.0.0.1:3666/ispyb"
+    ),
+    pool_pre_ping=True,
+    pool_recycle=3600,
+    pool_size=Config.db.pool,
+    max_overflow=Config.db.overflow,
+)
+
+
+inner_session = sessionmaker(autocommit=False, autoflush=False, bind=inner_engine)
 
 app = FastAPI(version=__version__)
 
@@ -19,31 +34,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-uvicorn_logger.addFilter(EndpointFilter())
+register_loggers()
 
 
 @app.middleware("http")
 async def get_session_as_middleware(request, call_next):
-    with get_session():
+    with get_session(inner_session):
         return await call_next(request)
 
 
-@app.exception_handler(HTTPException)
-async def log_exception_handler(request: Request, exc: HTTPException):
-    if exc.status_code != 401:
-        user = "Unknown user"
-        try:
-            user = request.state.__getattr__("user")
-        except AttributeError:
-            pass
-        finally:
-            app_logger.warning(
-                "%s @ %s: %s",
-                user,
-                request.url,
-                exc.detail,
-            )
-    return await http_exception_handler(request, exc)
+app.add_exception_handler(HTTPException, log_exception_handler)
 
 
 app.include_router(shipments.router)

@@ -1,6 +1,117 @@
 [build-system]
-requires = ["setuptools>=65.5.1", "setuptools_scm[toml]>=6.2", "wheel"]
+requires = ["setuptools>=64", "setuptools_scm[toml]>=6.2", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "sample_handling"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+description = "eBIC's sample handling backend"
+dependencies = [
+    "typing-extensions;python_version<'3.8'",
+    "SQLAlchemy~=2.0.16",
+    "fastapi~=0.103.2",
+    "mysqlclient~=2.1.1",
+    "mysql-connector-python~=8.0.33",
+    "pydantic~=2.5.1",
+    "types-requests"
+]
+dynamic = ["version"]
+license.file = "LICENSE"
+readme = "README.rst"
+requires-python = ">=3.9"    
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "mypy",
+    "pipdeptree",
+    "pre-commit",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "sphinx-autobuild",
+    "sphinx-copybutton",
+    "sphinx-design",
+    "tox-direct",
+    "types-mock",
+    "pytest-asyncio",
+    "pytest-env"
+]
+
+[project.scripts]
+sample_handling = "sample_handling.__main__:main"
+
+[project.urls]
+GitHub = "https://gitlab.diamond.ac.uk/lims/ebic-sample-handling-backend"
+
+[[project.authors]] # Further authors may be added by duplicating this section
+email = "guilherme.de-freitas@diamond.ac.uk"
+name = "Guilherme de Freitas"
+
 
 [tool.setuptools_scm]
 write_to = "src/sample_handling/_version.py"
+
+[tool.mypy]
+ignore_missing_imports = true # Ignore missing stubs in imported modules
+
+[tool.pytest_env]
+SQL_DATABASE_URL="mysql://root:sample_root@127.0.0.1:3666/sample_handling"
+CONFIG_PATH="config.json"
+AUTH_TYPE="dummy"
+
+[tool.pytest.ini_options]
+# Run pytest with all our checkers, and don't spam us with massive tracebacks on error
+addopts = """
+    --tb=native -vv --doctest-modules --doctest-glob="*.rst"
+    """
+# https://iscinumpy.gitlab.io/post/bound-version-constraints/#watch-for-warnings
+filterwarnings = "error"
+
+[tool.coverage.run]
+data_file = "/tmp/sample_handling.coverage"
+
+[tool.coverage.paths]
+# Tests are run from installed location, map back to the src directory
+source = ["src", "**/site-packages/"]
+
+# tox must currently be configured via an embedded ini string
+# See: https://github.com/tox-dev/tox/issues/999
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+skipsdist=True
+
+[testenv:{pre-commit,mypy,pytest}]
+# Don't create a virtualenv for the command, requires tox-direct plugin
+direct = True
+passenv = *
+allowlist_externals =
+    pytest
+    pre-commit
+    mypy
+    sphinx-build
+    sphinx-autobuild
+commands =
+    pytest: pytest tests --cov=sample_handling --cov-report term --cov-report xml:cov.xml {posargs}
+    mypy: mypy src tests {posargs}
+    pre-commit: pre-commit run --all-files {posargs}
+"""
+
+
+[tool.ruff]
+src = ["src", "tests"]
+line-length = 120
+select = [
+    "C4",   # flake8-comprehensions - https://beta.ruff.rs/docs/rules/#flake8-comprehensions-c4
+    "E",    # pycodestyle errors - https://beta.ruff.rs/docs/rules/#error-e
+    "F",    # pyflakes rules - https://beta.ruff.rs/docs/rules/#pyflakes-f
+    "W",    # pycodestyle warnings - https://beta.ruff.rs/docs/rules/#warning-w
+    "I001", # isort
+]

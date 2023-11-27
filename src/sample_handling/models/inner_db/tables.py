@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Literal, NewType, Optional, get_args
+from typing import Any, List, Literal, Optional, get_args
 
 from sqlalchemy import JSON, DateTime, Enum, ForeignKey, SmallInteger, String, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -15,7 +15,7 @@ TopLevelContainerTypes = Literal["dewar", "toolbox", "parcel"]
 
 class BaseColumns:
     name: Mapped[str] = mapped_column(String(40))
-    externalId: Mapped[int | None] = mapped_column()
+    externalId: Mapped[int | None] = mapped_column(unique=True)
     comments: Mapped[str | None] = mapped_column(String(255))
 
 

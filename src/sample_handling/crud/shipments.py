@@ -1,4 +1,3 @@
-from random import randint
 from typing import Generator, Sequence, Tuple
 
 from fastapi import HTTPException, status
@@ -81,32 +80,34 @@ def get_shipment(shipmentId: int):
     )
 
 
-def create_all_items_in_shipment(
-    parent: AvailableTable, parent_id: int | str
-) -> Generator[dict[str, int | str], None, None]:
-    """Generator that traverses a shipment (or shipment item) down to the root of the tree"""
-    # Avoid calling chidless Sample instance
-
-    created_item = Expeye.create(parent, parent_id)
-    parent.externalId = created_item["externalId"]
-
-    if not isinstance(parent, Sample):
-        children = (
-            parent.samples
-            if isinstance(parent, Container) and parent.samples
-            else parent.children
-        )
-
-        if children is not None:
-            for item in children:
-                # Delegate issuing elements to next tree level
-                yield from create_all_items_in_shipment(item, parent.externalId)
-                # Issue itself
-                yield created_item
-
-
-def push_shipment(shipmentId: int):
+def push_shipment(shipmentId: int, token: str):
     shipment = _get_shipment_tree(shipmentId)
+
+    # There were other ways to do this that did not involve closures, but this seems like the
+    # cleanest option that did not take a significant performance hit
+    def create_all_items_in_shipment(
+        parent: AvailableTable, parent_id: int | str
+    ) -> Generator[dict[str, int | str], None, None]:
+        """Generator that traverses a shipment (or shipment item) down to the root of the tree"""
+        # Avoid calling chidless Sample instance
+
+        created_item = Expeye.upsert(token, parent, parent_id)
+        parent.externalId = created_item["externalId"]
+
+        if not isinstance(parent, Sample):
+            children = (
+                parent.samples
+                if isinstance(parent, Container) and parent.samples
+                else parent.children
+            )
+
+            if children is not None:
+                for item in children:
+                    # Delegate issuing elements to next tree level
+                    assert parent.externalId is not None, "Item is not in ISPyB"
+                    yield from create_all_items_in_shipment(item, parent.externalId)
+                    # Issue itself
+                    yield created_item
 
     modified_items = list(
         create_all_items_in_shipment(shipment, shipment.proposalReference)

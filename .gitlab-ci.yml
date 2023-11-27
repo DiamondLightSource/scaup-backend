@@ -12,14 +12,14 @@ install-job:
   script:
     - pip install .[dev]
 
-integration-test-job:
+lint-and-integration-test-job:
   stage: test
   tags:
     - argus
   before_script:
     - pip install .[dev]
   script:
-    - pytest tests -W ignore::DeprecationWarning -W ignore::sqlalchemy.exc.SAWarning
+    - tox
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     reports:

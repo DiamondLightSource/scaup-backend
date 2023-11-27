@@ -9,9 +9,11 @@ from ..utils.external import Expeye
 from ..utils.session import update_context
 
 
-def _check_fields(params: TopLevelContainerIn | OptionalTopLevelContainer):
+def _check_fields(params: TopLevelContainerIn | OptionalTopLevelContainer, token: str):
     if params.code is not None:
-        code_response = Expeye.request(url=f"/dewars/registry/{params.code}")
+        code_response = Expeye.request(
+            token=token, url=f"/dewars/registry/{params.code}"
+        )
 
         if code_response.status_code != 200:
             raise HTTPException(
@@ -20,7 +22,9 @@ def _check_fields(params: TopLevelContainerIn | OptionalTopLevelContainer):
             )
 
     if params.labContact is not None:
-        contact_response = Expeye.request(url=f"/contacts/{params.labContact}")
+        contact_response = Expeye.request(
+            token=token, url=f"/contacts/{params.labContact}"
+        )
 
         if contact_response.status_code != 200:
             raise HTTPException(
@@ -29,16 +33,18 @@ def _check_fields(params: TopLevelContainerIn | OptionalTopLevelContainer):
             )
 
 
-def create_top_level_container(shipmentId: int, params: TopLevelContainerIn):
-    _check_fields(params)
+def create_top_level_container(
+    shipmentId: int, params: TopLevelContainerIn, token: str
+):
+    _check_fields(params, token)
     return insert_with_name(TopLevelContainer, shipmentId=shipmentId, params=params)
 
 
 def edit_top_level_container(
-    topLevelContainerId: int, params: OptionalTopLevelContainer
+    topLevelContainerId: int, params: OptionalTopLevelContainer, token: str
 ):
-    _check_fields(params)
-    exclude_fields = set(["name"])
+    _check_fields(params, token)
+    exclude_fields = {"name"}
 
     if params.name:
         # Name is set to None, but is not considered as unset, so we need to check again

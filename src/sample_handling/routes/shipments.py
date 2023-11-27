@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Body, Depends, status
+from fastapi.security import HTTPAuthorizationCredentials
 
-from ..auth import Permissions
+from ..auth import Permissions, auth_scheme
 from ..crud import samples as sample_crud
 from ..crud import shipments as crud
 from ..crud import top_level_containers as tlc_crud
@@ -32,10 +33,12 @@ def get_unassigned(shipmentId=Depends(auth)):
 
 
 @router.post("/{shipmentId}/push")
-def push_shipment(shipmentId=Depends(auth)):
+def push_shipment(
+    shipmentId=Depends(auth), token: HTTPAuthorizationCredentials = Depends(auth_scheme)
+):
     """Push shipment to ISPyB. Unassigned items (such as a container with no parent top level
     container) are ignored."""
-    return crud.push_shipment(shipmentId=shipmentId)
+    return crud.push_shipment(shipmentId=shipmentId, token=token.credentials)
 
 
 @router.post(
@@ -45,10 +48,14 @@ def push_shipment(shipmentId=Depends(auth)):
     tags=["Top Level Containers"],
 )
 def create_top_level_container(
-    shipmentId=Depends(auth), parameters: TopLevelContainerIn = Body()
+    shipmentId=Depends(auth),
+    parameters: TopLevelContainerIn = Body(),
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
     """Create new container in shipment"""
-    return tlc_crud.create_top_level_container(shipmentId, params=parameters)
+    return tlc_crud.create_top_level_container(
+        shipmentId, params=parameters, token=token.credentials
+    )
 
 
 @router.post(
@@ -70,6 +77,12 @@ def create_container(shipmentId=Depends(auth), parameters: ContainerIn = Body())
     response_model=SampleOut,
     tags=["Samples"],
 )
-def create_sample(shipmentId=Depends(auth), parameters: SampleIn = Body()):
+def create_sample(
+    shipmentId=Depends(auth),
+    parameters: SampleIn = Body(),
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+):
     """Create new sample in shipment"""
-    return sample_crud.create_sample(shipmentId=shipmentId, params=parameters)
+    return sample_crud.create_sample(
+        shipmentId=shipmentId, params=parameters, token=token.credentials
+    )

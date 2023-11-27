@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Body, Depends, status
+from fastapi.security import HTTPAuthorizationCredentials
 
-from ..auth import Permissions
-from ..auth.template import GenericPermissions
+from ..auth import Permissions, auth_scheme
 from ..crud import samples as crud
 from ..models.samples import OptionalSample, SampleOut
 
@@ -18,9 +18,12 @@ router = APIRouter(
 def edit_sample(
     sampleId=Depends(auth_sample),
     parameters: OptionalSample = Body(),
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
     """Edit existing sample"""
-    return crud.edit_sample(sampleId=sampleId, params=parameters)
+    return crud.edit_sample(
+        sampleId=sampleId, params=parameters, token=token.credentials
+    )
 
 
 @router.delete("/{sampleId}", status_code=status.HTTP_204_NO_CONTENT)

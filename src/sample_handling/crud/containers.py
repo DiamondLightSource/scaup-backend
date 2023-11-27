@@ -8,7 +8,7 @@ from ..utils.session import update_context
 
 
 def edit_container(containerId: int, params: OptionalContainer):
-    exclude_fields = set(["name"])
+    exclude_fields = {"name"}
 
     if params.name:
         # Name is set to None, but is not considered as unset, so we need to check again

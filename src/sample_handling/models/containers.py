@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import ConfigDict, Field, model_validator
 
 from ..utils.models import BaseModelWithNameValidator, OrmBaseModel
 from .inner_db.tables import ContainerTypes
