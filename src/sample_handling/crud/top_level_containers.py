@@ -21,17 +21,6 @@ def _check_fields(params: TopLevelContainerIn | OptionalTopLevelContainer, token
                 detail="Invalid facility code provided",
             )
 
-    if params.labContact is not None:
-        contact_response = Expeye.request(
-            token=token, url=f"/contacts/{params.labContact}"
-        )
-
-        if contact_response.status_code != 200:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Invalid lab contact provided",
-            )
-
 
 def create_top_level_container(
     shipmentId: int, params: TopLevelContainerIn, token: str

@@ -33,6 +33,9 @@ class Shipment(Base, BaseColumns):
         back_populates="shipment"
     )
 
+    shipmentRequest: Mapped[int | None] = mapped_column()
+    status: Mapped[str | None] = mapped_column(String(25))
+
 
 class TopLevelContainer(Base, BaseColumns):
     __tablename__ = "TopLevelContainer"
@@ -43,8 +46,6 @@ class TopLevelContainer(Base, BaseColumns):
         ForeignKey("Shipment.shipmentId"), index=True
     )
 
-    status: Mapped[str | None] = mapped_column(String(25))
-    labContact: Mapped[int] = mapped_column()
     details: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     code: Mapped[str] = mapped_column(String(20))
     barCode: Mapped[str | None] = mapped_column(String(20))

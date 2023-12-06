@@ -13,7 +13,6 @@ def test_create(client):
         "/shipments/1/topLevelContainers",
         json={
             "type": "dewar",
-            "labContact": 1,
             "code": "DLS-EM-0000",
             "name": "Test",
         },
@@ -29,7 +28,6 @@ def test_create_invalid_lab_contact(client):
         "/shipments/1/topLevelContainers",
         json={
             "type": "dewar",
-            "labContact": 99999,
             "code": "DLS-EM-0000",
             "name": "Test",
         },
@@ -45,7 +43,6 @@ def test_create_invalid_code(client):
         "/shipments/1/topLevelContainers",
         json={
             "type": "dewar",
-            "labContact": 1,
             "code": "DOESNOTEXIST",
             "name": "Test",
         },
@@ -62,7 +59,6 @@ def test_create_no_name(client):
         "/shipments/1/topLevelContainers",
         json={
             "type": "dewar",
-            "labContact": 1,
             "code": "DLS-EM-0000",
         },
     )

@@ -36,6 +36,7 @@ CREATE TABLE `Container` (
   `externalId` int(11) DEFAULT NULL,
   `location` smallint(6) DEFAULT NULL,
   PRIMARY KEY (`containerId`),
+  UNIQUE KEY `externalId` (`externalId`),
   KEY `parentId` (`parentId`),
   KEY `ix_Container_topLevelContainerId` (`topLevelContainerId`),
   KEY `ix_Container_shipmentId` (`shipmentId`),
@@ -75,6 +76,7 @@ CREATE TABLE `Sample` (
   `externalId` int(11) DEFAULT NULL,
   `comments` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`sampleId`),
+  UNIQUE KEY `externalId` (`externalId`),
   KEY `ix_Sample_shipmentId` (`shipmentId`),
   KEY `ix_Sample_containerId` (`containerId`),
   KEY `ix_Sample_sampleId` (`sampleId`),
@@ -107,7 +109,10 @@ CREATE TABLE `Shipment` (
   `comments` varchar(255) DEFAULT NULL,
   `creationDate` datetime NOT NULL DEFAULT current_timestamp(),
   `externalId` int(11) DEFAULT NULL,
+  `shipmentRequest` int(11) DEFAULT NULL,
+  `status` varchar(25) DEFAULT NULL,
   PRIMARY KEY (`shipmentId`),
+  UNIQUE KEY `externalId` (`externalId`),
   KEY `ix_Shipment_proposalReference` (`proposalReference`),
   KEY `ix_Shipment_shipmentId` (`shipmentId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -119,7 +124,7 @@ CREATE TABLE `Shipment` (
 
 LOCK TABLES `Shipment` WRITE;
 /*!40000 ALTER TABLE `Shipment` DISABLE KEYS */;
-INSERT INTO `Shipment` VALUES (1,'cm00001','Shipment 01',NULL,'2023-08-21 08:16:56',NULL),(2,'cm00002','Shipment 02',NULL,'2023-08-22 14:21:43',123);
+INSERT INTO `Shipment` VALUES (1,'cm00001','Shipment 01',NULL,'2023-08-21 08:16:56',NULL,NULL,NULL),(2,'cm00002','Shipment 02',NULL,'2023-08-22 14:21:43',123,NULL,NULL);
 /*!40000 ALTER TABLE `Shipment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -134,15 +139,14 @@ CREATE TABLE `TopLevelContainer` (
   `topLevelContainerId` int(11) NOT NULL AUTO_INCREMENT,
   `shipmentId` int(11) NOT NULL,
   `name` varchar(40) NOT NULL,
-  `status` varchar(25) DEFAULT NULL,
   `comments` varchar(255) DEFAULT NULL,
   `code` varchar(20) NOT NULL,
   `barCode` varchar(20) DEFAULT NULL,
   `type` enum('dewar','toolbox','parcel') NOT NULL,
   `externalId` int(11) DEFAULT NULL,
-  `labContact` int(11) NOT NULL,
   `details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   PRIMARY KEY (`topLevelContainerId`),
+  UNIQUE KEY `externalId` (`externalId`),
   KEY `ix_TopLevelContainer_shipmentId` (`shipmentId`),
   CONSTRAINT `TopLevelContainer_ibfk_1` FOREIGN KEY (`shipmentId`) REFERENCES `Shipment` (`shipmentId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -154,7 +158,7 @@ CREATE TABLE `TopLevelContainer` (
 
 LOCK TABLES `TopLevelContainer` WRITE;
 /*!40000 ALTER TABLE `TopLevelContainer` DISABLE KEYS */;
-INSERT INTO `TopLevelContainer` VALUES (1,1,'Dewar 01',NULL,NULL,'DLS-1','DLS-1','dewar',NULL,0,'{}'),(2,2,'Dewar 02',NULL,NULL,'DLS-2','DLS-2','dewar',NULL,0,'{}'),(3,2,'Dewar 03',NULL,NULL,'DLS-3','DLS-3','dewar',NULL,0,'{}');
+INSERT INTO `TopLevelContainer` VALUES (1,1,'Dewar 01',NULL,'DLS-1','DLS-1','dewar',NULL,'{}'),(2,2,'Dewar 02',NULL,'DLS-2','DLS-2','dewar',NULL,'{}'),(3,2,'Dewar 03',NULL,'DLS-3','DLS-3','dewar',NULL,'{}');
 /*!40000 ALTER TABLE `TopLevelContainer` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -177,7 +181,7 @@ CREATE TABLE `alembic_version` (
 
 LOCK TABLES `alembic_version` WRITE;
 /*!40000 ALTER TABLE `alembic_version` DISABLE KEYS */;
-INSERT INTO `alembic_version` VALUES ('3475edcfb324');
+INSERT INTO `alembic_version` VALUES ('91465026b6f3');
 /*!40000 ALTER TABLE `alembic_version` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -194,4 +198,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-11-15 13:23:33
+-- Dump completed on 2023-12-06 16:09:59
