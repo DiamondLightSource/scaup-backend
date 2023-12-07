@@ -42,7 +42,8 @@ dev = [
     "types-mock",
     "pytest-asyncio",
     "pytest-env",
-    "responses"
+    "responses",
+    "httpx"
 ]
 
 [project.scripts]
