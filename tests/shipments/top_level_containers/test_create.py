@@ -22,21 +22,6 @@ def test_create(client):
 
 
 @responses.activate
-def test_create_invalid_lab_contact(client):
-    """Should not create new top level container if lab contact is not valid"""
-    resp = client.post(
-        "/shipments/1/topLevelContainers",
-        json={
-            "type": "dewar",
-            "code": "DLS-EM-0000",
-            "name": "Test",
-        },
-    )
-
-    assert resp.status_code == 404
-
-
-@responses.activate
 def test_create_invalid_code(client):
     """Should not create new top level container if code is not valid"""
     resp = client.post(

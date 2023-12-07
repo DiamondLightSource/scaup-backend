@@ -1,4 +1,3 @@
-import requests
 from expeye_utils.models import pagination
 from fastapi import APIRouter, Body, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials
