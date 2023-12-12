@@ -1,8 +1,8 @@
 import json
 
 import requests
-from expeye_utils.logging import app_logger
 from fastapi import HTTPException, status
+from lims_utils.logging import app_logger
 
 from ..models.containers import ContainerExternal
 from ..models.inner_db.tables import (

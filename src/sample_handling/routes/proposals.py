@@ -1,6 +1,6 @@
-from expeye_utils.models import pagination
 from fastapi import APIRouter, Body, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials
+from lims_utils.models import pagination
 
 from ..auth import Permissions, auth_scheme
 from ..crud import proposals as crud

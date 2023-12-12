@@ -1,8 +1,8 @@
 from typing import Optional
 
-from expeye_utils.database import Database
-from expeye_utils.models import Paged
 from fastapi import HTTPException, status
+from lims_utils.database import Database
+from lims_utils.models import Paged
 from sqlalchemy import Select, func, literal_column, select
 
 inner_db = Database()

@@ -1,9 +1,9 @@
 import os
 
-from expeye_utils.database import get_session
-from expeye_utils.logging import log_exception_handler, register_loggers
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from lims_utils.database import get_session
+from lims_utils.logging import log_exception_handler, register_loggers
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

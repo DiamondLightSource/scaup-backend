@@ -1,6 +1,6 @@
 import importlib
 
-from expeye_utils.auth import CookieOrHTTPBearer
+from lims_utils.auth import CookieOrHTTPBearer
 
 from ..utils.config import Config
 from .template import GenericPermissions
