@@ -65,7 +65,7 @@ write_to = "src/sample_handling/_version.py"
 ignore_missing_imports = true # Ignore missing stubs in imported modules
 
 [tool.pytest_env]
-SQL_DATABASE_URL="mysql://root:s333mple_root@127.0.0.1:3666/sample_handling"
+SQL_DATABASE_URL="mysql://root:sample_root@127.0.0.1:3666/sample_handling"
 CONFIG_PATH="config.json"
 AUTH_TYPE="dummy"
 
