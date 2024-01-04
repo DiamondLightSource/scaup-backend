@@ -25,15 +25,13 @@ def test_push_unassigned(client):
 
 @responses.activate
 def test_push_external_id(client):
-    """Should push shipment to ISPyB and update external ID.
-
-    Our mock response returns '9' as the external ID, always."""
+    """Should push shipment to ISPyB and update external ID."""
     resp = client.post("/shipments/1/push")
 
     assert resp.status_code == 200
 
-    assert inner_db.session.scalar(select(Container.externalId).filter_by(id=1)) == 9
-    assert inner_db.session.scalar(select(Sample.externalId).filter_by(id=1)) == 9
+    assert inner_db.session.scalar(select(Container.externalId).filter_by(id=1)) == 12
+    assert inner_db.session.scalar(select(Sample.externalId).filter_by(id=1)) == 14
 
 
 @responses.activate

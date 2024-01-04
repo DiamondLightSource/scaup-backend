@@ -13,7 +13,6 @@ def test_create(client):
         "/shipments/1/topLevelContainers",
         json={
             "type": "dewar",
-            "labContact": 1,
             "code": "DLS-EM-0000",
             "name": "Test",
         },
@@ -23,29 +22,12 @@ def test_create(client):
 
 
 @responses.activate
-def test_create_invalid_lab_contact(client):
-    """Should not create new top level container if lab contact is not valid"""
-    resp = client.post(
-        "/shipments/1/topLevelContainers",
-        json={
-            "type": "dewar",
-            "labContact": 99999,
-            "code": "DLS-EM-0000",
-            "name": "Test",
-        },
-    )
-
-    assert resp.status_code == 404
-
-
-@responses.activate
 def test_create_invalid_code(client):
     """Should not create new top level container if code is not valid"""
     resp = client.post(
         "/shipments/1/topLevelContainers",
         json={
             "type": "dewar",
-            "labContact": 1,
             "code": "DOESNOTEXIST",
             "name": "Test",
         },
@@ -62,7 +44,6 @@ def test_create_no_name(client):
         "/shipments/1/topLevelContainers",
         json={
             "type": "dewar",
-            "labContact": 1,
             "code": "DLS-EM-0000",
         },
     )

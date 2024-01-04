@@ -3,22 +3,30 @@ from unittest.mock import patch
 
 import pytest
 import responses
-from fastapi import HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from sample_handling.auth.micro import oauth2_scheme
+from sample_handling.auth.micro import auth_scheme
 from sample_handling.main import app
 from sample_handling.utils.config import Config
 from sample_handling.utils.database import inner_db
-from tests.proposals.responses import proposal_callback
 from tests.shipments.responses import generic_creation_callback
 from tests.shipments.samples.responses import protein_callback
 from tests.shipments.top_level_containers.responses import (
     lab_contact_callback,
     registered_dewar_callback,
 )
+
+
+@pytest.fixture(scope="function", autouse=True)
+def mock_config():
+    with patch(
+        "sample_handling.utils.config._read_config", return_value={"auth": "this"}
+    ) as _fixture:
+        yield _fixture
+
 
 engine = create_engine(
     url="mysql://root:sample_root@127.0.0.1:3666/sample_handling",
@@ -52,9 +60,9 @@ def proposal_callback(request):
     item_id = request.path_url.split("/")[3]
 
     if item_id == "cm000001":
-        return 200
+        return (200, {}, "")
 
-    return 404
+    return (404, {}, "")
 
 
 def new_perms(item_id, _, _0):
@@ -63,7 +71,10 @@ def new_perms(item_id, _, _0):
 
 @pytest.fixture(scope="function", autouse=True)
 def mock_permissions(request):
-    app.dependency_overrides[oauth2_scheme] = lambda: "token"
+    app.dependency_overrides[auth_scheme] = lambda: HTTPAuthorizationCredentials(
+        credentials="token", scheme="bearer"
+    )
+
     with patch("sample_handling.auth.micro._check_perms", new=new_perms) as _fixture:
         yield _fixture
 

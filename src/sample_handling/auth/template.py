@@ -1,17 +1,8 @@
-from dataclasses import dataclass
+from typing import Protocol, runtime_checkable
 
 
-@dataclass
-class GenericUser:
-    fedid: str
-    id: str
-    familyName: str
-    title: str
-    givenName: str
-    permissions: list[str]
-
-
-class GenericPermissions:
+@runtime_checkable
+class GenericPermissions(Protocol):
     @staticmethod
     def proposal(proposalReference: str) -> str:
         return proposalReference

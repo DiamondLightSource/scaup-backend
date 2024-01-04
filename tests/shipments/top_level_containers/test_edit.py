@@ -29,17 +29,6 @@ def test_edit(client):
 
 
 @responses.activate
-def test_edit_lab_contact(client):
-    """Should update top level container if lab contact is valid"""
-    resp = client.patch(
-        "/topLevelContainers/1",
-        json={"name": "New Container Name", "labContact": 1},
-    )
-
-    assert resp.status_code == 200
-
-
-@responses.activate
 def test_edit_code(client):
     """Should update top level container if facility code is valid"""
     resp = client.patch(
@@ -48,17 +37,6 @@ def test_edit_code(client):
     )
 
     assert resp.status_code == 200
-
-
-@responses.activate
-def test_edit_invalid_lab_contact(client):
-    """Should not update top level container if lab contact is not valid"""
-    resp = client.patch(
-        "/topLevelContainers/1",
-        json={"name": "New Container Name", "labContact": 9999},
-    )
-
-    assert resp.status_code == 404
 
 
 @responses.activate

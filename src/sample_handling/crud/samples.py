@@ -1,4 +1,3 @@
-import requests
 from fastapi import HTTPException, status
 from sqlalchemy import delete, func, insert, select, update
 
@@ -9,8 +8,8 @@ from ..utils.external import Expeye
 from ..utils.session import update_context
 
 
-def _get_protein(proteinId: int):
-    upstream_compound = Expeye.request(url=f"/proteins/{proteinId}")
+def _get_protein(proteinId: int, token):
+    upstream_compound = Expeye.request(token=token, url=f"/proteins/{proteinId}")
 
     if upstream_compound.status_code != 200:
         raise HTTPException(
@@ -21,8 +20,8 @@ def _get_protein(proteinId: int):
     return upstream_compound.json()
 
 
-def create_sample(shipmentId: int, params: SampleIn):
-    upstream_compound = _get_protein(params.proteinId)
+def create_sample(shipmentId: int, params: SampleIn, token: str):
+    upstream_compound = _get_protein(params.proteinId, token)
 
     if not (params.name):
         sample_count = inner_db.session.scalar(
@@ -40,12 +39,12 @@ def create_sample(shipmentId: int, params: SampleIn):
         return sample
 
 
-def edit_sample(sampleId: int, params: OptionalSample):
+def edit_sample(sampleId: int, params: OptionalSample, token: str):
     if params.proteinId is not None:
         # TODO: check with eBIC if they'd like to overwrite the user provided name on protein changes
-        _get_protein(params.proteinId)
+        _get_protein(params.proteinId, token)
 
-    exclude_fields = set(["name"])
+    exclude_fields = {"name"}
 
     if params.name:
         # Name is set to None, but is not considered as unset, so we need to check again

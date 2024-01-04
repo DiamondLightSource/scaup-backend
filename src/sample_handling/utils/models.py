@@ -1,8 +1,8 @@
-from pydantic import BaseModel, ConfigDict, validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class BaseModelWithNameValidator(BaseModel):
-    @validator("name", check_fields=False)
+    @field_validator("name", check_fields=False)
     def empty_str_to_none(cls, v):
         if v == "":
             return None

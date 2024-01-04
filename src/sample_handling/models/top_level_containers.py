@@ -23,14 +23,12 @@ class BaseTopLevelContainer(BaseModelWithNameValidator):
 class TopLevelContainerIn(BaseTopLevelContainer):
     type: Literal["dewar"]
     code: str
-    labContact: int
 
 
 class OptionalTopLevelContainer(BaseTopLevelContainer):
     type: Optional[Literal["dewar"]] = None
     code: Optional[str] = None
     barCode: Optional[str] = None
-    labContact: Optional[int] = None
 
 
 class TopLevelContainerOut(BaseTopLevelContainer):
@@ -40,4 +38,3 @@ class TopLevelContainerOut(BaseTopLevelContainer):
 
 class TopLevelContainerExternal(OrmBaseModel):
     code: str
-    barCode: str

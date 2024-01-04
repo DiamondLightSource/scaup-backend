@@ -12,12 +12,20 @@ class ConfigurationError(Exception):
 class Auth:
     endpoint: str = "https://localhost/auth"
     type: Literal["dummy", "micro"] = "micro"
+    cookie_key: str = "cookie_key"
 
 
 @dataclass
 class DB:
     pool: int = 10
     overflow: int = 20
+
+
+def _read_config():
+    with open(os.environ.get("CONFIG_PATH") or "config.json", "r") as fp:
+        conf = json.load(fp)
+
+    return conf
 
 
 class Config:
@@ -28,13 +36,12 @@ class Config:
     @staticmethod
     def set():
         try:
-            with open(os.environ.get("CONFIG_PATH") or "config.json", "r") as fp:
-                conf = json.load(fp)
-                Config.auth = Auth(**conf["auth"])
-                Config.db = DB(**conf["db"])
-                Config.ispyb_api = conf["ispyb_api"]
+            conf = _read_config()
+            Config.auth = Auth(**conf["auth"])
+            Config.db = DB(**conf["db"])
+            Config.ispyb_api = conf["ispyb_api"]
 
-        except (FileNotFoundError, TypeError) as exc:
+        except TypeError as exc:
             raise ConfigurationError(str(exc).replace(".__init__()", "")) from exc
         except KeyError as exc:
             msg = str(exc)

@@ -1,65 +1,11 @@
-import contextlib
-import contextvars
-from typing import Generator, Generic, Optional, Sequence, TypeVar
+from typing import Optional
 
-import sqlalchemy.orm
 from fastapi import HTTPException, status
-from ispyb.models import Base
-from pydantic import BaseModel
+from lims_utils.database import Database
+from lims_utils.models import Paged
 from sqlalchemy import Select, func, literal_column, select
 
-from .session import _inner_session as innersession
-
-_inner_session = contextvars.ContextVar("_inner_session", default=None)
-
-
-class InnerDatabase:
-    @classmethod
-    def set_session(cls, session):
-        _inner_session.set(session)
-
-    @property
-    def session(cls) -> sqlalchemy.orm.Session:
-        try:
-            current_session = _inner_session.get()
-            if current_session is None:
-                raise AttributeError
-            return current_session
-        except (AttributeError, LookupError):
-            raise Exception(
-                "Can't get session. Please call InnerDatabase.set_session()"
-            )
-
-
-inner_db = InnerDatabase()
-
-
-@contextlib.contextmanager
-def get_session() -> Generator[sqlalchemy.orm.Session, None, None]:
-    inner_db_session = innersession()
-    try:
-        InnerDatabase.set_session(inner_db_session)
-        yield inner_db_session
-    except Exception:
-        inner_db_session.rollback()
-        raise
-    finally:
-        InnerDatabase.set_session(None)
-        inner_db_session.close()
-
-
-T = TypeVar("T")
-
-
-class Paged(BaseModel, Generic[T]):
-    items: Sequence[T]
-    total: int
-    page: int
-    limit: int
-
-    class Config:
-        arbitrary_types_allowed = True
-        from_attributes = True
+inner_db = Database()
 
 
 def fast_count(query: Select) -> int:
@@ -98,5 +44,5 @@ def paginate(
     return Paged(items=data, total=total, limit=items, page=page)
 
 
-def unravel(model: Base):
-    return [c for c in model.__table__.columns]
+def unravel(model):
+    return list(model.__table__.columns)

@@ -1,5 +1,4 @@
 import pytest
-import responses
 from fastapi import HTTPException
 
 from sample_handling.auth.micro import _generic_table_check
