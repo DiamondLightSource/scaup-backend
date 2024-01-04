@@ -40,7 +40,7 @@ class Shipment(Base, BaseColumns):
 class TopLevelContainer(Base, BaseColumns):
     __tablename__ = "TopLevelContainer"
 
-    id: Mapped[int] = mapped_column("topLevelContainerId", primary_key=True)
+    id: Mapped[int] = mapped_column("topLevelContainerId", primary_key=True, index=True)
     shipment: Mapped["Shipment"] = relationship(back_populates="children")
     shipmentId: Mapped[int] = mapped_column(
         ForeignKey("Shipment.shipmentId"), index=True
