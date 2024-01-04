@@ -13,14 +13,13 @@ ContainerTypes = Literal["puck", "falconTube", "gridBox", "genericContainer"]
 TopLevelContainerTypes = Literal["dewar", "toolbox", "parcel"]
 
 
-class BaseColumns(Base):
-    id: Mapped[int]
+class BaseColumns:
     name: Mapped[str] = mapped_column(String(40))
     externalId: Mapped[int | None] = mapped_column(unique=True)
     comments: Mapped[str | None] = mapped_column(String(255))
 
 
-class Shipment(BaseColumns):
+class Shipment(Base, BaseColumns):
     __tablename__ = "Shipment"
 
     id: Mapped[int] = mapped_column("shipmentId", primary_key=True, index=True)
@@ -38,7 +37,7 @@ class Shipment(BaseColumns):
     status: Mapped[str | None] = mapped_column(String(25))
 
 
-class TopLevelContainer(BaseColumns):
+class TopLevelContainer(Base, BaseColumns):
     __tablename__ = "TopLevelContainer"
 
     id: Mapped[int] = mapped_column("topLevelContainerId", primary_key=True, index=True)
@@ -59,7 +58,7 @@ class TopLevelContainer(BaseColumns):
     )
 
 
-class Container(BaseColumns):
+class Container(Base, BaseColumns):
     __tablename__ = "Container"
 
     id: Mapped[int] = mapped_column("containerId", primary_key=True, index=True)
@@ -90,7 +89,7 @@ class Container(BaseColumns):
     samples: Mapped[List["Sample"] | None] = relationship(back_populates="container")
 
 
-class Sample(BaseColumns):
+class Sample(Base, BaseColumns):
     __tablename__ = "Sample"
 
     id: Mapped[int] = mapped_column("sampleId", primary_key=True, index=True)
