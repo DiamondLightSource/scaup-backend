@@ -16,11 +16,11 @@ def insert_with_name(
     params: ContainerIn | TopLevelContainerIn,
 ):
     if not (params.name):
-        # Gets Mypy to shut up. Essentailly, the union of both valid types results in InstrumentedAttribute
-        # shortcircuiting to int directly, which causes typechecks to fail. This forces the type of the
-        # attribute to be of KeyedColumn type.
+        # Gets Mypy to shut up. Essentially, the union of both valid types results in InstrumentedAttribute
+        # shortcircuiting to int directly, which causes typechecks to fail. Until PEP 484 implements intersections,
+        # this is the "cleanest" fix
         container_count = inner_db.session.scalar(
-            select(func.count(table.__table__.c.id)).filter_by(shipmentId=shipmentId)
+            select(func.count(table.id)).filter_by(shipmentId=shipmentId)  # type: ignore[arg-type]
         )
         params.name = f"{pascal_to_title(params.type)} {((container_count or 0) + 1)}"
 
