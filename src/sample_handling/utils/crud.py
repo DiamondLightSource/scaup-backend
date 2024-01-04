@@ -3,7 +3,7 @@ from typing import Type
 from sqlalchemy import func, insert, select
 
 from ..models.containers import ContainerIn
-from ..models.inner_db.tables import Container, TopLevelContainer
+from ..models.inner_db.tables import BaseColumns
 from ..models.top_level_containers import TopLevelContainerIn
 from ..utils.database import inner_db
 from ..utils.generic import pascal_to_title
@@ -11,7 +11,7 @@ from ..utils.session import update_context
 
 
 def insert_with_name(
-    table: Type[Container] | Type[TopLevelContainer],
+    table: Type[BaseColumns],
     shipmentId: int,
     params: ContainerIn | TopLevelContainerIn,
 ):
