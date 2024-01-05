@@ -38,5 +38,5 @@ class SampleOut(OrmBaseModel):
 class SampleExternal(OrmBaseModel):
     """Inner DB to ISPyB conversion model"""
 
-    location: int
+    location: Optional[int]
     name: str

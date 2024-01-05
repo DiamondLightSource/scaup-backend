@@ -1,12 +1,11 @@
 from fastapi import HTTPException, status
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete
 
 from ..models.inner_db.tables import TopLevelContainer
 from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelContainerIn
-from ..utils.crud import insert_with_name
+from ..utils.crud import edit_item, insert_with_name
 from ..utils.database import inner_db
 from ..utils.external import Expeye
-from ..utils.session import update_context
 
 
 def _check_fields(params: TopLevelContainerIn | OptionalTopLevelContainer, token: str):
@@ -33,34 +32,7 @@ def edit_top_level_container(
     topLevelContainerId: int, params: OptionalTopLevelContainer, token: str
 ):
     _check_fields(params, token)
-    exclude_fields = {"name"}
-
-    if params.name:
-        # Name is set to None, but is not considered as unset, so we need to check again
-        exclude_fields = set()
-
-    with update_context():
-        update_status = inner_db.session.execute(
-            update(TopLevelContainer)
-            .where(TopLevelContainer.id == topLevelContainerId)
-            .values(params.model_dump(exclude_unset=True, exclude=exclude_fields))
-        )
-
-        if update_status.rowcount < 1:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Invalid container ID provided",
-            )
-
-        # MySQL has no native UPDATE .. RETURNING
-
-        inner_db.session.commit()
-
-        return inner_db.session.scalar(
-            select(TopLevelContainer).filter(
-                TopLevelContainer.id == topLevelContainerId
-            )
-        )
+    return edit_item(TopLevelContainer, params, topLevelContainerId, token)
 
 
 def delete_top_level_container(topLevelContainerId: int):

@@ -19,6 +19,43 @@ from ..utils.models import OrmBaseModel
 from .config import Config
 
 
+class ExternalObject:
+    """Object representing a link to the ISPyB instance of the object"""
+
+    item_body: OrmBaseModel = OrmBaseModel()
+    external_link_prefix = ""
+    external_key = ""
+    url = ""
+
+    def __init__(self, item: AvailableTable, item_id: int | str):
+        match item:
+            case Shipment():
+                self.url = f"/proposals/{item_id}/shipments"
+                self.external_link_prefix = "/shipments/"
+                self.item_body = ShipmentExternal.model_validate(item)
+                self.external_key = "shippingId"
+            case Container():
+                if item.topLevelContainerId:
+                    self.url = f"/dewars/{item_id}/containers"
+                else:
+                    self.url = f"/containers/{item_id}/containers"
+                self.external_link_prefix = "/containers/"
+                self.item_body = ContainerExternal.model_validate(item)
+                self.external_key = "containerId"
+            case TopLevelContainer():
+                self.url = f"/shipments/{item_id}/dewars"
+                self.external_link_prefix = "/dewars/"
+                self.item_body = TopLevelContainerExternal.model_validate(item)
+                self.external_key = "dewarId"
+            case Sample():
+                self.url = f"/containers/{item_id}/samples"
+                self.external_link_prefix = "/samples/"
+                self.item_body = SampleExternal.model_validate(item)
+                self.external_key = "blSampleId"
+            case _:
+                raise NotImplementedError()
+
+
 class Expeye:
     @staticmethod
     def request(
@@ -40,50 +77,25 @@ class Expeye:
     def upsert(cls, token: str, item: AvailableTable, parent_id: int | str):
         """Insert existing item in ISPyB or patch it
 
-        :param item: Item to be pushed
-        :param parentId: External ID of the item's parent
+        Args:
+            item: Item to be pushed
+            parentId: External ID of the item's parent
 
-        :returns: External link and external ID"""
+        Returns:
+            External link and external ID"""
 
-        item_body: OrmBaseModel = OrmBaseModel()
+        ext_obj = ExternalObject(item, parent_id)
         method = "POST"
 
-        match item:
-            case Shipment():
-                url = f"/proposals/{parent_id}/shipments"
-                external_link_prefix = "/shipments/"
-                item_body = ShipmentExternal.model_validate(item)
-                external_key = "shippingId"
-            case Container():
-                if item.topLevelContainerId:
-                    url = f"/dewars/{parent_id}/containers"
-                else:
-                    url = f"/containers/{parent_id}/containers"
-                external_link_prefix = "/containers/"
-                item_body = ContainerExternal.model_validate(item)
-                external_key = "containerId"
-            case TopLevelContainer():
-                url = f"/shipments/{parent_id}/dewars"
-                external_link_prefix = "/dewars/"
-                item_body = TopLevelContainerExternal.model_validate(item)
-                external_key = "dewarId"
-            case Sample():
-                url = f"/containers/{parent_id}/samples"
-                external_link_prefix = "/samples/"
-                item_body = SampleExternal.model_validate(item)
-                external_key = "blSampleId"
-            case _:
-                raise NotImplementedError()
-
         if item.externalId:
-            url = f"{external_link_prefix}{item.externalId}"
+            ext_obj.url = f"{ext_obj.external_link_prefix}{item.externalId}"
             method = "PATCH"
 
         response = cls.request(
             token,
             method=method,
-            url=url,
-            json=json.loads(item_body.model_dump_json()),
+            url=ext_obj.url,
+            json=json.loads(ext_obj.item_body.model_dump_json()),
         )
 
         if response.status_code not in [201, 200]:
@@ -95,7 +107,7 @@ class Expeye:
                 pass
 
             app_logger.error(
-                f"Failed pushing to ISPyB at URL {url}, service returned {response.status_code}: {detail}"
+                f"Failed pushing to ISPyB at URL {ext_obj.url}, service returned {response.status_code}: {detail}"
             )
 
             raise HTTPException(
@@ -103,9 +115,11 @@ class Expeye:
                 detail="Received invalid response from upstream service",
             )
 
-        external_id = response.json()[external_key]
+        external_id = response.json()[ext_obj.external_key]
 
         return {
             "externalId": external_id,
-            "link": "".join([Config.ispyb_api, external_link_prefix, str(external_id)]),
+            "link": "".join(
+                [Config.ispyb_api, ext_obj.external_link_prefix, str(external_id)]
+            ),
         }

@@ -1,8 +1,9 @@
 from fastapi import HTTPException, status
-from sqlalchemy import delete, func, insert, select, update
+from sqlalchemy import delete, func, insert, select
 
 from ..models.inner_db.tables import Sample
 from ..models.samples import OptionalSample, SampleIn
+from ..utils.crud import edit_item
 from ..utils.database import inner_db
 from ..utils.external import Expeye
 from ..utils.session import update_context
@@ -44,30 +45,7 @@ def edit_sample(sampleId: int, params: OptionalSample, token: str):
         # TODO: check with eBIC if they'd like to overwrite the user provided name on protein changes
         _get_protein(params.proteinId, token)
 
-    exclude_fields = {"name"}
-
-    if params.name:
-        # Name is set to None, but is not considered as unset, so we need to check again
-        exclude_fields = set()
-
-    with update_context():
-        update_status = inner_db.session.execute(
-            update(Sample)
-            .where(Sample.id == sampleId)
-            .values(params.model_dump(exclude_unset=True, exclude=exclude_fields))
-        )
-
-        if update_status.rowcount < 1:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Invalid sample ID provided",
-            )
-
-        # MySQL has no native UPDATE .. RETURNING
-
-        inner_db.session.commit()
-
-        return inner_db.session.scalar(select(Sample).filter(Sample.id == sampleId))
+    return edit_item(Sample, params, sampleId, token)
 
 
 def delete_sample(sampleId: int):
