@@ -59,8 +59,8 @@ def client():
 def proposal_callback(request):
     item_id = request.path_url.split("/")[3]
 
-    if item_id == "cm000001":
-        return (200, {}, "")
+    if item_id == "cm00001":
+        return (200, {}, "{}")
 
     return (404, {}, "")
 
@@ -97,12 +97,6 @@ def register_responses():
         responses.GET,
         re.compile(f"{Config.ispyb_api}/proteins/([0-9].*)"),
         callback=protein_callback,
-    )
-
-    responses.add_callback(
-        responses.GET,
-        re.compile(f"{Config.ispyb_api}/proposals/(.*)"),
-        callback=proposal_callback,
     )
 
     responses.add_callback(

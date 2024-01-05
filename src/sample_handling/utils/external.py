@@ -46,6 +46,7 @@ class Expeye:
         :returns: External link and external ID"""
 
         item_body: OrmBaseModel = OrmBaseModel()
+        method = "POST"
 
         match item:
             case Shipment():
@@ -75,34 +76,34 @@ class Expeye:
                 raise NotImplementedError()
 
         if item.externalId:
-            # TODO: actually send request to ISPyB to patch it
-            external_id = item.externalId
-        else:
-            response = cls.request(
-                token,
-                method="POST",
-                url=url,
-                json=json.loads(item_body.model_dump_json()),
+            url = f"{external_link_prefix}{item.externalId}"
+            method = "PATCH"
+
+        response = cls.request(
+            token,
+            method=method,
+            url=url,
+            json=json.loads(item_body.model_dump_json()),
+        )
+
+        if response.status_code not in [201, 200]:
+            detail = "No valid JSON body returned from upstream service"
+
+            try:
+                detail = response.json().get("detail", "No detail provided")
+            except requests.JSONDecodeError:
+                pass
+
+            app_logger.error(
+                f"Failed pushing to ISPyB at URL {url}, service returned {response.status_code}: {detail}"
             )
 
-            if response.status_code != 201:
-                detail = "No valid JSON body returned from upstream service"
+            raise HTTPException(
+                status_code=status.HTTP_424_FAILED_DEPENDENCY,
+                detail="Received invalid response from upstream service",
+            )
 
-                try:
-                    detail = response.json().get("detail", "No detail provided")
-                except requests.JSONDecodeError:
-                    pass
-
-                app_logger.error(
-                    f"Failed pushing to ISPyB at URL {url}, service returned {response.status_code}: {detail}"
-                )
-
-                raise HTTPException(
-                    status_code=status.HTTP_424_FAILED_DEPENDENCY,
-                    detail="Received invalid response from upstream service",
-                )
-
-            external_id = response.json()[external_key]
+        external_id = response.json()[external_key]
 
         return {
             "externalId": external_id,
