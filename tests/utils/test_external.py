@@ -1,8 +1,11 @@
+import json
+
 import pytest
 import responses
 from fastapi import HTTPException
 
 from sample_handling.models.inner_db.tables import Container
+from sample_handling.utils.config import Config
 from sample_handling.utils.external import Expeye
 
 
@@ -31,7 +34,11 @@ def test_create_fail():
 @responses.activate
 def test_patch():
     """Should patch existing item if it has external ID"""
-    resp = Expeye.upsert(
+    patch_resp = responses.patch(
+        f"{Config.ispyb_api}/containers/20", json.dumps({"containerId": 20})
+    )
+
+    Expeye.upsert(
         "token",
         Container(
             id=1, externalId=20, shipmentId=1, type="puck", requestedReturn=False
@@ -39,5 +46,4 @@ def test_patch():
         10,
     )
 
-    # Our mock function "creates" a new item identified the parent's ID incremented by 1
-    assert resp["externalId"] == 20
+    assert patch_resp.call_count == 1

@@ -1,6 +1,8 @@
+import responses
 from sqlalchemy import select
 
 from sample_handling.models.inner_db.tables import Container
+from sample_handling.utils.config import Config
 from sample_handling.utils.database import inner_db
 
 
@@ -37,6 +39,14 @@ def test_edit_inexistent_sample(client):
     assert resp.status_code == 404
 
 
+@responses.activate
 def test_push_to_ispyb(client):
     """Should push to ISPyB if container has externalId present"""
-    pass
+    patch_resp = responses.patch(f"{Config.ispyb_api}/containers/10", "{}")
+
+    client.patch(
+        "/containers/341",
+        json={"name": "New Container Name"},
+    )
+
+    assert patch_resp.call_count == 1

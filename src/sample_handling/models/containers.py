@@ -13,6 +13,7 @@ class BaseContainer(BaseModelWithNameValidator):
     details: Optional[dict[str, Any]] = None
     location: Optional[int] = None
     requestedReturn: Optional[bool] = False
+    registeredContainer: Optional[int] = None
     name: Optional[str] = Field(
         default=None,
         description=(
@@ -56,3 +57,8 @@ class ContainerExternal(OrmBaseModel):
     capacity: Optional[int] = None
     parentContainerId: Optional[int] = Field(default=None, alias="parentId")
     requestedReturn: bool
+    code: Optional[str] = None
+    comments: Optional[str] = None
+    containerRegistryId: Optional[int] = Field(
+        default=None, alias="registeredContainer"
+    )

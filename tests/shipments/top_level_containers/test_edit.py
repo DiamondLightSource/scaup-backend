@@ -2,6 +2,7 @@ import responses
 from sqlalchemy import select
 
 from sample_handling.models.inner_db.tables import TopLevelContainer
+from sample_handling.utils.config import Config
 from sample_handling.utils.database import inner_db
 
 
@@ -50,6 +51,14 @@ def test_edit_invalid_code(client):
     assert resp.status_code == 404
 
 
+@responses.activate
 def test_push_to_ispyb(client):
-    """Should push to ISPyB if container has externalId present"""
-    pass
+    """Should push to ISPyB if top level container has externalId present"""
+    patch_resp = responses.patch(f"{Config.ispyb_api}/dewars/10", "{}")
+
+    client.patch(
+        "/topLevelContainers/61",
+        json={"name": "New Container Name", "code": "DLS-EM-0000"},
+    )
+
+    assert patch_resp.call_count == 1

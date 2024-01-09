@@ -19,6 +19,7 @@ dependencies = [
     "mysqlclient~=2.1.1",
     "mysql-connector-python~=8.2.0",
     "pydantic~=2.5.1",
+    "uvicorn~=0.25.0", 
     "types-requests",
     "lims_utils"
 ]
@@ -44,7 +45,8 @@ dev = [
     "pytest-asyncio",
     "pytest-env",
     "responses",
-    "httpx"
+    "httpx",
+    "alembic"
 ]
 
 [project.scripts]
@@ -102,7 +104,7 @@ allowlist_externals =
     sphinx-build
     sphinx-autobuild
 commands =
-    pytest: pytest tests --cov=sample_handling --cov-report term --cov-report xml:cov.xml {posargs}
+    pytest: pytest tests --cov=sample_handling --cov-report term --cov-report xml:cov.xml -s {posargs}
     mypy: mypy src tests {posargs}
     pre-commit: pre-commit run --all-files {posargs}
 """

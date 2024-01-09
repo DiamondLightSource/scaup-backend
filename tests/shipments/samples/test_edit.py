@@ -2,6 +2,7 @@ import responses
 from sqlalchemy import select
 
 from sample_handling.models.inner_db.tables import Sample
+from sample_handling.utils.config import Config
 from sample_handling.utils.database import inner_db
 
 
@@ -48,6 +49,14 @@ def test_edit_inexistent_sample(client):
     assert resp.status_code == 404
 
 
+@responses.activate
 def test_push_to_ispyb(client):
     """Should push to ISPyB if sample has externalId present"""
-    pass
+    patch_resp = responses.patch(f"{Config.ispyb_api}/samples/10", "{}")
+
+    client.patch(
+        "/samples/336",
+        json={"name": "New Sample Name"},
+    )
+
+    assert patch_resp.call_count == 1
