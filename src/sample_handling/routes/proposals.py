@@ -6,7 +6,7 @@ from ..auth import Permissions, auth_scheme
 from ..crud import proposals as crud
 from ..models.shipments import MixedShipment, ShipmentIn, ShipmentOut
 from ..utils.database import Paged
-from ..utils.external import Expeye
+from ..utils.external import ExternalRequest
 
 auth = Permissions.proposal
 
@@ -44,6 +44,6 @@ def get_shipment_data(
     """Get lab data for the proposal (lab contacts, proteins...)
 
     We can skip auth on this one since it is calling Expeye, and auth is done there"""
-    return Expeye.request(
+    return ExternalRequest.request(
         token=token.credentials, url=f"/proposals/{proposalReference}/data"
     ).json()

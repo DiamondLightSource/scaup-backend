@@ -1,5 +1,3 @@
-import json
-
 import requests
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
@@ -17,6 +15,15 @@ from ..models.shipments import ShipmentExternal
 from ..models.top_level_containers import TopLevelContainerExternal
 from ..utils.models import OrmBaseModel
 from .config import Config
+
+TYPE_TO_SHIPPING_SERVICE_TYPE = {
+    "sample": "CRYO_EM_GRID",
+    "grid": "CRYO_EM_GRID",
+    "gridBox": "CRYO_EM_GRID_BOX_",
+    "puck": "UNI_PUCK",
+    "dewar": "CRYOGENIC_DRY_SHIPPER",
+    "falconTube": "FALCON_TUBE_50ML",
+}
 
 
 class ExternalObject:
@@ -56,10 +63,12 @@ class ExternalObject:
                 raise NotImplementedError()
 
 
-class Expeye:
+# TODO: possibly replace this with middleware, or httpx client instances
+class ExternalRequest:
     @staticmethod
     def request(
         token,
+        base_url=Config.ispyb_api,
         *args,
         **kwargs,
     ):
@@ -67,12 +76,14 @@ class Expeye:
         auth actions happen, we cannot wrap this in a custom auth implementation,
         we must do all the preparation work before the actual request."""
 
-        kwargs["url"] = f"{Config.ispyb_api}{kwargs['url']}"
+        kwargs["url"] = f"{base_url}{kwargs['url']}"
         kwargs["method"] = kwargs.get("method", "GET")
         kwargs["headers"] = {"Authorization": f"Bearer {token}"}
 
         return requests.request(**kwargs)
 
+
+class Expeye:
     @classmethod
     def upsert(cls, token: str, item: AvailableTable, parent_id: int | str):
         """Insert existing item in ISPyB or patch it
@@ -91,11 +102,11 @@ class Expeye:
             ext_obj.url = f"{ext_obj.external_link_prefix}{item.externalId}"
             method = "PATCH"
 
-        response = cls.request(
+        response = ExternalRequest.request(
             token,
             method=method,
             url=ext_obj.url,
-            json=json.loads(ext_obj.item_body.model_dump_json()),
+            json=ext_obj.item_body.model_dump(mode="json"),
         )
 
         if response.status_code not in [201, 200]:

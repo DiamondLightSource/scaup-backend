@@ -4,6 +4,10 @@
     "type": "micro",
     "cookie_key": "cookie_key"
   },
+  "shipping_service": {
+    "url": "https://sample-shipping-staging.diamond.ac.uk/api"
+  },
   "db": { "pool": 3, "overflow": 6 },
-  "ispyb_api": "http://127.0.0.1:8060"
+  "ispyb_api": "http://127.0.0.1:8060",
+  "frontend_url": "http://localtest.diamond.ac.uk"
 }

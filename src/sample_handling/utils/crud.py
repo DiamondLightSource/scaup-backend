@@ -1,4 +1,3 @@
-import json
 from typing import Type
 
 from fastapi import HTTPException, status
@@ -11,7 +10,7 @@ from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelCon
 from ..utils.database import inner_db
 from ..utils.generic import pascal_to_title
 from ..utils.session import update_context
-from .external import Expeye, ExternalObject
+from .external import ExternalObject, ExternalRequest
 
 
 def insert_with_name(
@@ -83,11 +82,11 @@ def edit_item(
         if updated_item and updated_item.externalId is not None:
             ext_obj = ExternalObject(updated_item, item_id)
 
-            Expeye.request(
+            ExternalRequest.request(
                 token,
                 method="PATCH",
                 url=f"{ext_obj.external_link_prefix}{updated_item.externalId}",
-                json=json.loads(ext_obj.item_body.model_dump_json()),
+                json=ext_obj.item_body.model_dump(mode="json"),
             )
 
         return updated_item

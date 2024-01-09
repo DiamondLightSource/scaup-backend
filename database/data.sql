@@ -45,7 +45,7 @@ CREATE TABLE `Container` (
   CONSTRAINT `Container_ibfk_1` FOREIGN KEY (`shipmentId`) REFERENCES `Shipment` (`shipmentId`),
   CONSTRAINT `Container_ibfk_2` FOREIGN KEY (`parentId`) REFERENCES `Container` (`containerId`) ON DELETE SET NULL,
   CONSTRAINT `Container_ibfk_3` FOREIGN KEY (`topLevelContainerId`) REFERENCES `TopLevelContainer` (`topLevelContainerId`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=360 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=632 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -54,7 +54,7 @@ CREATE TABLE `Container` (
 
 LOCK TABLES `Container` WRITE;
 /*!40000 ALTER TABLE `Container` DISABLE KEYS */;
-INSERT INTO `Container` VALUES (1,1,1,NULL,'Container 01','puck',NULL,NULL,NULL,0,NULL,NULL,NULL),(2,1,NULL,1,'Grid Box 01','gridBox',NULL,'Test Comment!',NULL,0,NULL,NULL,NULL),(3,1,NULL,NULL,'Container 02','falconTube',NULL,NULL,NULL,0,NULL,NULL,NULL),(4,1,NULL,NULL,'Grid Box 02','gridBox',NULL,NULL,NULL,0,NULL,NULL,NULL),(5,1,NULL,NULL,'Grid Box 03','gridBox',NULL,NULL,NULL,0,NULL,NULL,NULL),(341,89,NULL,NULL,'Container 03','puck',NULL,NULL,NULL,0,10,NULL,NULL);
+INSERT INTO `Container` VALUES (1,1,1,NULL,'Container 01','puck',NULL,NULL,NULL,0,NULL,NULL,NULL),(2,1,NULL,1,'Grid Box 01','gridBox',4,'Test Comment!',NULL,0,NULL,2,NULL),(3,1,NULL,NULL,'Container 02','falconTube',NULL,NULL,NULL,0,NULL,NULL,NULL),(4,1,NULL,NULL,'Grid Box 02','gridBox',4,NULL,NULL,0,NULL,NULL,NULL),(5,1,NULL,NULL,'Grid Box 03','gridBox',4,NULL,NULL,0,NULL,NULL,NULL),(341,89,61,NULL,'Container 03','puck',NULL,NULL,NULL,0,10,NULL,NULL),(474,89,61,NULL,'Container 04','puck',NULL,NULL,NULL,0,15,NULL,NULL),(559,89,NULL,474,'Grid Box 04','gridBox',4,NULL,NULL,0,5,2,NULL);
 /*!40000 ALTER TABLE `Container` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -83,7 +83,7 @@ CREATE TABLE `Sample` (
   KEY `ix_Sample_sampleId` (`sampleId`),
   CONSTRAINT `Sample_ibfk_1` FOREIGN KEY (`shipmentId`) REFERENCES `Shipment` (`shipmentId`),
   CONSTRAINT `Sample_ibfk_2` FOREIGN KEY (`containerId`) REFERENCES `Container` (`containerId`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=361 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=541 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -92,7 +92,7 @@ CREATE TABLE `Sample` (
 
 LOCK TABLES `Sample` WRITE;
 /*!40000 ALTER TABLE `Sample` DISABLE KEYS */;
-INSERT INTO `Sample` VALUES (1,1,4407,'sample','Sample 01',1,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',2,NULL,NULL),(2,1,4407,'sample','Sample 02',NULL,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',NULL,NULL,NULL),(3,1,4407,'sample','Sample 03',1,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',4,NULL,NULL),(336,89,4407,'sample','Sample 04',NULL,NULL,NULL,10,NULL);
+INSERT INTO `Sample` VALUES (1,1,4407,'sample','Sample 01',1,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',2,NULL,NULL),(2,1,4407,'sample','Sample 02',NULL,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',NULL,NULL,NULL),(3,1,4407,'sample','Sample 03',1,'{\"details\": null, \"shipmentId\": 1, \"foil\": \"Quantifoil copper\", \"film\": \"Holey carbon\", \"mesh\": \"200\", \"hole\": \"R 0.6/1\", \"vitrification\": \"GP2\"}',4,NULL,NULL),(336,89,4407,'sample','Sample 04',NULL,NULL,341,10,NULL);
 /*!40000 ALTER TABLE `Sample` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -116,7 +116,7 @@ CREATE TABLE `Shipment` (
   UNIQUE KEY `externalId` (`externalId`),
   KEY `ix_Shipment_proposalReference` (`proposalReference`),
   KEY `ix_Shipment_shipmentId` (`shipmentId`)
-) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=150 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -151,7 +151,7 @@ CREATE TABLE `TopLevelContainer` (
   KEY `ix_TopLevelContainer_shipmentId` (`shipmentId`),
   KEY `ix_TopLevelContainer_topLevelContainerId` (`topLevelContainerId`),
   CONSTRAINT `TopLevelContainer_ibfk_1` FOREIGN KEY (`shipmentId`) REFERENCES `Shipment` (`shipmentId`)
-) ENGINE=InnoDB AUTO_INCREMENT=92 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=174 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -200,4 +200,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-05 15:56:12
+-- Dump completed on 2024-01-09 15:36:54

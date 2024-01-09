@@ -5,12 +5,14 @@ from ..models.inner_db.tables import Sample
 from ..models.samples import OptionalSample, SampleIn
 from ..utils.crud import edit_item
 from ..utils.database import inner_db
-from ..utils.external import Expeye
+from ..utils.external import ExternalRequest
 from ..utils.session import update_context
 
 
 def _get_protein(proteinId: int, token):
-    upstream_compound = Expeye.request(token=token, url=f"/proteins/{proteinId}")
+    upstream_compound = ExternalRequest.request(
+        token=token, url=f"/proteins/{proteinId}"
+    )
 
     if upstream_compound.status_code != 200:
         raise HTTPException(

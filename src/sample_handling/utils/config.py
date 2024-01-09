@@ -21,6 +21,11 @@ class DB:
     overflow: int = 20
 
 
+@dataclass
+class ShippingService:
+    url: str = "https://localtest.diamond.ac.uk/"
+
+
 def _read_config():
     with open(os.environ.get("CONFIG_PATH") or "config.json", "r") as fp:
         conf = json.load(fp)
@@ -31,7 +36,9 @@ def _read_config():
 class Config:
     auth: Auth
     ispyb_api: str
+    frontend_url: str
     db: DB
+    shipping_service: ShippingService
 
     @staticmethod
     def set():
@@ -40,6 +47,8 @@ class Config:
             Config.auth = Auth(**conf["auth"])
             Config.db = DB(**conf["db"])
             Config.ispyb_api = conf["ispyb_api"]
+            Config.frontend_url = conf["frontend_url"]
+            Config.shipping_service = ShippingService(**conf["shipping_service"])
 
         except TypeError as exc:
             raise ConfigurationError(str(exc).replace(".__init__()", "")) from exc
