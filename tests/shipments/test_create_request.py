@@ -8,6 +8,10 @@ from sample_handling.utils.config import Config
 from sample_handling.utils.database import inner_db
 
 
+def _compare_json(obj_1: dict, obj_2: dict):
+    return json.dumps(obj_1, sort_keys=True) == json.dumps(obj_2, sort_keys=True)
+
+
 @responses.activate
 def test_create_shipment_request(client):
     """Should create shipment request in external application"""
@@ -45,22 +49,25 @@ def test_shipment_request_body(client):
     body = resp_post.calls[0].request.body
 
     assert isinstance(body, bytes)
-    assert json.loads(body.decode()) == {
-        "proposal": "cm00003",
-        "external_id": 256,
-        "origin_url": "http://localtest.diamond.ac.uk/proposals/cm00003/shipments/89",
-        "packages": [
-            {
-                "line_items": [
-                    {"shippable_item_type": "UNI_PUCK", "quantity": 2},
-                    {"shippable_item_type": "CRYO_EM_GRID_BOX_4", "quantity": 1},
-                    {"shippable_item_type": "CRYO_EM_GRID", "quantity": 1},
-                ],
-                "external_id": 10,
-                "shippable_item_type": "CRYOGENIC_DRY_SHIPPER_CASE",
-            }
-        ],
-    }
+    assert _compare_json(
+        json.loads(body.decode()),
+        {
+            "proposal": "cm00003",
+            "external_id": 256,
+            "origin_url": "http://localtest.diamond.ac.uk/proposals/cm00003/shipments/89",
+            "packages": [
+                {
+                    "line_items": [
+                        {"shippable_item_type": "UNI_PUCK", "quantity": 2},
+                        {"shippable_item_type": "CRYO_EM_GRID_BOX_4", "quantity": 1},
+                        {"shippable_item_type": "CRYO_EM_GRID", "quantity": 1},
+                    ],
+                    "external_id": 10,
+                    "shippable_item_type": "CRYOGENIC_DRY_SHIPPER_CASE",
+                }
+            ],
+        },
+    )
 
 
 def test_create_not_in_ispyb(client):
