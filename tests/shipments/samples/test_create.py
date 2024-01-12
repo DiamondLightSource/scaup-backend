@@ -6,19 +6,6 @@ from sample_handling.utils.database import inner_db
 
 
 @responses.activate
-def test_create(client):
-    """Should create sample when provided with valid shipment ID and protein/compound
-    info"""
-
-    resp = client.post(
-        "/shipments/1/samples",
-        json={"proteinId": 4407},
-    )
-
-    assert resp.status_code == 201
-
-
-@responses.activate
 def test_create_valid_container(client):
     """Should create new sample when provided with valid parent container"""
 

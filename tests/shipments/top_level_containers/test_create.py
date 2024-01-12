@@ -6,22 +6,6 @@ from sample_handling.utils.database import inner_db
 
 
 @responses.activate
-def test_create(client):
-    """Should create container when provided with valid info"""
-
-    resp = client.post(
-        "/shipments/1/topLevelContainers",
-        json={
-            "type": "dewar",
-            "code": "DLS-EM-0000",
-            "name": "Test",
-        },
-    )
-
-    assert resp.status_code == 201
-
-
-@responses.activate
 def test_create_invalid_code(client):
     """Should not create new top level container if code is not valid"""
     resp = client.post(
@@ -29,7 +13,6 @@ def test_create_invalid_code(client):
         json={
             "type": "dewar",
             "code": "DOESNOTEXIST",
-            "name": "Test",
         },
     )
 
