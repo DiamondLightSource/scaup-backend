@@ -5,12 +5,12 @@ from ..models.inner_db.tables import TopLevelContainer
 from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelContainerIn
 from ..utils.crud import edit_item, insert_with_name
 from ..utils.database import inner_db
-from ..utils.external import Expeye
+from ..utils.external import ExternalRequest
 
 
 def _check_fields(params: TopLevelContainerIn | OptionalTopLevelContainer, token: str):
     if params.code is not None:
-        code_response = Expeye.request(
+        code_response = ExternalRequest.request(
             token=token, url=f"/dewars/registry/{params.code}"
         )
 

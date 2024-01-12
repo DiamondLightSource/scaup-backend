@@ -20,10 +20,12 @@ class BaseSample(BaseModelWithNameValidator):
 
 class SampleIn(BaseSample):
     proteinId: int
+    type: Optional[str] = None
 
 
 class OptionalSample(BaseSample):
     proteinId: Optional[int] = None
+    type: Optional[str] = None
 
 
 class SampleOut(OrmBaseModel):

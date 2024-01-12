@@ -32,6 +32,8 @@ class ShipmentOut(BaseModel):
     name: str
     comments: Optional[str] = None
     creationDate: Optional[datetime]
+    status: Optional[str] = None
+    shipmentRequest: Optional[int] = None
 
 
 class MixedShipment(ShipmentOut):

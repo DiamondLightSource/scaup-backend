@@ -8,7 +8,7 @@ from ..crud import top_level_containers as tlc_crud
 from ..models.containers import ContainerIn, ContainerOut
 from ..models.inner_db.tables import Container
 from ..models.samples import SampleIn, SampleOut
-from ..models.shipments import ShipmentChildren, UnassignedItems
+from ..models.shipments import ShipmentChildren, ShipmentOut, UnassignedItems
 from ..models.top_level_containers import TopLevelContainerIn, TopLevelContainerOut
 from ..utils import crud as crud_gen
 
@@ -86,3 +86,16 @@ def create_sample(
     return sample_crud.create_sample(
         shipmentId=shipmentId, params=parameters, token=token.credentials
     )
+
+
+@router.post(
+    "/{shipmentId}/request",
+    status_code=status.HTTP_201_CREATED,
+    response_model=ShipmentOut,
+)
+def create_shipment_request(
+    shipmentId=Depends(auth),
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+):
+    """Create new shipment request"""
+    return crud.build_shipment_request(shipmentId, token.credentials)

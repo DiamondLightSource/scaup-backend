@@ -1,7 +1,9 @@
+from collections import Counter
 from typing import Generator, Sequence, Tuple
 
 from fastapi import HTTPException, status
-from sqlalchemy import Select, select
+from lims_utils.logging import app_logger
+from sqlalchemy import Select, select, update
 from sqlalchemy.orm import joinedload
 
 from ..models.inner_db.tables import (
@@ -15,10 +17,12 @@ from ..models.shipments import (
     GenericItem,
     GenericItemData,
     ShipmentChildren,
+    ShipmentOut,
     UnassignedItems,
 )
+from ..utils.config import Config
 from ..utils.database import inner_db
-from ..utils.external import Expeye
+from ..utils.external import TYPE_TO_SHIPPING_SERVICE_TYPE, Expeye, ExternalRequest
 
 
 def _filter_fields(item: TopLevelContainer | Container | Sample):
@@ -76,7 +80,9 @@ def get_shipment(shipmentId: int):
         id=shipmentId,
         name=raw_shipment_data.name,
         children=_query_result_to_object(raw_shipment_data.children),
-        data={},
+        data=ShipmentOut.model_validate(
+            raw_shipment_data, from_attributes=True
+        ).model_dump(mode="json"),
     )
 
 
@@ -163,3 +169,108 @@ def get_unassigned(shipmentId: int):
         )
 
     return UnassignedItems(samples=samples, gridBoxes=grid_boxes, containers=containers)
+
+
+def _get_item_name(item: Sample | TopLevelContainer | Container):
+    """Convert internal item type to shipping service item type
+
+    TODO: replace this with reference to the item database service (name TBD)"""
+    if item.externalId is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Shipment not pushed to ISPyB")
+
+    name = TYPE_TO_SHIPPING_SERVICE_TYPE[item.type]
+
+    if isinstance(item, Container) and item.type == "gridBox":
+        name += str(item.capacity)
+
+    return name
+
+
+def _get_children(
+    parent: AvailableTable,
+):
+    item_counts: Counter[str] = Counter()
+
+    if not isinstance(parent, Sample):
+        penultimate_level = False
+        children: Sequence[AvailableTable] | None = None
+
+        if isinstance(parent, Container) and parent.samples:
+            children = parent.samples
+            penultimate_level = True
+        else:
+            children = parent.children
+
+        if children:
+            for item in children:
+                item_counts[_get_item_name(item)] += 1
+
+                if not penultimate_level:
+                    item_counts.update(_get_children(item))
+        elif isinstance(parent, TopLevelContainer):
+            item_counts[_get_item_name(parent)] += 1
+
+    return item_counts
+
+
+def build_shipment_request(shipmentId: int, token: str):
+    shipment = _get_shipment_tree(shipmentId)
+
+    packages: list[dict] = []
+    for tlc in shipment.children:
+        line_items: list[dict] = []
+        for item, count in _get_children(tlc).items():
+            line_items.append(
+                {
+                    "shippable_item_type": item,
+                    "quantity": count,
+                }
+            )
+
+        packages.append(
+            {
+                "line_items": line_items,
+                "external_id": tlc.externalId,
+                "shippable_item_type": "CRYOGENIC_DRY_SHIPPER_CASE",
+            }
+        )
+
+    built_request_body = {
+        "proposal": shipment.proposalReference,
+        "external_id": shipment.externalId,
+        "origin_url": f"{Config.frontend_url}/proposals/{shipment.proposalReference}/shipments/{shipment.id}",
+        "packages": packages,
+    }
+
+    response = ExternalRequest.request(
+        base_url=Config.shipping_service.url,
+        token=token,
+        method="POST",
+        url="/shipment_requests/",
+        json=built_request_body,
+    )
+
+    if response.status_code != 201:
+        app_logger.error(
+            f"Error while pushing shipment {shipmentId} to shipping service: {response.text}"
+        )
+        raise HTTPException(
+            status.HTTP_424_FAILED_DEPENDENCY,
+            "Failed to create shipment request in upstream shipping service",
+        )
+
+    shipment_request_id = response.json()["shipmentRequestId"]
+
+    inner_db.session.execute(
+        update(Shipment)
+        .filter_by(id=shipmentId)
+        .values({"status": "Booked", "shipmentRequest": shipment_request_id})
+    )
+
+    # MySQL has no native UPDATE .. RETURNING
+
+    inner_db.session.commit()
+
+    updated_item = inner_db.session.scalar(select(Shipment).filter_by(id=shipmentId))
+
+    return updated_item
