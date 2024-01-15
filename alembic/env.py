@@ -25,7 +25,7 @@ target_metadata = Base.metadata
 config.set_main_option(
     "sqlalchemy.url",
     os.environ.get(
-        "SQL_DATABASE_URL", "mysql://root:sample_root@127.0.0.1:3666/sample_handling"
+        "SQL_DATABASE_URL", "mysql://root:sample_root@127.0.0.1:5432/sample_handling"
     ),
 )
 
