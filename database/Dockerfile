@@ -1,4 +1,4 @@
-FROM postgres:13.13-bookworm
+FROM postgres:16.1-bookworm
 
 WORKDIR /docker-entrypoint-initdb.d
 
