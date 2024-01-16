@@ -12,7 +12,7 @@ SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
----SELECT pg_catalog.set_config('search_path', '', false);
+SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
@@ -294,28 +294,28 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
----SELECT pg_catalog.setval('public."Container_containerId_seq"', 40, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 40, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
----SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 25, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 25, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
----SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 6, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 6, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
----SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 12, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 12, true);
 
 
 --

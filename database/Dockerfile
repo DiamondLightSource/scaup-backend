@@ -1,11 +1,11 @@
-FROM postgres:16.1-bookworm
+FROM bitnami/postgresql:16-debian-11
 
 WORKDIR /docker-entrypoint-initdb.d
 
 ADD data.sql /docker-entrypoint-initdb.d/data.sql
 
-ENV POSTGRES_PASSWORD sample_root
-ENV POSTGRES_DB sample_handling
-ENV POSTGRES_USER sample_handling
+ENV POSTGRESQL_PASSWORD sample_root
+ENV POSTGRESQL_DATABASE sample_handling
+ENV POSTGRESQL_USERNAME sample_handling
 
 EXPOSE 5432
