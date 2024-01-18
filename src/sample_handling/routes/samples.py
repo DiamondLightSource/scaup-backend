@@ -1,8 +1,11 @@
 from fastapi import APIRouter, Body, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials
 
+from sample_handling.utils.crud import delete_item
+
 from ..auth import Permissions, auth_scheme
 from ..crud import samples as crud
+from ..models.inner_db.tables import Sample
 from ..models.samples import OptionalSample, SampleOut
 
 auth_sample = Permissions.sample
@@ -29,4 +32,4 @@ def edit_sample(
 @router.delete("/{sampleId}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_sample(sampleId=Depends(auth_sample)):
     """Create new sample in shipment"""
-    return crud.delete_sample(sampleId=sampleId)
+    return delete_item(table=Sample, item_id=sampleId)

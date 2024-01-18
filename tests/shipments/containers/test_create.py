@@ -4,17 +4,6 @@ from sample_handling.models.inner_db.tables import Container
 from sample_handling.utils.database import inner_db
 
 
-def test_create(client):
-    """Should create container when provided with valid info"""
-
-    resp = client.post(
-        "/shipments/1/containers",
-        json={"type": "puck"},
-    )
-
-    assert resp.status_code == 201
-
-
 def test_create_valid_container(client):
     """Should create new container when provided with valid parent container"""
 

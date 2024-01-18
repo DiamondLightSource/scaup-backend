@@ -1,21 +1,8 @@
-from fastapi import HTTPException, status
-from sqlalchemy import delete
-
+from ..models.containers import ContainerIn
 from ..models.inner_db.tables import Container
-from ..utils.database import inner_db
+from ..utils.crud import assert_not_booked, insert_with_name
 
 
-def delete_container(containerId: int):
-    update_status = inner_db.session.execute(
-        delete(Container).where(Container.id == containerId)
-    )
-
-    if update_status.rowcount < 1:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid container ID provided",
-        )
-
-    inner_db.session.commit()
-
-    return True
+@assert_not_booked
+def create_container(shipmentId: int, params: ContainerIn):
+    return insert_with_name(Container, shipmentId=shipmentId, params=params)

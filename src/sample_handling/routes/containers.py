@@ -2,10 +2,9 @@ from fastapi import APIRouter, Body, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials
 
 from ..auth import Permissions, auth_scheme
-from ..crud import containers as crud
 from ..models.containers import ContainerOut, OptionalContainer
 from ..models.inner_db.tables import Container
-from ..utils.crud import edit_item
+from ..utils.crud import delete_item, edit_item
 
 router = APIRouter(
     tags=["Containers"],
@@ -25,5 +24,5 @@ def edit_container(
 
 @router.delete("/{containerId}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_container(containerId=Depends(Permissions.container)):
-    """Create new container in shipment"""
-    return crud.delete_container(containerId=containerId)
+    """Delete container in shipment"""
+    return delete_item(table=Container, item_id=containerId)

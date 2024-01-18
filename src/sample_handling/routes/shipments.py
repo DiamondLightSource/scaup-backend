@@ -2,15 +2,14 @@ from fastapi import APIRouter, Body, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials
 
 from ..auth import Permissions, auth_scheme
+from ..crud import containers as container_crud
 from ..crud import samples as sample_crud
 from ..crud import shipments as crud
 from ..crud import top_level_containers as tlc_crud
 from ..models.containers import ContainerIn, ContainerOut
-from ..models.inner_db.tables import Container
 from ..models.samples import SampleIn, SampleOut
 from ..models.shipments import ShipmentChildren, ShipmentOut, UnassignedItems
 from ..models.top_level_containers import TopLevelContainerIn, TopLevelContainerOut
-from ..utils import crud as crud_gen
 
 auth = Permissions.shipment
 
@@ -54,7 +53,7 @@ def create_top_level_container(
 ):
     """Create new container in shipment"""
     return tlc_crud.create_top_level_container(
-        shipmentId, params=parameters, token=token.credentials
+        shipmentId=shipmentId, params=parameters, token=token.credentials
     )
 
 
@@ -66,9 +65,7 @@ def create_top_level_container(
 )
 def create_container(shipmentId=Depends(auth), parameters: ContainerIn = Body()):
     """Create new container in shipment"""
-    return crud_gen.insert_with_name(
-        Container, shipmentId=shipmentId, params=parameters
-    )
+    return container_crud.create_container(shipmentId=shipmentId, params=parameters)
 
 
 @router.post(

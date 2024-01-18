@@ -1,10 +1,10 @@
 from typing import Type
 
 from fastapi import HTTPException, status
-from sqlalchemy import func, insert, select, update
+from sqlalchemy import delete, func, insert, select, update
 
 from ..models.containers import ContainerIn, OptionalContainer
-from ..models.inner_db.tables import Container, Sample, TopLevelContainer
+from ..models.inner_db.tables import Container, Sample, Shipment, TopLevelContainer
 from ..models.samples import OptionalSample
 from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelContainerIn
 from ..utils.database import inner_db
@@ -90,3 +90,54 @@ def edit_item(
             )
 
         return updated_item
+
+
+def assert_not_booked(func):
+    def wrapper(*args, **kwargs):
+        shipment_status = inner_db.session.scalar(
+            select(Shipment.status).filter(Shipment.id == kwargs["shipmentId"])
+        )
+
+        if shipment_status == "Booked":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Items cannot be created inside a booked shipment",
+            )
+
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def delete_item(table: Type[Container | TopLevelContainer | Sample], item_id: int):
+    """Delete item if shipment is not already booked
+
+    Args:
+        table: Table to update
+        item_id: ID of the item to be deleted
+    """
+    if (
+        inner_db.session.scalar(
+            select(Shipment.status)
+            .select_from(table)
+            .filter_by(id=item_id)
+            .join(Shipment)
+        )
+        == "Booked"
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Cannot delete item in booked shipment",
+        )
+
+    update_status = inner_db.session.execute(delete(table).filter_by(id=item_id))
+
+    if update_status.rowcount < 1:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Invalid {table.__tablename__} ID provided",
+        )
+
+    inner_db.session.commit()
+
+    return True
