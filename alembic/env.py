@@ -1,9 +1,8 @@
 import os
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config, pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 # add your model's MetaData object here
 # for 'autogenerate' support
@@ -25,7 +24,8 @@ target_metadata = Base.metadata
 config.set_main_option(
     "sqlalchemy.url",
     os.environ.get(
-        "SQL_DATABASE_URL", "mysql://root:sample_root@127.0.0.1:5432/sample_handling"
+        "SQL_DATABASE_URL",
+        "postgresql+psycopg://sample_handling:sample_root@127.0.0.1:5432/sample_handling",
     ),
 )
 

@@ -101,7 +101,6 @@ commands =
     mypy: mypy src tests {posargs}
     pre-commit: pre-commit run --all-files {posargs}
 setenv =
-    SQL_DATABASE_URL=mysql://root:ispyb-root@127.0.0.1/ispyb
     CONFIG_PATH=config.json
     AUTH_TYPE=dummy
 """
