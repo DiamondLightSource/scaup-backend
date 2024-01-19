@@ -73,7 +73,7 @@ class Container(Base, BaseColumns):
         ForeignKey("Container.containerId", ondelete="SET NULL")
     )
 
-    type: Mapped[ContainerTypes] = mapped_column(
+    type: Mapped[str] = mapped_column(
         String(40), server_default="genericContainer"
     )
     capacity: Mapped[int | None] = mapped_column(SmallInteger)
