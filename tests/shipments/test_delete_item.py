@@ -62,7 +62,7 @@ def test_delete_inexistent(client, endpoint):
     ["endpoint", "item_id"],
     [
         pytest.param("samples", 336, id="samples"),
-        pytest.param("containers", 559, id="containers"),
+        pytest.param("containers", 341, id="containers"),
         pytest.param(
             "topLevelContainers",
             61,

@@ -261,16 +261,11 @@ def build_shipment_request(shipmentId: int, token: str):
 
     shipment_request_id = response.json()["shipmentRequestId"]
 
-    inner_db.session.execute(
+    updated_item = inner_db.session.scalar(
         update(Shipment)
+        .returning(Shipment)
         .filter_by(id=shipmentId)
         .values({"status": "Booked", "shipmentRequest": shipment_request_id})
     )
-
-    # MySQL has no native UPDATE .. RETURNING
-
-    inner_db.session.commit()
-
-    updated_item = inner_db.session.scalar(select(Shipment).filter_by(id=shipmentId))
 
     return updated_item

@@ -61,23 +61,19 @@ def edit_item(
         exclude_fields = set()
 
     with update_context():
-        update_status = inner_db.session.execute(
+        updated_item = inner_db.session.scalar(
             update(table)
+            .returning(table)
             .filter_by(id=item_id)
             .values(params.model_dump(exclude_unset=True, exclude=exclude_fields))
         )
 
-        if update_status.rowcount < 1:
+        if not updated_item:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Invalid ID provided",
             )
-
-        # MySQL has no native UPDATE .. RETURNING
-
         inner_db.session.commit()
-
-        updated_item = inner_db.session.scalar(select(table).filter_by(id=item_id))
 
         if updated_item and updated_item.externalId is not None:
             ext_obj = ExternalObject(updated_item, item_id)

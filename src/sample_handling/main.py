@@ -12,7 +12,8 @@ from .utils.config import Config
 
 inner_engine = create_engine(
     url=os.environ.get(
-        "SQL_DATABASE_URL", "mysql://root:ispyb-root@127.0.0.1:3666/ispyb"
+        "SQL_DATABASE_URL",
+        "postgresql+psycopg://sample_handling:sample_root@127.0.0.1:5432/sample_handling",
     ),
     pool_pre_ping=True,
     pool_recycle=3600,

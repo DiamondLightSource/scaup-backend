@@ -1,6 +1,6 @@
 image: python:3.11
 services:
-  - gcr.io/diamond-privreg/lims/sample-handling-db:v0.5.3
+  - gcr.io/diamond-privreg/lims/sample-handling-db:v1.0.0
 stages:
   - test
   - build

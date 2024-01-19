@@ -29,7 +29,7 @@ def mock_config():
 
 
 engine = create_engine(
-    url="mysql://root:sample_root@127.0.0.1:3666/sample_handling",
+    url="postgresql+psycopg://sample_handling:sample_root@127.0.0.1:5432/sample_handling",
     pool_pre_ping=True,
     pool_recycle=3600,
     pool_size=3,

@@ -16,8 +16,7 @@ dependencies = [
     "typing-extensions;python_version<'3.8'",
     "SQLAlchemy~=2.0.16",
     "fastapi~=0.104.1",
-    "mysqlclient~=2.1.1",
-    "mysql-connector-python~=8.2.0",
+    "psycopg~=3.1.17",
     "pydantic~=2.5.1",
     "uvicorn~=0.25.0", 
     "types-requests",
@@ -43,7 +42,6 @@ dev = [
     "tox-direct",
     "types-mock",
     "pytest-asyncio",
-    "pytest-env",
     "responses",
     "httpx",
     "alembic"
@@ -65,11 +63,6 @@ write_to = "src/sample_handling/_version.py"
 
 [tool.mypy]
 ignore_missing_imports = true # Ignore missing stubs in imported modules
-
-[tool.pytest_env]
-SQL_DATABASE_URL="mysql://root:sample_root@127.0.0.1:3666/sample_handling"
-CONFIG_PATH="config.json"
-AUTH_TYPE="dummy"
 
 [tool.pytest.ini_options]
 # Run pytest with all our checkers, and don't spam us with massive tracebacks on error
@@ -107,6 +100,9 @@ commands =
     pytest: pytest tests --cov=sample_handling --cov-report term --cov-report xml:cov.xml -s {posargs}
     mypy: mypy src tests {posargs}
     pre-commit: pre-commit run --all-files {posargs}
+setenv =
+    CONFIG_PATH=config.json
+    AUTH_TYPE=dummy
 """
 
 

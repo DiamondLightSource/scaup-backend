@@ -1,9 +1,0 @@
-{
-  "auth": {
-    "endpoint": "http://localhost:8050/",
-    "type": "micro",
-    "cookie_key": "cookie_key"
-  },
-  "db": { "pool": 3, "overflow": 6 },
-  "ispyb_api": "http://127.0.0.1:8060"
-}

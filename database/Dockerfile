@@ -1,15 +1,11 @@
-FROM mariadb:10.9.7-jammy
+FROM bitnami/postgresql:16-debian-11
 
 WORKDIR /docker-entrypoint-initdb.d
 
 ADD data.sql /docker-entrypoint-initdb.d/data.sql
 
-ENV MYSQL_ROOT_PASSWORD sample_root
-ENV MYSQL_DATABASE sample_handling
-ENV MYSQL_USER sample_handling
-ENV MYSQL_PASSWORD sample_handling
-ENV MYSQL_TCP_PORT 3666
+ENV POSTGRESQL_PASSWORD sample_root
+ENV POSTGRESQL_DATABASE sample_handling
+ENV POSTGRESQL_USERNAME sample_handling
 
-EXPOSE 3666
-
-CMD ["mysqld"]
+EXPOSE 5432
