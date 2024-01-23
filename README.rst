@@ -4,7 +4,7 @@ Sample Handling API
 |code_ci| |coverage| |license|
 
 ============== ==============================================================
-Source code    https://gitlab.diamond.ac.uk/lims/ebic-sample-handling-backend
+Source code    https://gitlab.diamond.ac.uk/lims/ebic-sample-handling/backend
 ============== ==============================================================
 
 Particle Analysis and Tomography Data API.
@@ -37,12 +37,12 @@ Testing
     - You may change the port or where the container itself runs, just remember to update `.test.env`
 - Run :code:`pytest tests`
 
-.. |code_ci| image:: https://gitlab.diamond.ac.uk/lims/ebic-sample-handling-backend/badges/master/pipeline.svg
-    :target: https://gitlab.diamond.ac.uk/lims/ebic-sample-handling-backend/-/pipelines
+.. |code_ci| image:: https://gitlab.diamond.ac.uk/lims/ebic-sample-handling/backend/badges/master/pipeline.svg
+    :target: https://gitlab.diamond.ac.uk/lims/ebic-sample-handling/backend/-/pipelines
     :alt: Code CI
 
-.. |coverage| image:: https://gitlab.diamond.ac.uk/lims/ebic-sample-handling-backend/badges/master/coverage.svg
-    :target: https://gitlab.diamond.ac.uk/lims/ebic-sample-handling-backend/-/pipelines
+.. |coverage| image:: https://gitlab.diamond.ac.uk/lims/ebic-sample-handling/backend/badges/master/coverage.svg
+    :target: https://gitlab.diamond.ac.uk/lims/ebic-sample-handling/backend/-/pipelines
     :alt: Test Coverage
 
 .. |license| image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
