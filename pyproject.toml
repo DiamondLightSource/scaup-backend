@@ -106,7 +106,7 @@ commands =
     pre-commit: pre-commit run --all-files {posargs}
 setenv =
     CONFIG_PATH=config.json
-    AUTH_TYPE=dummy
+    MOUNT_POINT=/
 """
 
 

@@ -12,7 +12,7 @@ from sample_handling.utils.database import inner_db
 def test_create_shipment_request(client):
     """Should create shipment request in external application"""
     responses.post(
-        f"{Config.shipping_service.url}/shipment_requests/",
+        f"{Config.shipping_service.url}/api/shipment_requests/",
         status=201,
         json={"shipmentRequestId": 50},
     )
@@ -33,7 +33,7 @@ def test_create_shipment_request(client):
 def test_shipment_request_body(client):
     """Should send well formed body to upstream service"""
     resp_post = responses.post(
-        f"{Config.shipping_service.url}/shipment_requests/",
+        f"{Config.shipping_service.url}/api/shipment_requests/",
         status=201,
         json={"shipmentRequestId": 50},
     )
@@ -71,7 +71,7 @@ def test_create_not_in_ispyb(client):
 def test_request_fail(client):
     """Should not create shipment request if upstream application returns error"""
     responses.post(
-        f"{Config.shipping_service.url}/shipment_requests/",
+        f"{Config.shipping_service.url}/api/shipment_requests/",
         status=404,
     )
 

@@ -8,8 +8,8 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from sample_handling.auth.micro import auth_scheme
-from sample_handling.main import app
+from sample_handling.auth import auth_scheme
+from sample_handling.main import api, app
 from sample_handling.utils.config import Config
 from sample_handling.utils.database import inner_db
 from tests.shipments.responses import generic_creation_callback
@@ -71,7 +71,7 @@ def new_perms(item_id, _, _0):
 
 @pytest.fixture(scope="function", autouse=True)
 def mock_permissions(request):
-    app.dependency_overrides[auth_scheme] = lambda: HTTPAuthorizationCredentials(
+    api.dependency_overrides[auth_scheme] = lambda: HTTPAuthorizationCredentials(
         credentials="token", scheme="bearer"
     )
 
