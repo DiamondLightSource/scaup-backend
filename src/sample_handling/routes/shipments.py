@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Body, Depends, status
+from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials
 
 from ..auth import Permissions, auth_scheme
@@ -96,3 +97,9 @@ def create_shipment_request(
 ):
     """Create new shipment request"""
     return crud.build_shipment_request(shipmentId, token.credentials)
+
+
+@router.get("/{shipmentId}/request", response_class=RedirectResponse)
+def get_shipment_request(shipmentId=Depends(auth)):
+    """Get shipment reqeust"""
+    return crud.get_shipment_request(shipmentId)

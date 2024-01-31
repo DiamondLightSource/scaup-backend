@@ -10,6 +10,10 @@ from . import __version__
 from .routes import containers, proposals, samples, shipments, top_level_containers
 from .utils.config import Config
 
+app = FastAPI(version=__version__)
+
+api = FastAPI()
+
 inner_engine = create_engine(
     url=os.environ.get(
         "SQL_DATABASE_URL",
@@ -24,7 +28,6 @@ inner_engine = create_engine(
 
 inner_session = sessionmaker(autocommit=False, autoflush=False, bind=inner_engine)
 
-app = FastAPI(version=__version__)
 
 register_loggers()
 
@@ -38,8 +41,10 @@ async def get_session_as_middleware(request, call_next):
 app.add_exception_handler(HTTPException, log_exception_handler)
 
 
-app.include_router(shipments.router)
-app.include_router(proposals.router)
-app.include_router(samples.router)
-app.include_router(containers.router)
-app.include_router(top_level_containers.router)
+api.include_router(shipments.router)
+api.include_router(proposals.router)
+api.include_router(samples.router)
+api.include_router(containers.router)
+api.include_router(top_level_containers.router)
+
+app.mount(os.getenv("MOUNT_POINT", "/api"), api)

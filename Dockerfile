@@ -3,7 +3,7 @@
 # The devcontainer should use the build target and run as root with podman
 # or docker with user namespaces.
 #
-FROM docker.io/library/python:3.11.4-slim-bullseye as build
+FROM docker.io/library/python:3.12.1-slim-bookworm as build
 
 # Add any system dependencies for the developer/build environment here
 RUN apt-get update && apt-get upgrade -y && \
@@ -39,9 +39,8 @@ RUN pip install --upgrade pip && \
     # and replace with a comment to avoid a zero length asset upload later
     sed -i '/file:/s/^/# Requirements for /' lockfiles/requirements.txt
 
-FROM docker.io/library/python:3.11.4-slim-bullseye as runtime
+FROM docker.io/library/python:3.12.1-slim-bookworm as runtime
 
-# Add apt-get system dependecies for runtime here if needed
 RUN apt-get update && apt-get install -y libmariadb-dev
 
 # copy the virtual environment from the build stage and put it in PATH
@@ -50,4 +49,4 @@ ENV PATH=/venv/bin:$PATH
 
 # change this entrypoint if it is not the same as the repo
 ENTRYPOINT ["uvicorn"]
-CMD ["sample_handling.main:app", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/api"]
+CMD ["sample_handling.main:app", "--host", "0.0.0.0", "--port", "8000"]
