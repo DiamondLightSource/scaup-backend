@@ -246,7 +246,7 @@ def build_shipment_request(shipmentId: int, token: str):
         base_url=Config.shipping_service.url,
         token=token,
         method="POST",
-        url="/shipment_requests/",
+        url="/api/shipment_requests/",
         json=built_request_body,
     )
 
@@ -268,4 +268,20 @@ def build_shipment_request(shipmentId: int, token: str):
         .values({"status": "Booked", "shipmentRequest": shipment_request_id})
     )
 
+    inner_db.session.commit()
+
     return updated_item
+
+
+def get_shipment_request(shipmentId: int):
+    request_id = inner_db.session.scalar(
+        select(Shipment.shipmentRequest).filter(Shipment.id == shipmentId)
+    )
+
+    if request_id is None:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            "Shipment does not have a request assigned to it",
+        )
+
+    return f"{Config.shipping_service.url}/shipment-requests/{request_id}/incoming"

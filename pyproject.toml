@@ -12,15 +12,19 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 description = "eBIC's sample handling backend"
+
+# mysqlclient is required because of LIMS-Utils, that'll be fixed in the future
 dependencies = [
     "typing-extensions;python_version<'3.8'",
     "SQLAlchemy~=2.0.16",
-    "fastapi~=0.104.1",
-    "psycopg~=3.1.17",
+    "fastapi~=0.109.0",
+    "mysqlclient~=2.1.1",
+    "psycopg[binary,pool]~=3.1.17",
     "pydantic~=2.5.1",
     "uvicorn~=0.25.0", 
     "types-requests",
-    "lims_utils"
+    "lims_utils",
+    "requests"
 ]
 dynamic = ["version"]
 license.file = "LICENSE"
@@ -102,7 +106,7 @@ commands =
     pre-commit: pre-commit run --all-files {posargs}
 setenv =
     CONFIG_PATH=config.json
-    AUTH_TYPE=dummy
+    MOUNT_POINT=/
 """
 
 
