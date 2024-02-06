@@ -20,8 +20,21 @@ def paginate(
     page: int,
     slow_count=True,
     precounted_total: Optional[int] = None,
+    scalar=True,
 ):
-    """Paginate a query before querying database"""
+    """Paginate a query before querying database
+
+    Args:
+        query: Original query
+        items: Number of items to return per page
+        page: Page to access
+        slow_count: Count number of total items in a slower, safer manner (useful with GROUP statements)
+        precounted_total: Skip count, use this total instead
+        scalar: Is query already scalar (use `execute` instead of `scalars` when executing)
+
+    Returns
+        Paged representation of query"""
+
     if precounted_total is not None:
         total = precounted_total
     elif slow_count:
@@ -40,7 +53,9 @@ def paginate(
     if page < 0:
         page = (total // items) + page
 
-    data = inner_db.session.execute(query.limit(items).offset((page) * items)).all()
+    execute_cmd = inner_db.session.execute if scalar else inner_db.session.scalars
+
+    data = execute_cmd(query.limit(items).offset((page) * items)).all()
     return Paged(items=data, total=total, limit=items, page=page)
 
 

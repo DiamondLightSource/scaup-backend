@@ -9,3 +9,8 @@ def test_convert():
 def test_single_word():
     """Should convert single word"""
     assert pascal_to_title("title") == "Title"
+
+
+def test_join_character():
+    """Should use passed join character"""
+    assert pascal_to_title("newTitle", "") == "NewTitle"

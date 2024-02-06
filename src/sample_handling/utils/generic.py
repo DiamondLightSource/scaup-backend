@@ -1,4 +1,4 @@
-def pascal_to_title(original_str: str):
+def pascal_to_title(original_str: str, join_character=" "):
     """Convert a pascal-cased string to a capitalised title"""
 
     new_strs: list[str] = []
@@ -13,4 +13,4 @@ def pascal_to_title(original_str: str):
 
     new_strs.append(new_str.capitalize())
 
-    return " ".join(new_strs)
+    return join_character.join(new_strs)

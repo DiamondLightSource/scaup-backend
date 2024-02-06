@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Body, Depends, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials
+from lims_utils.models import Paged, pagination
 
 from ..auth import Permissions, auth_scheme
 from ..crud import containers as container_crud
@@ -84,6 +85,19 @@ def create_sample(
     return sample_crud.create_sample(
         shipmentId=shipmentId, params=parameters, token=token.credentials
     )
+
+
+@router.get(
+    "/{shipmentId}/samples",
+    response_model=Paged[SampleOut],
+    tags=["Samples"],
+)
+def get_samples(
+    shipmentId=Depends(auth),
+    page: dict[str, int] = Depends(pagination),
+):
+    """Create new sample in shipment"""
+    return sample_crud.get_samples(shipmentId=shipmentId, **page)
 
 
 @router.post(
