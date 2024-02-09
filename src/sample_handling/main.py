@@ -38,7 +38,7 @@ async def get_session_as_middleware(request, call_next):
         return await call_next(request)
 
 
-app.add_exception_handler(HTTPException, log_exception_handler)
+api.add_exception_handler(HTTPException, log_exception_handler)
 
 
 api.include_router(shipments.router)

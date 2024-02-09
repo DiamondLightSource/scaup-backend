@@ -1,7 +1,8 @@
 from typing import Any, Optional
 
-from pydantic import ConfigDict, Field, model_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
+from ..utils.generic import pascal_to_title
 from ..utils.models import BaseModelWithNameValidator, OrmBaseModel
 from .inner_db.tables import ContainerTypes
 
@@ -62,3 +63,9 @@ class ContainerExternal(OrmBaseModel):
     containerRegistryId: Optional[int] = Field(
         default=None, alias="registeredContainer"
     )
+    containerType: str = Field(alias="type")
+
+    @field_validator("containerType")
+    @classmethod
+    def pascal_to_name(cls, v):
+        return pascal_to_title(v, "")

@@ -4,7 +4,7 @@ from sqlalchemy import func, insert, select
 from ..models.inner_db.tables import Sample
 from ..models.samples import OptionalSample, SampleIn
 from ..utils.crud import assert_not_booked, edit_item
-from ..utils.database import inner_db
+from ..utils.database import inner_db, paginate
 from ..utils.external import ExternalRequest
 from ..utils.session import update_context
 
@@ -49,3 +49,9 @@ def edit_sample(sampleId: int, params: OptionalSample, token: str):
         _get_protein(params.proteinId, token)
 
     return edit_item(Sample, params, sampleId, token)
+
+
+def get_samples(shipmentId: int, limit: int, page: int):
+    query = select(Sample).filter(Sample.shipmentId == shipmentId)
+
+    return paginate(query, limit, page, slow_count=False, scalar=False)
