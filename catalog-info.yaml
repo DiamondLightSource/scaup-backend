@@ -31,6 +31,7 @@ spec:
     - microauth-api
     - expeye-sample-handling-api
     - expeye-core-api
+    - sample-shipping-api
 ---
 apiVersion: backstage.io/v1alpha1
 kind: API
