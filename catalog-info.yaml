@@ -3,7 +3,7 @@ kind: System
 metadata:
   name: sample-handling
   title: Sample Handling
-  description: Sample Handling API
+  description: Application for declaring contents and building sample shipments
 spec:
   owner: group:lims
 ---
