@@ -29,7 +29,8 @@ spec:
     - sample-handling-api
   consumesApis:
     - microauth-api
-    - expeye-api
+    - expeye-sample-handling-api
+    - expeye-core-api
 ---
 apiVersion: backstage.io/v1alpha1
 kind: API
