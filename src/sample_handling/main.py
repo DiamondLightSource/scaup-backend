@@ -1,8 +1,8 @@
 import os
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 from lims_utils.database import get_session
-from lims_utils.logging import log_exception_handler, register_loggers
+from lims_utils.logging import app_logger, log_exception_handler, register_loggers
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -39,6 +39,18 @@ async def get_session_as_middleware(request, call_next):
 
 
 api.add_exception_handler(HTTPException, log_exception_handler)
+
+
+@api.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    app_logger.error(
+        "Uncaught exception @ %s (method: %s):",
+        request.url,
+        request.method,
+        exc_info=exc,
+    )
+
+    return Response(status_code=500, content="Internal server error")
 
 
 api.include_router(shipments.router)

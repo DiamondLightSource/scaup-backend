@@ -3,7 +3,7 @@ from typing import Any, Optional
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from ..utils.generic import pascal_to_title
-from ..utils.models import BaseModelWithNameValidator, OrmBaseModel
+from ..utils.models import BaseExternal, BaseModelWithNameValidator
 from .inner_db.tables import ContainerTypes
 
 
@@ -52,14 +52,13 @@ class ContainerOut(BaseContainer):
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
-class ContainerExternal(OrmBaseModel):
+class ContainerExternal(BaseExternal):
     """Inner DB to ISPyB conversion model"""
 
     capacity: Optional[int] = None
     parentContainerId: Optional[int] = Field(default=None, alias="parentId")
     requestedReturn: bool
     code: Optional[str] = None
-    comments: Optional[str] = None
     containerRegistryId: Optional[int] = Field(
         default=None, alias="registeredContainer"
     )

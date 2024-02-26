@@ -1,6 +1,5 @@
 from typing import Optional
 
-from fastapi import HTTPException, status
 from lims_utils.database import Database
 from lims_utils.models import Paged
 from sqlalchemy import Select, func, literal_column, select
@@ -44,18 +43,15 @@ def paginate(
     else:
         total = fast_count(query)
 
-    if not total:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No items found",
-        )
+    data = []
+    if total:
+        if page < 0:
+            page = (total // items) + page
 
-    if page < 0:
-        page = (total // items) + page
+        execute_cmd = inner_db.session.execute if scalar else inner_db.session.scalars
 
-    execute_cmd = inner_db.session.execute if scalar else inner_db.session.scalars
+        data = execute_cmd(query.limit(items).offset((page) * items)).all()
 
-    data = execute_cmd(query.limit(items).offset((page) * items)).all()
     return Paged(items=data, total=total, limit=items, page=page)
 
 

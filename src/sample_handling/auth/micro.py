@@ -3,6 +3,7 @@ from typing import TypeVar
 import requests
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials
+from lims_utils.logging import app_logger
 from sqlalchemy import select
 
 from ..auth import auth_scheme
@@ -35,9 +36,10 @@ def _check_perms(data_id: T, endpoint: str, token: str) -> T:
     )
 
     if response.status_code != 200:
-        raise HTTPException(
-            status_code=response.status_code, detail=response.json().get("detail")
-        )
+        detail = response.json().get("detail")
+        app_logger.error(f"Microauth returned {response.status_code}: {detail}")
+
+        raise HTTPException(status_code=response.status_code, detail=detail)
 
     return data_id
 

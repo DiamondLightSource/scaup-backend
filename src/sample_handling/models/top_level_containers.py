@@ -2,7 +2,7 @@ from typing import Any, Literal, Optional
 
 from pydantic import ConfigDict, Field
 
-from ..utils.models import BaseModelWithNameValidator, OrmBaseModel
+from ..utils.models import BaseExternal, BaseModelWithNameValidator
 
 
 class BaseTopLevelContainer(BaseModelWithNameValidator):
@@ -36,5 +36,5 @@ class TopLevelContainerOut(BaseTopLevelContainer):
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
-class TopLevelContainerExternal(OrmBaseModel):
+class TopLevelContainerExternal(BaseExternal):
     code: str
