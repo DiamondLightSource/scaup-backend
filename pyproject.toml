@@ -47,7 +47,8 @@ dev = [
     "types-mock",
     "pytest-asyncio",
     "responses",
-    "httpx",
+    # https://github.com/encode/httpx/blob/master/CHANGELOG.md#0270-21st-february-2024
+    "httpx~=0.26.0",
     "alembic"
 ]
 
