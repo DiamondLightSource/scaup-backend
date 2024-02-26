@@ -2,10 +2,10 @@
   "auth": {
     "endpoint": "http://localhost:8050/",
     "type": "micro",
-    "cookie_key": "cookie_key"
+    "cookie_key": "__Host-sh_auth"
   },
   "shipping_service": {
-    "url": "https://sample-shipping-staging.diamond.ac.uk/api"
+    "url": "https://sample-shipping-staging.diamond.ac.uk"
   },
   "db": { "pool": 3, "overflow": 6 },
   "ispyb_api": "http://127.0.0.1:8060",
