@@ -27,7 +27,7 @@ def test_get_submitted(client):
 
 @responses.activate
 def test_get_inexistent(client):
-    """Should return 404 if no shipments exist in proposal"""
+    """Should return empty list if no shipments exist in proposal"""
     resp = client.get("/proposals/cm55555/shipments")
 
     assert resp.status_code == 200
