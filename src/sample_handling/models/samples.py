@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from pydantic import Field
 
-from ..utils.models import BaseModelWithNameValidator, OrmBaseModel
+from ..utils.models import BaseExternal, BaseModelWithNameValidator
 
 
 class BaseSample(BaseModelWithNameValidator):
@@ -28,16 +28,13 @@ class OptionalSample(BaseSample):
     type: Optional[str] = None
 
 
-class SampleOut(OrmBaseModel):
+class SampleOut(BaseSample):
     id: int
     shipmentId: int
     proteinId: int
-    name: str
-    location: Optional[int]
-    containerId: Optional[int]
 
 
-class SampleExternal(OrmBaseModel):
+class SampleExternal(BaseExternal):
     """Inner DB to ISPyB conversion model"""
 
     location: Optional[int]

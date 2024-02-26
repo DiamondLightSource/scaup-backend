@@ -3,7 +3,7 @@ from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from ..utils.models import OrmBaseModel
+from ..utils.models import BaseExternal
 
 
 def result_to_item_data(result: dict[str, Any]):
@@ -76,6 +76,6 @@ class UnassignedItems(BaseModel):
     containers: list[GenericItem]
 
 
-class ShipmentExternal(OrmBaseModel):
+class ShipmentExternal(BaseExternal):
     shippingName: str = Field(alias="name")
     creationDate: datetime
