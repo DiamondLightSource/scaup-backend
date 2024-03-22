@@ -1,10 +1,10 @@
 from fastapi import HTTPException, status
 from sqlalchemy import func, insert, select
 
-from ..models.inner_db.tables import Sample
+from ..models.inner_db.tables import Container, Sample
 from ..models.samples import OptionalSample, SampleIn
 from ..utils.crud import assert_not_booked, edit_item
-from ..utils.database import inner_db, paginate
+from ..utils.database import inner_db, paginate, unravel
 from ..utils.external import ExternalRequest
 from ..utils.session import update_context
 
@@ -52,6 +52,13 @@ def edit_sample(sampleId: int, params: OptionalSample, token: str):
 
 
 def get_samples(shipmentId: int, limit: int, page: int):
-    query = select(Sample).filter(Sample.shipmentId == shipmentId)
+    query = (
+        select(
+            *unravel(Sample),
+            Container.name.label("parent"),
+        )
+        .filter(Sample.shipmentId == shipmentId)
+        .join(Container, isouter=True)
+    )
 
-    return paginate(query, limit, page, slow_count=False, scalar=False)
+    return paginate(query, limit, page, slow_count=False)

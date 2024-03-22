@@ -1,6 +1,6 @@
 from typing import Any, Literal, Optional
 
-from pydantic import ConfigDict, Field
+from pydantic import AliasChoices, ConfigDict, Field
 
 from ..utils.models import BaseExternal, BaseModelWithNameValidator
 
@@ -32,7 +32,7 @@ class OptionalTopLevelContainer(BaseTopLevelContainer):
 
 
 class TopLevelContainerOut(BaseTopLevelContainer):
-    id: int
+    id: int = Field(validation_alias=AliasChoices("topLevelContainerId", "id"))
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
