@@ -41,7 +41,7 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
                 {
                     "shipmentId": shipmentId,
                     **params.model_dump(exclude_unset=True, exclude={"copies"}),
-                    "name": f"{params.name} {f"({i})" if i else ""}",
+                    "name": f"{params.name} {f'({i})' if i else ''}",
                 }
                 for i in range(params.copies)
             ],
