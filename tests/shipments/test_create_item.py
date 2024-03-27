@@ -7,14 +7,12 @@ from sqlalchemy import select
 from sample_handling.models.inner_db.tables import (
     AvailableTable,
     Container,
-    Sample,
     TopLevelContainer,
 )
 from sample_handling.utils.database import inner_db
 
 creation_params = (
     [
-        pytest.param("samples", {"proteinId": 4407}, Sample, id="samples"),
         pytest.param("containers", {"type": "puck"}, Container, id="containers"),
         pytest.param(
             "topLevelContainers",

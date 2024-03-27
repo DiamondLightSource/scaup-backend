@@ -35,6 +35,24 @@ def test_create_no_name(client):
 
 
 @responses.activate
+def test_create_multiple_copies(client):
+    """Should create multiple copies of passed sample"""
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"proteinId": 4407, "copies": 3},
+    )
+
+    assert resp.status_code == 201
+    names = inner_db.session.scalars(
+        select(Sample.name).filter(Sample.name.like("Protein 01 4%"))
+    ).all()
+
+    assert len(names) == 3
+    assert names[2] == "Protein 01 4 (2)"
+
+
+@responses.activate
 def test_create_invalid_protein(client):
     """Should not create new sample when provided with inexistent sample protein/
     compound"""
