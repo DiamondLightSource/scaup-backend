@@ -3,6 +3,7 @@ from typing import Any, List, Literal, Optional
 
 from sqlalchemy import JSON, DateTime, ForeignKey, SmallInteger, String, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.schema import UniqueConstraint
 
 
 class Base(DeclarativeBase):
@@ -60,6 +61,8 @@ class TopLevelContainer(Base, BaseColumns):
 
 class Container(Base, BaseColumns):
     __tablename__ = "Container"
+
+    __table_args__ = (UniqueConstraint("name", "shipmentId"),)
 
     id: Mapped[int] = mapped_column("containerId", primary_key=True, index=True)
     shipmentId: Mapped[int] = mapped_column(
