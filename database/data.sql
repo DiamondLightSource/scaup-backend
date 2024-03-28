@@ -2,11 +2,9 @@
 -- PostgreSQL database dump
 --
 
-\connect sample_handling
-\set VERBOSITY verbose
+-- Dumped from database version 16.1
+-- Dumped by pg_dump version 16.1
 
--- Dumped from database version 13.13 (Debian 13.13-1.pgdg120+1)
--- Dumped by pg_dump version 15.4
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -74,7 +72,7 @@ CREATE SEQUENCE public."Container_containerId_seq"
     CACHE 1;
 
 
-ALTER TABLE public."Container_containerId_seq" OWNER TO sample_handling;
+ALTER SEQUENCE public."Container_containerId_seq" OWNER TO sample_handling;
 
 --
 -- Name: Container_containerId_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sample_handling
@@ -123,7 +121,7 @@ CREATE SEQUENCE public."Sample_sampleId_seq"
     CACHE 1;
 
 
-ALTER TABLE public."Sample_sampleId_seq" OWNER TO sample_handling;
+ALTER SEQUENCE public."Sample_sampleId_seq" OWNER TO sample_handling;
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sample_handling
@@ -163,7 +161,7 @@ CREATE SEQUENCE public."Shipment_shipmentId_seq"
     CACHE 1;
 
 
-ALTER TABLE public."Shipment_shipmentId_seq" OWNER TO sample_handling;
+ALTER SEQUENCE public."Shipment_shipmentId_seq" OWNER TO sample_handling;
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sample_handling
@@ -204,7 +202,7 @@ CREATE SEQUENCE public."TopLevelContainer_topLevelContainerId_seq"
     CACHE 1;
 
 
-ALTER TABLE public."TopLevelContainer_topLevelContainerId_seq" OWNER TO sample_handling;
+ALTER SEQUENCE public."TopLevelContainer_topLevelContainerId_seq" OWNER TO sample_handling;
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sample_handling
@@ -212,6 +210,17 @@ ALTER TABLE public."TopLevelContainer_topLevelContainerId_seq" OWNER TO sample_h
 
 ALTER SEQUENCE public."TopLevelContainer_topLevelContainerId_seq" OWNED BY public."TopLevelContainer"."topLevelContainerId";
 
+
+--
+-- Name: alembic_version; Type: TABLE; Schema: public; Owner: sample_handling
+--
+
+CREATE TABLE public.alembic_version (
+    version_num character varying(32) NOT NULL
+);
+
+
+ALTER TABLE public.alembic_version OWNER TO sample_handling;
 
 --
 -- Name: Container containerId; Type: DEFAULT; Schema: public; Owner: sample_handling
@@ -287,6 +296,15 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 2	2	\N	DLS-2	DLS-2	dewar	Dewar 02	\N	\N
 3	2	\N	DLS-3	DLS-3	dewar	Dewar 03	\N	\N
 61	89	\N	DLS-4	DLS-4	dewar	Dewar 04	10	\N
+\.
+
+
+--
+-- Data for Name: alembic_version; Type: TABLE DATA; Schema: public; Owner: sample_handling
+--
+
+COPY public.alembic_version (version_num) FROM stdin;
+1daa99b93377
 \.
 
 
@@ -380,6 +398,22 @@ ALTER TABLE ONLY public."TopLevelContainer"
 
 ALTER TABLE ONLY public."TopLevelContainer"
     ADD CONSTRAINT "TopLevelContainer_pkey" PRIMARY KEY ("topLevelContainerId");
+
+
+--
+-- Name: alembic_version alembic_version_pkc; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public.alembic_version
+    ADD CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num);
+
+
+--
+-- Name: Container uq_name_shipment; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."Container"
+    ADD CONSTRAINT uq_name_shipment UNIQUE (name, "shipmentId");
 
 
 --
