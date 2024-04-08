@@ -19,13 +19,12 @@ from tests.shipments.top_level_containers.responses import (
     registered_dewar_callback,
 )
 
-
-@pytest.fixture(scope="function", autouse=True)
-def mock_config():
-    with patch(
-        "sample_handling.utils.config._read_config", return_value={"auth": "this"}
-    ) as _fixture:
-        yield _fixture
+# @pytest.fixture(scope="function", autouse=True)
+# def mock_config():
+#    with patch(
+#        "sample_handling.utils.config._read_config", return_value={"auth": "this"}
+#    ) as _fixture:
+#        yield _fixture
 
 
 engine = create_engine(

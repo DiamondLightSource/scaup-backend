@@ -2,6 +2,7 @@ import responses
 from sqlalchemy import select
 
 from sample_handling.models.inner_db.tables import Sample
+from sample_handling.utils.config import Config
 from sample_handling.utils.database import inner_db
 
 
@@ -57,7 +58,7 @@ def test_create_invalid_protein(client):
     """Should not create new sample when provided with inexistent sample protein/
     compound"""
 
-    responses.get("http://127.0.0.1:8060/proteins/1", status=404)
+    responses.get(f"{Config.ispyb_api}/proteins/1", status=404)
 
     resp = client.post(
         "/shipments/1/samples",

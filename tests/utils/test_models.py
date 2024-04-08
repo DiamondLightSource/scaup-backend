@@ -20,7 +20,7 @@ def test_valid(client):
 
 
 def test_append_origin(client):
-    """Should include origin of item in comments when exporting to ISPyB"""
+    """Should include origin of item in source column"""
     instance = BaseExternal(comments="test")
 
-    assert instance.comments == "Created by eBIC-SH; test"
+    assert instance.source == "eBIC-SH"

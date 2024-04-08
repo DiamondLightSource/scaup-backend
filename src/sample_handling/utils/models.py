@@ -20,9 +20,5 @@ class OrmBaseModel(BaseModel):
 class BaseExternal(OrmBaseModel):
     """Base model for internal-to-external (ISPyB) item conversions"""
 
-    comments: Optional[str]
-
-    @field_validator("comments")
-    @classmethod
-    def append_origin(cls, v: str | None) -> str:
-        return "; ".join(["Created by eBIC-SH", v or ""])
+    comments: Optional[str] = None
+    source: str = "eBIC-SH"
