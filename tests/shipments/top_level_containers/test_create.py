@@ -35,7 +35,7 @@ def test_create_no_name(client):
 
     assert (
         inner_db.session.scalar(
-            select(TopLevelContainer).filter(TopLevelContainer.name == "Dewar 2")
+            select(TopLevelContainer).filter(TopLevelContainer.name == "Dewar_2")
         )
         is not None
     )

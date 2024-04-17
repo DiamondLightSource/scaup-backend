@@ -11,18 +11,18 @@ def test_edit(client):
 
     resp = client.patch(
         "/containers/1",
-        json={"name": "New Container Name"},
+        json={"name": "New_Container_Name"},
     )
 
     assert resp.status_code == 200
 
     data = resp.json()
 
-    assert data["name"] == "New Container Name"
+    assert data["name"] == "New_Container_Name"
 
     assert (
         inner_db.session.scalar(
-            select(Container).filter(Container.name == "New Container Name")
+            select(Container).filter(Container.name == "New_Container_Name")
         )
         is not None
     )
@@ -33,7 +33,7 @@ def test_edit_inexistent_sample(client):
 
     resp = client.patch(
         "/containers/999999",
-        json={"name": "New Container Name"},
+        json={"name": "New_Container_Name"},
     )
 
     assert resp.status_code == 404
@@ -46,7 +46,7 @@ def test_push_to_ispyb(client):
 
     client.patch(
         "/containers/341",
-        json={"name": "New Container Name"},
+        json={"name": "New_Container_Name"},
     )
 
     assert patch_resp.call_count == 1

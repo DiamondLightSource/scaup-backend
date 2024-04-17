@@ -11,17 +11,17 @@ def test_edit(client):
 
     resp = client.patch(
         "/samples/1",
-        json={"name": "New Sample Name"},
+        json={"name": "New_Sample_Name"},
     )
 
     assert resp.status_code == 200
 
     data = resp.json()
 
-    assert data["name"] == "New Sample Name"
+    assert data["name"] == "New_Sample_Name"
 
     assert (
-        inner_db.session.scalar(select(Sample).filter(Sample.name == "New Sample Name"))
+        inner_db.session.scalar(select(Sample).filter(Sample.name == "New_Sample_Name"))
         is not None
     )
 
@@ -32,7 +32,7 @@ def test_edit_invalid_protein(client):
 
     resp = client.patch(
         "/samples/1",
-        json={"name": "New Sample Name", "proteinId": 9999},
+        json={"name": "New_Sample_Name", "proteinId": 9999},
     )
 
     assert resp.status_code == 404
@@ -56,7 +56,7 @@ def test_push_to_ispyb(client):
 
     client.patch(
         "/samples/336",
-        json={"name": "New Sample Name"},
+        json={"name": "New_Sample_Name"},
     )
 
     assert patch_resp.call_count == 1

@@ -30,7 +30,7 @@ def test_create_no_name(client):
     assert resp.status_code == 201
 
     assert (
-        inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein 01 4"))
+        inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein_01_4"))
         is not None
     )
 
@@ -46,11 +46,11 @@ def test_create_multiple_copies(client):
 
     assert resp.status_code == 201
     names = inner_db.session.scalars(
-        select(Sample.name).filter(Sample.name.like("Protein 01 4%"))
+        select(Sample.name).filter(Sample.name.like("Protein_01_4%"))
     ).all()
 
     assert len(names) == 3
-    assert names[2] == "Protein 01 4 (2)"
+    assert names[2] == "Protein_01_4_2"
 
 
 @responses.activate

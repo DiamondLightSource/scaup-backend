@@ -24,4 +24,4 @@ def test_get_with_parent(client):
 
     data = resp.json()
 
-    assert data["items"][0]["parent"] == "Grid Box 02"
+    assert data["items"][0]["parent"] == "Grid_Box_02"

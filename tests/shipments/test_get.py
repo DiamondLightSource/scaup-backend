@@ -10,22 +10,22 @@ def test_get(client):
 
     dewar = data["children"][0]
 
-    assert dewar["name"] == "Dewar 01"
+    assert dewar["name"] == "Dewar_01"
     assert len(dewar["children"]) == 1
 
     container = dewar["children"][0]
 
-    assert container["name"] == "Container 01"
+    assert container["name"] == "Container_01"
     assert len(container["children"]) == 1
 
     gridBox = container["children"][0]
 
-    assert gridBox["name"] == "Grid Box 01"
+    assert gridBox["name"] == "Grid_Box_01"
     assert len(gridBox["children"]) == 1
 
     sample = gridBox["children"][0]
 
-    assert sample["name"] == "Sample 01"
+    assert sample["name"] == "Sample_01"
 
 
 def test_get_multiple(client):
