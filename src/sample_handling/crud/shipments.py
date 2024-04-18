@@ -162,12 +162,6 @@ def get_unassigned(shipmentId: int):
         .options(joinedload(Container.children))
     )
 
-    if not samples and not grid_boxes and not containers:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No unassigned items or no shipment found",
-        )
-
     return UnassignedItems(samples=samples, gridBoxes=grid_boxes, containers=containers)
 
 
