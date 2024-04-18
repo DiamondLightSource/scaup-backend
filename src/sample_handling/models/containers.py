@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from pydantic import ConfigDict, Field, field_validator, model_validator
+from pydantic import AliasChoices, ConfigDict, Field, field_validator, model_validator
 
 from ..utils.generic import pascal_to_title
 from ..utils.models import BaseExternal, BaseModelWithNameValidator
@@ -48,7 +48,7 @@ class OptionalContainer(BaseContainer):
 
 
 class ContainerOut(BaseContainer):
-    id: int
+    id: int = Field(validation_alias=AliasChoices("containerId", "id"))
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 

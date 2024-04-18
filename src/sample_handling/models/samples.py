@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from pydantic import Field
+from pydantic import AliasChoices, Field
 
 from ..utils.models import BaseExternal, BaseModelWithNameValidator
 
@@ -29,9 +29,10 @@ class OptionalSample(BaseSample):
 
 
 class SampleOut(BaseSample):
-    id: int
+    id: int = Field(validation_alias=AliasChoices("sampleId", "id"))
     shipmentId: int
     proteinId: int
+    parent: Optional[str] = None
 
 
 class SampleExternal(BaseExternal):
