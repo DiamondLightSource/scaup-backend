@@ -73,7 +73,7 @@ def create_container(shipmentId=Depends(auth), parameters: ContainerIn = Body())
 @router.post(
     "/{shipmentId}/samples",
     status_code=status.HTTP_201_CREATED,
-    response_model=SampleOut,
+    response_model=Paged[SampleOut],
     tags=["Samples"],
 )
 def create_sample(

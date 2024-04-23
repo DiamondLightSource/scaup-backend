@@ -21,6 +21,7 @@ class BaseSample(BaseModelWithNameValidator):
 class SampleIn(BaseSample):
     proteinId: int
     type: Optional[str] = None
+    copies: int = 1
 
 
 class OptionalSample(BaseSample):

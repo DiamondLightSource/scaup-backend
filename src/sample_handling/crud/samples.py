@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status
+from lims_utils.models import Paged
 from sqlalchemy import func, insert, select
 
 from ..models.inner_db.tables import Container, Sample
@@ -34,13 +35,20 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
         params.name = f"{upstream_compound['name']} {((sample_count or 0) + 1)}"
 
     with update_context():
-        sample = inner_db.session.scalar(
+        samples = inner_db.session.scalars(
             insert(Sample).returning(Sample),
-            {"shipmentId": shipmentId, **params.model_dump(exclude_unset=True)},
-        )
+            [
+                {
+                    "shipmentId": shipmentId,
+                    **params.model_dump(exclude_unset=True, exclude={"copies"}),
+                    "name": f"{params.name}{f' ({i})' if i else ''}",
+                }
+                for i in range(params.copies)
+            ],
+        ).all()
 
         inner_db.session.commit()
-        return sample
+        return Paged(items=samples, total=params.copies, page=0, limit=params.copies)
 
 
 def edit_sample(sampleId: int, params: OptionalSample, token: str):
