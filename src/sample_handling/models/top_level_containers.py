@@ -11,6 +11,7 @@ class BaseTopLevelContainer(BaseModelWithNameValidator):
     capacity: Optional[int] = None
     details: Optional[dict[str, Any]] = None
     location: Optional[int] = None
+    comments: Optional[str] = None
     name: Optional[str] = Field(
         default=None,
         description=(
@@ -37,4 +38,5 @@ class TopLevelContainerOut(BaseTopLevelContainer):
 
 
 class TopLevelContainerExternal(BaseExternal):
+    comments: Optional[str] = None
     code: str
