@@ -4,7 +4,8 @@ import requests
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials
 from lims_utils.logging import app_logger
-from sqlalchemy import select
+from lims_utils.models import parse_proposal
+from sqlalchemy import func, select
 
 from ..auth import auth_scheme
 from ..models.inner_db.tables import (
@@ -45,19 +46,26 @@ def _check_perms(data_id: T, endpoint: str, token: str) -> T:
 
 
 def _generic_table_check(table: type[Base], itemId: int, token: str):
-    proposalReference = inner_db.session.scalar(
-        select(Shipment.proposalReference)
+    proposal_reference = inner_db.session.scalar(
+        select(
+            func.concat(
+                Shipment.proposalCode,
+                Shipment.proposalNumber,
+                "-",
+                Shipment.visitNumber,
+            )
+        )
         .select_from(table)
         .filter_by(id=itemId)
         .join(Shipment)
     )
 
-    if proposalReference is None:
+    if proposal_reference is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Item does not exist"
         )
 
-    _check_perms(proposalReference, "proposal", token)
+    _check_perms(proposal_reference, "session", token)
 
     return itemId
 
@@ -67,24 +75,43 @@ class Permissions(GenericPermissions):
     def proposal(
         proposalReference: str,
         token: HTTPAuthorizationCredentials = Depends(auth_scheme),
-    ) -> str:
+    ):
         return _check_perms(proposalReference, "proposal", token.credentials)
+
+    @staticmethod
+    def session(
+        proposalReference: str,
+        visitNumber: int,
+        token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+    ):
+        proposal_reference = parse_proposal(
+            proposal_reference=proposalReference, visit_number=visitNumber
+        )
+        _check_perms(f"{proposalReference}-{visitNumber}", "session", token.credentials)
+        return proposal_reference
 
     @staticmethod
     def shipment(
         shipmentId: int,
         token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     ) -> int:
-        proposalReference = inner_db.session.scalar(
-            select(Shipment.proposalReference).filter_by(id=shipmentId)
+        proposal_reference = inner_db.session.scalar(
+            select(
+                func.concat(
+                    Shipment.proposalCode,
+                    Shipment.proposalNumber,
+                    "-",
+                    Shipment.visitNumber,
+                )
+            ).filter_by(id=shipmentId)
         )
 
-        if proposalReference is None:
+        if proposal_reference is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Shipment does not exist"
             )
 
-        _check_perms(proposalReference, "proposal", token.credentials)
+        _check_perms(proposal_reference, "session", token.credentials)
 
         return shipmentId
 

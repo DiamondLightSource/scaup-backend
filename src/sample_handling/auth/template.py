@@ -1,11 +1,19 @@
 from typing import Protocol, runtime_checkable
 
+from lims_utils.models import parse_proposal
+
 
 @runtime_checkable
 class GenericPermissions(Protocol):
     @staticmethod
-    def proposal(proposalReference: str) -> str:
+    def proposal(proposalReference: str):
         return proposalReference
+
+    @staticmethod
+    def session(proposalReference: str, visitNumber: int):
+        return parse_proposal(
+            proposal_reference=proposalReference, visit_number=visitNumber
+        )
 
     @staticmethod
     def shipment(shipmentId: int) -> int:

@@ -27,7 +27,9 @@ class ShipmentIn(BaseModel):
 
 class ShipmentOut(BaseModel):
     id: int
-    proposalReference: str
+    proposalCode: str
+    proposalNumber: int
+    visitNumber: int
 
     name: str
     comments: Optional[str] = None
