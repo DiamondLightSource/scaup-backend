@@ -27,7 +27,7 @@ def _check_perms(data_id: T, endpoint: str, token: str) -> T:
         "".join(
             [
                 Config.auth.endpoint,
-                "permission/",
+                "/permission/",
                 endpoint,
                 "/",
                 str(data_id),

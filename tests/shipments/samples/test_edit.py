@@ -52,7 +52,7 @@ def test_edit_inexistent_sample(client):
 @responses.activate
 def test_push_to_ispyb(client):
     """Should push to ISPyB if sample has externalId present"""
-    patch_resp = responses.patch(f"{Config.ispyb_api}/samples/10", "{}")
+    patch_resp = responses.patch(f"{Config.ispyb_api}/sample-handling/samples/10", "{}")
 
     client.patch(
         "/samples/336",

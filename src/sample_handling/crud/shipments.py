@@ -243,6 +243,7 @@ def build_shipment_request(shipmentId: int, token: str):
         base_url=Config.shipping_service.url,
         token=token,
         method="POST",
+        module="",
         url="/api/shipment_requests/",
         json=built_request_body,
     )

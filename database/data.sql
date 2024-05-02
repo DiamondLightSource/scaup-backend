@@ -60,6 +60,13 @@ COMMENT ON COLUMN public."Container".details IS 'Generic additional details';
 
 
 --
+-- Name: COLUMN "Container"."externalId"; Type: COMMENT; Schema: public; Owner: sample_handling
+--
+
+COMMENT ON COLUMN public."Container"."externalId" IS 'Item ID in ISPyB';
+
+
+--
 -- Name: Container_containerId_seq; Type: SEQUENCE; Schema: public; Owner: sample_handling
 --
 
@@ -109,6 +116,13 @@ COMMENT ON COLUMN public."Sample".details IS 'Generic additional details';
 
 
 --
+-- Name: COLUMN "Sample"."externalId"; Type: COMMENT; Schema: public; Owner: sample_handling
+--
+
+COMMENT ON COLUMN public."Sample"."externalId" IS 'Item ID in ISPyB';
+
+
+--
 -- Name: Sample_sampleId_seq; Type: SEQUENCE; Schema: public; Owner: sample_handling
 --
 
@@ -136,17 +150,26 @@ ALTER SEQUENCE public."Sample_sampleId_seq" OWNED BY public."Sample"."sampleId";
 
 CREATE TABLE public."Shipment" (
     "shipmentId" integer NOT NULL,
-    "proposalReference" character varying(10) NOT NULL,
     "creationDate" timestamp with time zone DEFAULT now() NOT NULL,
     "shipmentRequest" integer,
     status character varying(25),
     name character varying(40) NOT NULL,
     "externalId" integer,
-    comments character varying(255)
+    comments character varying(255),
+    "proposalCode" character varying(2) NOT NULL,
+    "proposalNumber" integer NOT NULL,
+    "visitNumber" integer NOT NULL
 );
 
 
 ALTER TABLE public."Shipment" OWNER TO sample_handling;
+
+--
+-- Name: COLUMN "Shipment"."externalId"; Type: COMMENT; Schema: public; Owner: sample_handling
+--
+
+COMMENT ON COLUMN public."Shipment"."externalId" IS 'Item ID in ISPyB';
+
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE; Schema: public; Owner: sample_handling
@@ -188,6 +211,13 @@ CREATE TABLE public."TopLevelContainer" (
 
 
 ALTER TABLE public."TopLevelContainer" OWNER TO sample_handling;
+
+--
+-- Name: COLUMN "TopLevelContainer"."externalId"; Type: COMMENT; Schema: public; Owner: sample_handling
+--
+
+COMMENT ON COLUMN public."TopLevelContainer"."externalId" IS 'Item ID in ISPyB';
+
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE; Schema: public; Owner: sample_handling
@@ -257,10 +287,10 @@ ALTER TABLE ONLY public."TopLevelContainer" ALTER COLUMN "topLevelContainerId" S
 COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "parentId", type, capacity, location, details, "requestedReturn", "registeredContainer", name, "externalId", comments) FROM stdin;
 1	1	1	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N
 3	1	\N	\N	falconTube	\N	\N	\N	f	\N	Container_02	\N	\N
-4	1	\N	\N	gridBox	\N	\N	\N	f	\N	Grid_Box_02	\N	
-5	1	\N	\N	gridBox	\N	\N	\N	f	\N	Grid_Box_03	\N	
 341	89	\N	\N	puck	\N	\N	\N	f	\N	Container_03	10	\N
-2	1	\N	1	gridBox	\N	1	\N	f	\N	Grid_Box_01	\N	Test Comment!
+4	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N
+5	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_03	\N	\N
+2	1	\N	1	gridBox	4	\N	\N	f	\N	Grid_Box_01	\N	Test Comment!
 \.
 
 
@@ -269,10 +299,10 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 --
 
 COPY public."Sample" ("sampleId", "shipmentId", "proteinId", type, location, details, "containerId", name, "externalId", comments) FROM stdin;
+2	1	4407	sample	\N	{"foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "buffer": "3", "concentration": "5", "vitrificationConditions": "", "clipped": false}	\N	Sample_02	\N	\N
 3	1	4407	sample	1	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	4	Sample_02	\N	\N
 1	1	4407	sample	1	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	2	Sample_01	\N	\N
 336	89	4407	sample	\N	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	\N	Sample_04	10	\N
-2	1	4407	sample	\N	{"foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "buffer": "3", "concentration": "5", "vitrificationConditions": "", "clipped": false}	\N	Sample_02	\N	\N
 \.
 
 
@@ -280,10 +310,10 @@ COPY public."Sample" ("sampleId", "shipmentId", "proteinId", type, location, det
 -- Data for Name: Shipment; Type: TABLE DATA; Schema: public; Owner: sample_handling
 --
 
-COPY public."Shipment" ("shipmentId", "proposalReference", "creationDate", "shipmentRequest", status, name, "externalId", comments) FROM stdin;
-1	cm00001	2024-01-15 11:14:58.56198+00	\N	\N	Shipment_01	\N	\N
-2	cm00002	2024-01-15 11:14:58.56198+00	\N	\N	Shipment_02	123	\N
-89	cm00003	2024-01-15 11:14:58.56198+00	\N	Booked	Shipment_03	256	\N
+COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status, name, "externalId", comments, "proposalCode", "proposalNumber", "visitNumber") FROM stdin;
+1	2024-05-02 13:12:36.528788+00	\N	\N	Shipment_01	\N	\N	cm	1	1
+2	2024-05-02 13:12:36.528788+00	\N	\N	Shipment_02	123	\N	cm	2	1
+89	2024-05-02 13:12:36.528788+00	\N	Booked	Shipment_03	256	\N	cm	2	1
 \.
 
 
@@ -293,9 +323,9 @@ COPY public."Shipment" ("shipmentId", "proposalReference", "creationDate", "ship
 
 COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, code, "barCode", type, name, "externalId", comments) FROM stdin;
 1	1	\N	DLS-1	DLS-1	dewar	Dewar_01	\N	\N
-2	2	\N	DLS-2	DLS-2	dewar	Dewar_02	\N	\N
 3	2	\N	DLS-3	DLS-3	dewar	Dewar_03	\N	\N
 61	89	\N	DLS-4	DLS-4	dewar	Dewar_04	10	\N
+2	2	\N	DLS-2	DLS-2	dewar	Dewar_02	\N	\N
 \.
 
 
@@ -304,7 +334,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-1daa99b93377
+cff8953e4ffb
 \.
 
 
@@ -312,28 +342,28 @@ COPY public.alembic_version (version_num) FROM stdin;
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 183, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 500, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 129, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 290, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 28, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 74, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 46, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 80, true);
 
 
 --
@@ -459,10 +489,17 @@ CREATE INDEX "ix_Sample_shipmentId" ON public."Sample" USING btree ("shipmentId"
 
 
 --
--- Name: ix_Shipment_proposalReference; Type: INDEX; Schema: public; Owner: sample_handling
+-- Name: ix_Shipment_proposalCode; Type: INDEX; Schema: public; Owner: sample_handling
 --
 
-CREATE INDEX "ix_Shipment_proposalReference" ON public."Shipment" USING btree ("proposalReference");
+CREATE INDEX "ix_Shipment_proposalCode" ON public."Shipment" USING btree ("proposalCode");
+
+
+--
+-- Name: ix_Shipment_proposalNumber; Type: INDEX; Schema: public; Owner: sample_handling
+--
+
+CREATE INDEX "ix_Shipment_proposalNumber" ON public."Shipment" USING btree ("proposalNumber");
 
 
 --
@@ -470,6 +507,13 @@ CREATE INDEX "ix_Shipment_proposalReference" ON public."Shipment" USING btree ("
 --
 
 CREATE INDEX "ix_Shipment_shipmentId" ON public."Shipment" USING btree ("shipmentId");
+
+
+--
+-- Name: ix_Shipment_visitNumber; Type: INDEX; Schema: public; Owner: sample_handling
+--
+
+CREATE INDEX "ix_Shipment_visitNumber" ON public."Shipment" USING btree ("visitNumber");
 
 
 --
@@ -545,4 +589,3 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 -- PostgreSQL database dump complete
 --
-

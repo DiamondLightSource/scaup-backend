@@ -1,22 +1,29 @@
-import re
 from unittest.mock import patch
 
 import pytest
 import responses
 from fastapi.security import HTTPAuthorizationCredentials
 from fastapi.testclient import TestClient
+from requests import PreparedRequest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from sample_handling.auth import auth_scheme
 from sample_handling.main import api, app
-from sample_handling.utils.config import Config
 from sample_handling.utils.database import inner_db
 from tests.shipments.responses import generic_creation_callback
 from tests.shipments.samples.responses import protein_callback
 from tests.shipments.top_level_containers.responses import (
     lab_contact_callback,
     registered_dewar_callback,
+)
+
+from .utils.regex import (
+    creation_regex,
+    lab_contact_regex,
+    proposal_regex,
+    protein_regex,
+    registered_dewar_regex,
 )
 
 # @pytest.fixture(scope="function", autouse=True)
@@ -55,10 +62,10 @@ def client():
     conn.close()
 
 
-def proposal_callback(request):
-    item_id = request.path_url.split("/")[3]
+def proposal_callback(request: PreparedRequest):
+    item_id = request.path_url[1:]
 
-    if item_id == "cm00001":
+    if item_id == "cm1":
         return (200, {}, "{}")
 
     return (404, {}, "")
@@ -82,32 +89,30 @@ def mock_permissions(request):
 def register_responses():
     responses.add_callback(
         responses.GET,
-        re.compile(f"{Config.ispyb_api}/dewars/registry/(.*)"),
+        registered_dewar_regex,
         callback=registered_dewar_callback,
     )
 
     responses.add_callback(
         responses.GET,
-        re.compile(f"{Config.ispyb_api}/contacts/([0-9].*)"),
+        lab_contact_regex,
         callback=lab_contact_callback,
     )
 
     responses.add_callback(
         responses.GET,
-        re.compile(f"{Config.ispyb_api}/proteins/([0-9].*)"),
+        protein_regex,
         callback=protein_callback,
     )
 
     responses.add_callback(
         responses.POST,
-        re.compile(
-            f"{Config.ispyb_api}/(containers|proposals|dewars|shipments|proposals)/(.*)/(dewars|samples|containers|shipments)"
-        ),
+        creation_regex,
         callback=generic_creation_callback,
     )
 
     responses.add_callback(
         responses.GET,
-        re.compile(f"{Config.auth.endpoint}/permission/proposal/(.*)"),
+        proposal_regex,
         callback=proposal_callback,
     )
