@@ -235,7 +235,8 @@ def build_shipment_request(shipmentId: int, token: str):
         # TODO: remove padding once shipping service removes regex check
         "proposal": f"{shipment.proposalCode}{shipment.proposalNumber:06}",
         "external_id": shipment.externalId,
-        "origin_url": f"{Config.frontend_url}/proposals/{shipment.proposalCode}{shipment.proposalNumber}/sessions/{shipment.visitNumber}/shipments/{shipment.id}",
+        "origin_url": f"{Config.frontend_url}/proposals/{shipment.proposalCode}{shipment.proposalNumber}/sessions/"
+        + f"{shipment.visitNumber}/shipments/{shipment.id}",
         "packages": packages,
     }
 

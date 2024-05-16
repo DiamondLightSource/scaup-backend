@@ -20,6 +20,6 @@ repos:
         name: Run ruff
         stages: [commit]
         language: system
-        entry: ruff
+        entry: ruff check
         exclude: alembic
         types: [python]
