@@ -18,7 +18,7 @@ creation_params = (
             "topLevelContainers",
             {
                 "type": "dewar",
-                "code": "DLS-EM-0000",
+                "code": "DLS-EM-0001",
             },
             TopLevelContainer,
             id="topLevelContainers",

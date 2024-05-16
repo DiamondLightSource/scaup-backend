@@ -13,6 +13,7 @@ class Auth:
     endpoint: str = "https://localhost/auth"
     type: Literal["dummy", "micro"] = "micro"
     cookie_key: str = "cookie_key"
+    cors: bool = False
 
 
 @dataclass

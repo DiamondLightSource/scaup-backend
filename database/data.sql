@@ -322,10 +322,10 @@ COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status,
 --
 
 COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, code, "barCode", type, name, "externalId", comments) FROM stdin;
-1	1	\N	DLS-1	DLS-1	dewar	Dewar_01	\N	\N
 3	2	\N	DLS-3	DLS-3	dewar	Dewar_03	\N	\N
 61	89	\N	DLS-4	DLS-4	dewar	Dewar_04	10	\N
 2	2	\N	DLS-2	DLS-2	dewar	Dewar_02	\N	\N
+1	1	\N	DLS-1	DLS-1	dewar	DLS-EM-0000	\N	\N
 \.
 
 
@@ -334,7 +334,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-cff8953e4ffb
+b22d0b329bca
 \.
 
 
@@ -342,28 +342,28 @@ cff8953e4ffb
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 500, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 560, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 290, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 348, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 74, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 84, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 80, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 106, true);
 
 
 --
@@ -420,6 +420,14 @@ ALTER TABLE ONLY public."Shipment"
 
 ALTER TABLE ONLY public."TopLevelContainer"
     ADD CONSTRAINT "TopLevelContainer_externalId_key" UNIQUE ("externalId");
+
+
+--
+-- Name: TopLevelContainer TopLevelContainer_name_shipmentId_key; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."TopLevelContainer"
+    ADD CONSTRAINT "TopLevelContainer_name_shipmentId_key" UNIQUE (name, "shipmentId");
 
 
 --
@@ -589,3 +597,4 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 -- PostgreSQL database dump complete
 --
+

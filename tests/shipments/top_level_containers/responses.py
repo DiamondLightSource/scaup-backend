@@ -9,7 +9,7 @@ def registered_dewar_callback(request: PreparedRequest):
     # Return valid response for dewar with facility code DLS-EM-0000, return 404 for all else
     dewar_id = get_match(registered_dewar_regex, request.url)
 
-    if dewar_id == "DLS-EM-0000":
+    if dewar_id == "DLS-EM-0000" or dewar_id == "DLS-EM-0001":
         return (200, {}, json.dumps({}))
 
     return (404, {}, "")

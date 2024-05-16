@@ -1,6 +1,7 @@
 import os
 
 from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 from lims_utils.database import get_session
 from lims_utils.logging import app_logger, log_exception_handler, register_loggers
 from sqlalchemy import create_engine
@@ -13,6 +14,16 @@ from .utils.config import Config
 app = FastAPI(version=__version__)
 
 api = FastAPI()
+
+if Config.auth.cors:
+    api.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
 
 inner_engine = create_engine(
     url=os.environ.get(

@@ -27,7 +27,7 @@ def test_create_no_name(client):
         "/shipments/1/topLevelContainers",
         json={
             "type": "dewar",
-            "code": "DLS-EM-0000",
+            "code": "DLS-EM-0001",
         },
     )
 
@@ -35,7 +35,27 @@ def test_create_no_name(client):
 
     assert (
         inner_db.session.scalar(
-            select(TopLevelContainer).filter(TopLevelContainer.name == "Dewar_2")
+            select(TopLevelContainer).filter(TopLevelContainer.name == "DLS-EM-0001")
         )
         is not None
+    )
+
+
+@responses.activate
+def test_create_duplicate_name(client):
+    """Should not allow creation if name is already present in shipment"""
+
+    resp = client.post(
+        "/shipments/1/topLevelContainers",
+        json={
+            "type": "dewar",
+            "code": "DLS-EM-0000",
+        },
+    )
+
+    assert resp.status_code == 400
+
+    assert (
+        resp.json()["detail"]
+        == "A container with this name already exists in this shipment"
     )
