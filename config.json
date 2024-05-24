@@ -1,6 +1,6 @@
 {
   "auth": {
-    "endpoint": "http://localhost:8050/",
+    "endpoint": "http://127.0.0.1:8070/auth",
     "type": "micro",
     "cookie_key": "__Host-sh_auth"
   },
@@ -8,6 +8,6 @@
     "url": "https://sample-shipping-staging.diamond.ac.uk"
   },
   "db": { "pool": 3, "overflow": 6 },
-  "ispyb_api": "http://127.0.0.1:8060",
-  "frontend_url": "http://localtest.diamond.ac.uk"
+  "ispyb_api": "http://127.0.0.1:8060/api",
+  "frontend_url": "http://localtest.diamond.ac.uk:9000"
 }

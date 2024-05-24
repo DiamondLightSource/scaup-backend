@@ -44,6 +44,7 @@ class Shipment(Base, BaseColumns):
 
 class TopLevelContainer(Base, BaseColumns):
     __tablename__ = "TopLevelContainer"
+    __table_args__ = (UniqueConstraint("name", "shipmentId"),)
 
     id: Mapped[int] = mapped_column("topLevelContainerId", primary_key=True, index=True)
     shipment: Mapped["Shipment"] = relationship(back_populates="children")

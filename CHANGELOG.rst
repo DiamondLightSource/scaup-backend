@@ -23,6 +23,7 @@ v0.1.0 (19/04/2024)
 - Invalid characters are not allowed in item names
 - Allow user to make multiple copies of sample
 - All sample names will get prefixed with the macromolecule name
+- Shipments are now session specific
 
 **Fixed**
 
