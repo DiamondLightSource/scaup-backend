@@ -95,10 +95,8 @@ def push_shipment(shipmentId: int, token: str):
     )
     session_id = session_response.json()["sessionId"]
 
-    if not session_id:
-        raise HTTPException(
-            status.HTTP_404_NOT_FOUND, "Session not found in upstream service"
-        )
+    # The existence of the session is already verified by Microauth
+    assert session_id is not None, "Session should exist upstream, yet it doesn't"
 
     # There were other ways to do this that did not involve closures, but this seems like the
     # cleanest option that did not take a significant performance hit
