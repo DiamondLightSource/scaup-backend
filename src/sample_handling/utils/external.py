@@ -34,7 +34,9 @@ class ExternalObject:
     external_key = ""
     url = ""
 
-    def __init__(self, item: AvailableTable, item_id: int | str, root_id: int | None):
+    def __init__(
+        self, item: AvailableTable, item_id: int | str, root_id: int | None = None
+    ):
         match item:
             case Shipment():
                 self.url = f"/proposals/{item_id}/shipments"
