@@ -88,6 +88,17 @@ def get_shipment(shipmentId: int):
 
 def push_shipment(shipmentId: int, token: str):
     shipment = _get_shipment_tree(shipmentId)
+    session_response = ExternalRequest.request(
+        token,
+        module="/core",
+        url=f"/proposals/{shipment.proposalCode}{shipment.proposalNumber}/sessions/{shipment.visitNumber}",
+    )
+    session_id = session_response.json()["sessionId"]
+
+    if not session_id:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, "Session not found in upstream service"
+        )
 
     # There were other ways to do this that did not involve closures, but this seems like the
     # cleanest option that did not take a significant performance hit
@@ -97,7 +108,7 @@ def push_shipment(shipmentId: int, token: str):
         """Generator that traverses a shipment (or shipment item) down to the root of the tree"""
         # Avoid calling chidless Sample instance
 
-        created_item = Expeye.upsert(token, parent, parent_id)
+        created_item = Expeye.upsert(token, parent, parent_id, session_id)
         parent.externalId = created_item["externalId"]
 
         if not isinstance(parent, Sample):
@@ -235,7 +246,8 @@ def build_shipment_request(shipmentId: int, token: str):
         # TODO: remove padding once shipping service removes regex check
         "proposal": f"{shipment.proposalCode}{shipment.proposalNumber:06}",
         "external_id": shipment.externalId,
-        "origin_url": f"{Config.frontend_url}/proposals/{shipment.proposalCode}{shipment.proposalNumber}/sessions/{shipment.visitNumber}/shipments/{shipment.id}",
+        "origin_url": f"{Config.frontend_url}/proposals/{shipment.proposalCode}{shipment.proposalNumber}/sessions/"
+        + f"{shipment.visitNumber}/shipments/{shipment.id}",
         "packages": packages,
     }
 

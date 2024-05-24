@@ -34,7 +34,7 @@ class ExternalObject:
     external_key = ""
     url = ""
 
-    def __init__(self, item: AvailableTable, item_id: int | str):
+    def __init__(self, item: AvailableTable, item_id: int | str, root_id: int | None):
         match item:
             case Shipment():
                 self.url = f"/proposals/{item_id}/shipments"
@@ -47,7 +47,10 @@ class ExternalObject:
                 else:
                     self.url = f"/containers/{item_id}/containers"
                 self.external_link_prefix = "/containers/"
+
+                # This is better than destructuring the original container object twice
                 self.item_body = ContainerExternal.model_validate(item)
+                self.item_body.sessionId = root_id
                 self.external_key = "containerId"
             case TopLevelContainer():
                 self.url = f"/shipments/{item_id}/dewars"
@@ -81,22 +84,29 @@ class ExternalRequest:
         kwargs["method"] = kwargs.get("method", "GET")
         kwargs["headers"] = {"Authorization": f"Bearer {token}"}
 
-        return requests.request(**kwargs)
+        return requests.request(**kwargs, verify=False)
 
 
 class Expeye:
     @classmethod
-    def upsert(cls, token: str, item: AvailableTable, parent_id: int | str):
+    def upsert(
+        cls,
+        token: str,
+        item: AvailableTable,
+        parent_id: int | str,
+        root_id: int | None = None,
+    ):
         """Insert existing item in ISPyB or patch it
 
         Args:
             item: Item to be pushed
-            parentId: External ID of the item's parent
+            parent_id: External ID of the item's parent
+            root_id: ID of the root of the item tree, such as a session ID
 
         Returns:
             External link and external ID"""
 
-        ext_obj = ExternalObject(item, parent_id)
+        ext_obj = ExternalObject(item, parent_id, root_id)
         method = "POST"
 
         if item.externalId:
