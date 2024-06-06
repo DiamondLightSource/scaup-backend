@@ -119,4 +119,16 @@ class Sample(Base, BaseColumns):
     container: Mapped[Optional["Container"]] = relationship(back_populates="samples")
 
 
+class PreSession(Base):
+    __tablename__ = "PreSession"
+
+    id: Mapped[int] = mapped_column("preSessionId", primary_key=True, index=True)
+    shipmentId: Mapped[int] = mapped_column(
+        ForeignKey("Shipment.shipmentId"), index=True, unique=True
+    )
+    details: Mapped[dict[str, Any] | None] = mapped_column(
+        JSON, comment="Generic additional details"
+    )
+
+
 AvailableTable = Sample | Container | TopLevelContainer | Shipment

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.1
+-- Dumped from database version 16.2
 -- Dumped by pg_dump version 16.1
 
 SET statement_timeout = 0;
@@ -86,6 +86,48 @@ ALTER SEQUENCE public."Container_containerId_seq" OWNER TO sample_handling;
 --
 
 ALTER SEQUENCE public."Container_containerId_seq" OWNED BY public."Container"."containerId";
+
+
+--
+-- Name: PreSession; Type: TABLE; Schema: public; Owner: sample_handling
+--
+
+CREATE TABLE public."PreSession" (
+    "preSessionId" integer NOT NULL,
+    "shipmentId" integer NOT NULL,
+    details json
+);
+
+
+ALTER TABLE public."PreSession" OWNER TO sample_handling;
+
+--
+-- Name: COLUMN "PreSession".details; Type: COMMENT; Schema: public; Owner: sample_handling
+--
+
+COMMENT ON COLUMN public."PreSession".details IS 'Generic additional details';
+
+
+--
+-- Name: PreSession_preSessionId_seq; Type: SEQUENCE; Schema: public; Owner: sample_handling
+--
+
+CREATE SEQUENCE public."PreSession_preSessionId_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."PreSession_preSessionId_seq" OWNER TO sample_handling;
+
+--
+-- Name: PreSession_preSessionId_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sample_handling
+--
+
+ALTER SEQUENCE public."PreSession_preSessionId_seq" OWNED BY public."PreSession"."preSessionId";
 
 
 --
@@ -260,6 +302,13 @@ ALTER TABLE ONLY public."Container" ALTER COLUMN "containerId" SET DEFAULT nextv
 
 
 --
+-- Name: PreSession preSessionId; Type: DEFAULT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."PreSession" ALTER COLUMN "preSessionId" SET DEFAULT nextval('public."PreSession_preSessionId_seq"'::regclass);
+
+
+--
 -- Name: Sample sampleId; Type: DEFAULT; Schema: public; Owner: sample_handling
 --
 
@@ -291,6 +340,15 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 4	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N
 5	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_03	\N	\N
 2	1	\N	1	gridBox	4	\N	\N	f	\N	Grid_Box_01	\N	Test Comment!
+\.
+
+
+--
+-- Data for Name: PreSession; Type: TABLE DATA; Schema: public; Owner: sample_handling
+--
+
+COPY public."PreSession" ("preSessionId", "shipmentId", details) FROM stdin;
+15	2	{"name": "previous"}
 \.
 
 
@@ -334,7 +392,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-b22d0b329bca
+faeec6295a58
 \.
 
 
@@ -342,28 +400,35 @@ b22d0b329bca
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 560, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 644, true);
+
+
+--
+-- Name: PreSession_preSessionId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
+--
+
+SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 17, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 348, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 432, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 84, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 96, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 106, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 142, true);
 
 
 --
@@ -380,6 +445,14 @@ ALTER TABLE ONLY public."Container"
 
 ALTER TABLE ONLY public."Container"
     ADD CONSTRAINT "Container_pkey" PRIMARY KEY ("containerId");
+
+
+--
+-- Name: PreSession PreSession_pkey; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."PreSession"
+    ADD CONSTRAINT "PreSession_pkey" PRIMARY KEY ("preSessionId");
 
 
 --
@@ -476,6 +549,20 @@ CREATE INDEX "ix_Container_topLevelContainerId" ON public."Container" USING btre
 
 
 --
+-- Name: ix_PreSession_preSessionId; Type: INDEX; Schema: public; Owner: sample_handling
+--
+
+CREATE INDEX "ix_PreSession_preSessionId" ON public."PreSession" USING btree ("preSessionId");
+
+
+--
+-- Name: ix_PreSession_shipmentId; Type: INDEX; Schema: public; Owner: sample_handling
+--
+
+CREATE UNIQUE INDEX "ix_PreSession_shipmentId" ON public."PreSession" USING btree ("shipmentId");
+
+
+--
 -- Name: ix_Sample_containerId; Type: INDEX; Schema: public; Owner: sample_handling
 --
 
@@ -560,6 +647,14 @@ ALTER TABLE ONLY public."Container"
 
 ALTER TABLE ONLY public."Container"
     ADD CONSTRAINT "Container_topLevelContainerId_fkey" FOREIGN KEY ("topLevelContainerId") REFERENCES public."TopLevelContainer"("topLevelContainerId") ON DELETE SET NULL;
+
+
+--
+-- Name: PreSession PreSession_shipmentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."PreSession"
+    ADD CONSTRAINT "PreSession_shipmentId_fkey" FOREIGN KEY ("shipmentId") REFERENCES public."Shipment"("shipmentId");
 
 
 --
