@@ -73,3 +73,14 @@ def test_create_parent_container_and_top_level_container(client):
     )
 
     assert resp.status_code == 422
+
+
+def test_duplicate_name(client):
+    """Should raise exception if duplicate name exists in shipment"""
+
+    resp = client.post(
+        "/shipments/1/containers",
+        json={"type": "gridBox", "name": "Container 01"},
+    )
+
+    assert resp.status_code == 400

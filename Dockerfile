@@ -11,8 +11,6 @@ RUN apt-get update && apt-get upgrade -y && \
     build-essential \
     busybox \
     git \
-    libmariadb-dev \
-    net-tools \
     && rm -rf /var/lib/apt/lists/* \
     && busybox --install
 
@@ -46,6 +44,9 @@ RUN apt-get update && apt-get install -y libmariadb-dev
 # copy the virtual environment from the build stage and put it in PATH
 COPY --from=build /venv/ /venv/
 ENV PATH=/venv/bin:$PATH
+
+COPY alembic.ini /alembic/
+COPY alembic/ /alembic/alembic
 
 # change this entrypoint if it is not the same as the repo
 ENTRYPOINT ["uvicorn"]

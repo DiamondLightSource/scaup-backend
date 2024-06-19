@@ -27,14 +27,13 @@ def insert_with_name(
         )
         params.name = f"{pascal_to_title(params.type)} {((container_count or 0) + 1)}"
 
-    with update_context():
-        container = inner_db.session.scalar(
-            insert(table).returning(table),
-            {"shipmentId": shipmentId, **params.model_dump(exclude_unset=True)},
-        )
+    container = inner_db.session.scalar(
+        insert(table).returning(table),
+        {"shipmentId": shipmentId, **params.model_dump(exclude_unset=True)},
+    )
 
-        inner_db.session.commit()
-        return container
+    inner_db.session.commit()
+    return container
 
 
 def edit_item(
