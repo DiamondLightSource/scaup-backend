@@ -32,7 +32,7 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
         sample_count = inner_db.session.scalar(
             select(func.count(Sample.id)).filter(Sample.shipmentId == shipmentId)
         )
-        params.name = f"{upstream_compound['name']} {((sample_count or 0) + 1)}"
+        params.name = f"{upstream_compound['name']}_{(sample_count or 0) + 1}"
 
     with update_context():
         samples = inner_db.session.scalars(
@@ -41,7 +41,7 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
                 {
                     "shipmentId": shipmentId,
                     **params.model_dump(exclude_unset=True, exclude={"copies"}),
-                    "name": f"{params.name}{f' ({i})' if i else ''}",
+                    "name": f"{params.name}{f'_{i}' if i else ''}",
                 }
                 for i in range(params.copies)
             ],

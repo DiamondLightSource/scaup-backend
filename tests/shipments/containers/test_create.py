@@ -37,7 +37,7 @@ def test_create_no_name(client):
     assert resp.status_code == 201
 
     assert (
-        inner_db.session.scalar(select(Container).filter(Container.name == "Puck 6"))
+        inner_db.session.scalar(select(Container).filter(Container.name == "Puck_6"))
         is not None
     )
 
@@ -80,7 +80,7 @@ def test_duplicate_name(client):
 
     resp = client.post(
         "/shipments/1/containers",
-        json={"type": "gridBox", "name": "Container 01"},
+        json={"type": "gridBox", "name": "Container_01"},
     )
 
     assert resp.status_code == 400

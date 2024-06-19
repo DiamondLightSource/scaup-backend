@@ -25,7 +25,9 @@ def insert_with_name(
         container_count = inner_db.session.scalar(
             select(func.count(table.id)).filter_by(shipmentId=shipmentId)  # type: ignore[arg-type]
         )
-        params.name = f"{pascal_to_title(params.type)} {((container_count or 0) + 1)}"
+        params.name = (
+            f"{pascal_to_title(params.type, '_')}_{((container_count or 0) + 1)}"
+        )
 
     container = inner_db.session.scalar(
         insert(table).returning(table),

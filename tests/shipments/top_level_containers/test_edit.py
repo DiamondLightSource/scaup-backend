@@ -11,18 +11,18 @@ def test_edit(client):
     """Should edit values in DB"""
     resp = client.patch(
         "/topLevelContainers/1",
-        json={"name": "New Container Name"},
+        json={"name": "New_Container_Name"},
     )
 
     assert resp.status_code == 200
 
     data = resp.json()
-    assert data["name"] == "New Container Name"
+    assert data["name"] == "New_Container_Name"
 
     assert (
         inner_db.session.scalar(
             select(TopLevelContainer).filter(
-                TopLevelContainer.name == "New Container Name"
+                TopLevelContainer.name == "New_Container_Name"
             )
         )
         is not None
@@ -34,7 +34,7 @@ def test_edit_code(client):
     """Should update top level container if facility code is valid"""
     resp = client.patch(
         "/topLevelContainers/1",
-        json={"name": "New Container Name", "code": "DLS-EM-0000"},
+        json={"name": "New_Container_Name", "code": "DLS-EM-0000"},
     )
 
     assert resp.status_code == 200
@@ -45,7 +45,7 @@ def test_edit_invalid_code(client):
     """Should not update top level container if code is not valid"""
     resp = client.patch(
         "/topLevelContainers/1",
-        json={"name": "New Container Name", "code": "DOESNOTEXIST"},
+        json={"name": "New_Container_Name", "code": "DOESNOTEXIST"},
     )
 
     assert resp.status_code == 404
@@ -58,7 +58,7 @@ def test_push_to_ispyb(client):
 
     client.patch(
         "/topLevelContainers/61",
-        json={"name": "New Container Name", "code": "DLS-EM-0000"},
+        json={"name": "New_Container_Name", "code": "DLS-EM-0000"},
     )
 
     assert patch_resp.call_count == 1

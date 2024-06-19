@@ -6,6 +6,6 @@ def protein_callback(request):
     protein_id = request.path_url.split("/")[2]
 
     if protein_id == "4407":
-        return (200, {}, json.dumps({"name": "Protein 01"}))
+        return (200, {}, json.dumps({"name": "Protein_01"}))
 
     return (404, {}, "")
