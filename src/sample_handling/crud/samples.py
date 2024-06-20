@@ -1,3 +1,5 @@
+import re
+
 from fastapi import HTTPException, status
 from lims_utils.models import Paged
 from sqlalchemy import func, insert, select
@@ -28,11 +30,17 @@ def _get_protein(proteinId: int, token):
 def create_sample(shipmentId: int, params: SampleIn, token: str):
     upstream_compound = _get_protein(params.proteinId, token)
 
+    clean_name = upstream_compound["name"].replace(" ", "_")
+    clean_name = re.sub(r"[^a-zA-Z0-9_]", "", clean_name)
+
     if not (params.name):
         sample_count = inner_db.session.scalar(
             select(func.count(Sample.id)).filter(Sample.shipmentId == shipmentId)
         )
-        params.name = f"{upstream_compound['name']}_{(sample_count or 0) + 1}"
+        params.name = f"{clean_name}_{(sample_count or 0) + 1}"
+    else:
+        # Prefix with compound name regardless
+        params.name = f"{clean_name}_{params.name}"
 
     with update_context():
         samples = inner_db.session.scalars(

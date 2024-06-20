@@ -36,6 +36,23 @@ def test_create_no_name(client):
 
 
 @responses.activate
+def test_create_name_but_dirty_compound_name(client):
+    """Should prefix compound name to name, but only after cleaning it"""
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"proteinId": 5000, "name": "test"},
+    )
+
+    assert resp.status_code == 201
+
+    assert (
+        inner_db.session.scalar(select(Sample).filter(Sample.name == "nvid_name_test"))
+        is not None
+    )
+
+
+@responses.activate
 def test_create_multiple_copies(client):
     """Should create multiple copies of passed sample"""
 
