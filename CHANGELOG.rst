@@ -9,4 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+==========
+Changelog
+==========
+
++++++++++
+v0.1.0 (19/04/2024)
++++++++++
+
+**Added**
+
+- Samples endpoint now returns type as well
+- Invalid characters are not allowed in item names
+- Allow user to make multiple copies of sample
+
+**Fixed**
+
+- Duplicate container names inside shipment are not allowed
+
++++++++++
+v0.0.1 (27/03/2024)
++++++++++
+
+**Added**
+
 - Items exported to ISPyB now prepend the `comments` field with `Created by eBIC-SH`

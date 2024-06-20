@@ -34,6 +34,7 @@ class SampleOut(BaseSample):
     shipmentId: int
     proteinId: int
     parent: Optional[str] = None
+    type: str
 
 
 class SampleExternal(BaseExternal):
