@@ -75,7 +75,7 @@ def get_samples(shipmentId: int, limit: int, page: int):
         )
         .filter(Sample.shipmentId == shipmentId)
         .join(Container, isouter=True)
-        .order_by(Container.name, Container.location)
+        .order_by(Container.name, Container.location, Sample.location)
     )
 
     return paginate(query, limit, page, slow_count=False)
