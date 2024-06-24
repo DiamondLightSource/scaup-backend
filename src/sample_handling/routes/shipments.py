@@ -98,8 +98,21 @@ def get_samples(
     shipmentId=Depends(auth),
     page: dict[str, int] = Depends(pagination),
 ):
-    """Create new sample in shipment"""
+    """Get samples in shipment"""
     return sample_crud.get_samples(shipmentId=shipmentId, **page)
+
+
+@router.get(
+    "/{shipmentId}/topLevelContainers",
+    response_model=Paged[TopLevelContainerOut],
+    tags=["Top Level Containers"],
+)
+def get_top_level_containers(
+    shipmentId=Depends(auth),
+    page: dict[str, int] = Depends(pagination),
+):
+    """Get top level containers in shipment"""
+    return tlc_crud.get_top_level_containers(shipmentId=shipmentId, **page)
 
 
 @router.post(
