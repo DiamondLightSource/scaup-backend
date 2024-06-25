@@ -14,7 +14,8 @@ def test_get(client):
 
 
 def test_get_with_parent(client):
-    """Should get samples, samples should include parent container in attributes"""
+    """Should get samples, samples should include parent container in attributes,
+    and should be ordered by container"""
 
     resp = client.get(
         "/shipments/1/samples",
@@ -24,4 +25,4 @@ def test_get_with_parent(client):
 
     data = resp.json()
 
-    assert data["items"][0]["parent"] == "Grid_Box_02"
+    assert data["items"][0]["parent"] == "Grid_Box_01"
