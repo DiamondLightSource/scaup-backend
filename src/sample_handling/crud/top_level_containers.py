@@ -28,7 +28,8 @@ def create_top_level_container(
 ):
     with insert_context():
         _check_fields(params, token)
-        params.name = params.code
+        if not params.name:
+            params.name = params.code
 
         container = inner_db.session.scalar(
             insert(TopLevelContainer).returning(TopLevelContainer),

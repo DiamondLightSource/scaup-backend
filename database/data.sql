@@ -340,6 +340,11 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 4	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N
 5	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_03	\N	\N
 2	1	\N	1	gridBox	4	\N	\N	f	\N	Grid_Box_01	\N	Test Comment!
+712	97	171	\N	puck	16	\N	\N	f	\N	Container_03	20	\N
+648	97	\N	646	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N
+777	117	199	\N	puck	16	\N	{}	f	\N	Puck_2	303612	
+776	117	\N	777	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	303613	
+646	97	152	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N
 \.
 
 
@@ -349,6 +354,7 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 
 COPY public."PreSession" ("preSessionId", "shipmentId", details) FROM stdin;
 15	2	{"name": "previous"}
+54	117	{"clipped": false, "gridCrossGrating": "No", "pixelSize": "", "totalDose": "", "dosePerFrame": "", "tiltSpan": "", "tiltStep": "", "startAngle": "", "tiltScheme": "", "useTomoEpu": "Tomo", "experimentType": "3D-ED", "comments": ""}
 \.
 
 
@@ -361,6 +367,9 @@ COPY public."Sample" ("sampleId", "shipmentId", "proteinId", type, location, det
 3	1	4407	sample	1	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	4	Sample_02	\N	\N
 1	1	4407	sample	1	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	2	Sample_01	\N	\N
 336	89	4407	sample	\N	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	\N	Sample_04	10	\N
+561	117	338108	grid	1	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	776	3P_1	5664919	\N
+434	97	4407	sample	\N	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	648	Sample_04	\N	\N
+562	118	338108	grid	\N	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	\N	3P_1	\N	\N
 \.
 
 
@@ -372,6 +381,10 @@ COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status,
 1	2024-05-02 13:12:36.528788+00	\N	\N	Shipment_01	\N	\N	cm	1	1
 2	2024-05-02 13:12:36.528788+00	\N	\N	Shipment_02	123	\N	cm	2	1
 89	2024-05-02 13:12:36.528788+00	\N	Booked	Shipment_03	256	\N	cm	2	1
+97	2024-06-26 12:55:39.211687+00	\N	\N	Shipment_04	\N	\N	cm	3	1
+106	2024-06-26 12:55:39.211687+00	\N	\N	Shipment_05	789	\N	cm	3	1
+117	2024-06-26 13:36:53.632782+00	1	Booked	1	63975	\N	bi	23047	100
+118	2024-06-26 13:40:32.191664+00	\N	\N	2	\N	\N	bi	23047	100
 \.
 
 
@@ -384,6 +397,9 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 61	89	\N	DLS-4	DLS-4	dewar	Dewar_04	10	\N
 2	2	\N	DLS-2	DLS-2	dewar	Dewar_02	\N	\N
 1	1	\N	DLS-1	DLS-1	dewar	DLS-EM-0000	\N	\N
+152	97	\N	DLS-4	DLS-4	dewar	Dewar_05	\N	\N
+171	106	\N	DLS-4	DLS-4	dewar	Dewar_06	20	\N
+199	117	{}	DLS-BI-0020	\N	dewar	DLS-BI-0020	72181	
 \.
 
 
@@ -400,35 +416,35 @@ faeec6295a58
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 644, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 777, true);
 
 
 --
 -- Name: PreSession_preSessionId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 17, true);
+SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 54, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 432, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 562, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 96, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 118, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 142, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 199, true);
 
 
 --

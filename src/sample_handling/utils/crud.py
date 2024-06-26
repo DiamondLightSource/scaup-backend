@@ -2,15 +2,18 @@ from typing import Type
 
 from fastapi import HTTPException, status
 from sqlalchemy import delete, func, insert, select, update
+from sqlalchemy.orm import joinedload
 
 from ..models.containers import ContainerIn, OptionalContainer
 from ..models.inner_db.tables import Container, Sample, Shipment, TopLevelContainer
 from ..models.samples import OptionalSample
+from ..models.shipments import UnassignedItems
 from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelContainerIn
 from ..utils.database import inner_db
 from ..utils.generic import pascal_to_title
 from ..utils.session import update_context
 from .external import ExternalObject, ExternalRequest
+from .query import table_query_to_generic
 
 
 def insert_with_name(
@@ -89,6 +92,36 @@ def edit_item(
         return updated_item
 
 
+def get_unassigned(shipmentId: int):
+    samples = table_query_to_generic(
+        select(Sample).filter(
+            Sample.shipmentId == shipmentId, Sample.containerId.is_(None)
+        )
+    )
+
+    grid_boxes = table_query_to_generic(
+        select(Container)
+        .filter(
+            Container.shipmentId == shipmentId,
+            Container.type == "gridBox",
+            Container.parentId.is_(None),
+        )
+        .options(joinedload(Container.samples))
+    )
+
+    containers = table_query_to_generic(
+        select(Container)
+        .filter(
+            Container.shipmentId == shipmentId,
+            Container.type != "gridBox",
+            Container.topLevelContainerId.is_(None),
+        )
+        .options(joinedload(Container.children))
+    )
+
+    return UnassignedItems(samples=samples, gridBoxes=grid_boxes, containers=containers)
+
+
 def assert_not_booked(func):
     def wrapper(*args, **kwargs):
         shipment_status = inner_db.session.scalar(
@@ -99,6 +132,20 @@ def assert_not_booked(func):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Items cannot be created inside a booked shipment",
+            )
+
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def assert_no_unassigned(func):
+    def wrapper(*args, **kwargs):
+        print(get_unassigned(kwargs["shipmentId"]).samples)
+        if bool(get_unassigned(kwargs["shipmentId"])):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Cannot proceed with unassigned items in shipment",
             )
 
         return func(*args, **kwargs)

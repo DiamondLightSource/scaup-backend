@@ -77,6 +77,9 @@ class UnassignedItems(BaseModel):
     gridBoxes: list[GenericItem]
     containers: list[GenericItem]
 
+    def __bool__(self):
+        return bool(self.samples) or bool(self.gridBoxes) or bool(self.containers)
+
 
 class ShipmentExternal(BaseExternal):
     shippingName: str = Field(alias="name")
