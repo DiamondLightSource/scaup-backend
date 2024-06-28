@@ -1,9 +1,13 @@
 import json
 
+from requests import PreparedRequest
 
-def protein_callback(request):
+from ...utils.regex import get_match, protein_regex
+
+
+def protein_callback(request: PreparedRequest):
     # Return valid response for proteinId 4407 and 5000, return 404 for all else
-    protein_id = request.path_url.split("/")[2]
+    protein_id = get_match(protein_regex, request.url)
 
     if protein_id == "4407":
         return (200, {}, json.dumps({"name": "Protein_01"}))

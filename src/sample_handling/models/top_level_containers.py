@@ -1,11 +1,11 @@
 from typing import Any, Literal, Optional
 
-from pydantic import AliasChoices, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
-from ..utils.models import BaseExternal, BaseModelWithNameValidator
+from ..utils.models import BaseExternal
 
 
-class BaseTopLevelContainer(BaseModelWithNameValidator):
+class BaseTopLevelContainer(BaseModel):
     topLevelContainerId: Optional[int] = None
     status: Optional[str] = None
     capacity: Optional[int] = None

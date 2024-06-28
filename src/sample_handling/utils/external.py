@@ -69,6 +69,7 @@ class ExternalRequest:
     def request(
         token,
         base_url=Config.ispyb_api,
+        module="/sample-handling",
         *args,
         **kwargs,
     ):
@@ -76,7 +77,7 @@ class ExternalRequest:
         auth actions happen, we cannot wrap this in a custom auth implementation,
         we must do all the preparation work before the actual request."""
 
-        kwargs["url"] = f"{base_url}{kwargs['url']}"
+        kwargs["url"] = f"{base_url}{module}{kwargs['url']}"
         kwargs["method"] = kwargs.get("method", "GET")
         kwargs["headers"] = {"Authorization": f"Bearer {token}"}
 

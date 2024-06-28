@@ -26,7 +26,9 @@ class Shipment(Base, BaseColumns):
     __tablename__ = "Shipment"
 
     id: Mapped[int] = mapped_column("shipmentId", primary_key=True, index=True)
-    proposalReference: Mapped[str] = mapped_column(String(10), index=True)
+    proposalCode: Mapped[str] = mapped_column(String(2), index=True)
+    proposalNumber: Mapped[int] = mapped_column(index=True)
+    visitNumber: Mapped[int] = mapped_column(index=True)
 
     creationDate: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -42,6 +44,7 @@ class Shipment(Base, BaseColumns):
 
 class TopLevelContainer(Base, BaseColumns):
     __tablename__ = "TopLevelContainer"
+    __table_args__ = (UniqueConstraint("name", "shipmentId"),)
 
     id: Mapped[int] = mapped_column("topLevelContainerId", primary_key=True, index=True)
     shipment: Mapped["Shipment"] = relationship(back_populates="children")

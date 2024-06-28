@@ -35,7 +35,8 @@ def test_create_fail():
 def test_patch():
     """Should patch existing item if it has external ID"""
     patch_resp = responses.patch(
-        f"{Config.ispyb_api}/containers/20", json.dumps({"containerId": 20})
+        f"{Config.ispyb_api}/sample-handling/containers/20",
+        json.dumps({"containerId": 20}),
     )
 
     Expeye.upsert(

@@ -54,7 +54,7 @@ def test_edit_invalid_code(client):
 @responses.activate
 def test_push_to_ispyb(client):
     """Should push to ISPyB if top level container has externalId present"""
-    patch_resp = responses.patch(f"{Config.ispyb_api}/dewars/10", "{}")
+    patch_resp = responses.patch(f"{Config.ispyb_api}/sample-handling/dewars/10", "{}")
 
     client.patch(
         "/topLevelContainers/61",

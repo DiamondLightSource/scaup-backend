@@ -116,7 +116,9 @@ def push_shipment(shipmentId: int, token: str):
                     yield created_item
 
     modified_items = list(
-        create_all_items_in_shipment(shipment, shipment.proposalReference)
+        create_all_items_in_shipment(
+            shipment, f"{shipment.proposalCode}{shipment.proposalNumber}"
+        )
     )
 
     # Save all externalId updates in a single transaction
@@ -230,9 +232,11 @@ def build_shipment_request(shipmentId: int, token: str):
         )
 
     built_request_body = {
-        "proposal": shipment.proposalReference,
+        # TODO: remove padding once shipping service removes regex check
+        "proposal": f"{shipment.proposalCode}{shipment.proposalNumber:06}",
         "external_id": shipment.externalId,
-        "origin_url": f"{Config.frontend_url}/proposals/{shipment.proposalReference}/shipments/{shipment.id}",
+        "origin_url": f"{Config.frontend_url}/proposals/{shipment.proposalCode}{shipment.proposalNumber}/sessions/"
+        + f"{shipment.visitNumber}/shipments/{shipment.id}",
         "packages": packages,
     }
 
@@ -240,6 +244,7 @@ def build_shipment_request(shipmentId: int, token: str):
         base_url=Config.shipping_service.url,
         token=token,
         method="POST",
+        module="",
         url="/api/shipment_requests/",
         json=built_request_body,
     )

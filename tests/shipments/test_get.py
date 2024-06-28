@@ -10,7 +10,7 @@ def test_get(client):
 
     dewar = data["children"][0]
 
-    assert dewar["name"] == "Dewar_01"
+    assert dewar["name"] == "DLS-EM-0000"
     assert len(dewar["children"]) == 1
 
     container = dewar["children"][0]

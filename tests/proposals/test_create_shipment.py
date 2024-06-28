@@ -8,7 +8,9 @@ from sample_handling.utils.database import inner_db
 @responses.activate
 def test_create(client):
     """Should create new shipment inside valid proposal"""
-    resp = client.post("/proposals/cm00001/shipments", json={"name": "New Shipment"})
+    resp = client.post(
+        "/proposals/cm00001/sessions/1/shipments", json={"name": "New Shipment"}
+    )
 
     assert resp.status_code == 201
 

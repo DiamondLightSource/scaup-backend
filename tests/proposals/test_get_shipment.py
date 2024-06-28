@@ -4,7 +4,7 @@ import responses
 @responses.activate
 def test_get_draft(client):
     """Should get draft shipments in proposal"""
-    resp = client.get("/proposals/cm00001/shipments")
+    resp = client.get("/proposals/cm00001/sessions/1/shipments")
 
     assert resp.status_code == 200
 
@@ -16,7 +16,7 @@ def test_get_draft(client):
 @responses.activate
 def test_get_submitted(client):
     """Should get submitted shipments in proposal"""
-    resp = client.get("/proposals/cm00002/shipments")
+    resp = client.get("/proposals/cm00002/sessions/1/shipments")
 
     assert resp.status_code == 200
 
@@ -28,7 +28,7 @@ def test_get_submitted(client):
 @responses.activate
 def test_get_inexistent(client):
     """Should return empty list if no shipments exist in proposal"""
-    resp = client.get("/proposals/cm55555/shipments")
+    resp = client.get("/proposals/cm55555/sessions/1/shipments")
 
     assert resp.status_code == 200
 
