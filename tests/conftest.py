@@ -24,6 +24,7 @@ from .utils.regex import (
     proposal_regex,
     protein_regex,
     registered_dewar_regex,
+    session_regex,
 )
 
 # @pytest.fixture(scope="function", autouse=True)
@@ -116,3 +117,5 @@ def register_responses():
         proposal_regex,
         callback=proposal_callback,
     )
+
+    responses.add(responses.GET, session_regex, json={"sessionId": 1})

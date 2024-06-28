@@ -63,6 +63,7 @@ class ContainerExternal(BaseExternal):
         default=None, alias="registeredContainer"
     )
     containerType: str = Field(alias="type")
+    sessionId: Optional[int] = None
 
     @field_validator("containerType")
     @classmethod
