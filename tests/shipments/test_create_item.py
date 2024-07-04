@@ -13,7 +13,12 @@ from sample_handling.utils.database import inner_db
 
 creation_params = (
     [
-        pytest.param("containers", {"type": "puck"}, Container, id="containers"),
+        pytest.param(
+            "containers",
+            {"type": "puck", "name": "valid_name"},
+            Container,
+            id="containers",
+        ),
         pytest.param(
             "topLevelContainers",
             {

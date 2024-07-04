@@ -89,7 +89,7 @@ class Container(Base, BaseColumns):
     )
 
     requestedReturn: Mapped[bool] = mapped_column(default=False)
-    registeredContainer: Mapped[int | None] = mapped_column()
+    registeredContainer: Mapped[str | None] = mapped_column()
 
     topLevelContainer: Mapped[Optional["TopLevelContainer"]] = relationship(
         back_populates="children"

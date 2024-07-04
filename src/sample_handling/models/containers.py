@@ -1,20 +1,27 @@
 from typing import Any, Optional
 
-from pydantic import AliasChoices, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    AliasChoices,
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 from ..utils.generic import pascal_to_title
-from ..utils.models import BaseExternal, BaseModelWithNameValidator
+from ..utils.models import BaseExternal
 from .inner_db.tables import ContainerTypes
 
 
-class BaseContainer(BaseModelWithNameValidator):
+class BaseContainer(BaseModel):
     topLevelContainerId: Optional[int] = None
     parentId: Optional[int] = None
     capacity: Optional[int] = None
     details: Optional[dict[str, Any]] = None
     location: Optional[int] = None
     requestedReturn: Optional[bool] = False
-    registeredContainer: Optional[int] = None
+    registeredContainer: Optional[str] = None
     name: Optional[str] = Field(
         default=None,
         description=(
@@ -46,6 +53,13 @@ class BaseContainer(BaseModelWithNameValidator):
 
 
 class ContainerIn(BaseContainer):
+    @model_validator(mode="after")
+    def check_name(self) -> "ContainerIn":
+        assert (
+            self.name is not None or self.registeredContainer is not None
+        ), "Either name or barcode must be provided"
+        return self
+
     type: ContainerTypes
 
 
@@ -64,10 +78,8 @@ class ContainerExternal(BaseExternal):
     capacity: Optional[int] = None
     parentContainerId: Optional[int] = Field(default=None, alias="parentId")
     requestedReturn: bool
-    code: Optional[str] = None
-    containerRegistryId: Optional[int] = Field(
-        default=None, alias="registeredContainer"
-    )
+    containerRegistryId: Optional[int] = None
+    code: Optional[int] = Field(default=None, alias="registeredContainer")
     containerType: str = Field(alias="type")
     sessionId: Optional[int] = None
 
