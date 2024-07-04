@@ -43,7 +43,7 @@ CREATE TABLE public."Container" (
     location smallint,
     details json,
     "requestedReturn" boolean NOT NULL,
-    "registeredContainer" integer,
+    "registeredContainer" character varying,
     name character varying(40) NOT NULL,
     "externalId" integer,
     comments character varying(255)
@@ -408,7 +408,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-faeec6295a58
+170457b06efc
 \.
 
 
@@ -416,35 +416,35 @@ faeec6295a58
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 777, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 783, true);
 
 
 --
 -- Name: PreSession_preSessionId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 54, true);
+SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 56, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 562, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 569, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 118, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 119, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 199, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 202, true);
 
 
 --
