@@ -35,6 +35,12 @@ class BaseContainer(BaseModelWithNameValidator):
             )
         return self
 
+    @field_validator("registeredContainer", check_fields=False, mode="before")
+    def empty_to_none(cls, v):
+        if v == "":
+            return None
+        return v
+
     # TODO: force 'capacity' field if type is puck or grid box?
     # TODO: check capacity against container type, to see if type support given capacity
 
