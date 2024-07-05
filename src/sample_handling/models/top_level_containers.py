@@ -35,6 +35,7 @@ class OptionalTopLevelContainer(BaseTopLevelContainer):
 class TopLevelContainerOut(BaseTopLevelContainer):
     id: int = Field(validation_alias=AliasChoices("topLevelContainerId", "id"))
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
+    externalId: int | None = None
 
 
 class TopLevelContainerExternal(BaseExternal):

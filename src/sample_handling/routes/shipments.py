@@ -5,10 +5,12 @@ from lims_utils.models import Paged, pagination
 
 from ..auth import Permissions, auth_scheme
 from ..crud import containers as container_crud
+from ..crud import pre_sessions as ps_crud
 from ..crud import samples as sample_crud
 from ..crud import shipments as crud
 from ..crud import top_level_containers as tlc_crud
 from ..models.containers import ContainerIn, ContainerOut
+from ..models.pre_sessions import PreSessionIn, PreSessionOut
 from ..models.samples import SampleIn, SampleOut
 from ..models.shipments import ShipmentChildren, ShipmentOut, UnassignedItems
 from ..models.top_level_containers import TopLevelContainerIn, TopLevelContainerOut
@@ -96,8 +98,21 @@ def get_samples(
     shipmentId=Depends(auth),
     page: dict[str, int] = Depends(pagination),
 ):
-    """Create new sample in shipment"""
+    """Get samples in shipment"""
     return sample_crud.get_samples(shipmentId=shipmentId, **page)
+
+
+@router.get(
+    "/{shipmentId}/topLevelContainers",
+    response_model=Paged[TopLevelContainerOut],
+    tags=["Top Level Containers"],
+)
+def get_top_level_containers(
+    shipmentId=Depends(auth),
+    page: dict[str, int] = Depends(pagination),
+):
+    """Get top level containers in shipment"""
+    return tlc_crud.get_top_level_containers(shipmentId=shipmentId, **page)
 
 
 @router.post(
@@ -115,5 +130,29 @@ def create_shipment_request(
 
 @router.get("/{shipmentId}/request", response_class=RedirectResponse)
 def get_shipment_request(shipmentId=Depends(auth)):
-    """Get shipment reqeust"""
+    """Get shipment request"""
     return crud.get_shipment_request(shipmentId)
+
+
+@router.get(
+    "/{shipmentId}/preSession",
+    response_model=PreSessionOut,
+)
+def get_pre_session(
+    shipmentId=Depends(auth),
+):
+    """Create new pre session information"""
+    return ps_crud.get_pre_session_info(shipmentId)
+
+
+@router.put(
+    "/{shipmentId}/preSession",
+    response_model=PreSessionOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_pre_session(
+    shipmentId=Depends(auth),
+    parameters: PreSessionIn = Body(),
+):
+    """Upsert new pre session information"""
+    return ps_crud.create_pre_session_info(shipmentId=shipmentId, params=parameters)

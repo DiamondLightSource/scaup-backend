@@ -1,10 +1,10 @@
 from fastapi import HTTPException, status
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 
-from ..models.inner_db.tables import TopLevelContainer
+from ..models.inner_db.tables import Shipment, TopLevelContainer
 from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelContainerIn
 from ..utils.crud import assert_not_booked, edit_item
-from ..utils.database import inner_db
+from ..utils.database import inner_db, paginate, unravel
 from ..utils.external import ExternalRequest
 from ..utils.session import insert_context
 
@@ -44,3 +44,13 @@ def edit_top_level_container(
 ):
     _check_fields(params, token)
     return edit_item(TopLevelContainer, params, topLevelContainerId, token)
+
+
+def get_top_level_containers(shipmentId: int, limit: int, page: int):
+    query = (
+        select(*unravel(TopLevelContainer), Shipment.status.label("status"))
+        .filter(TopLevelContainer.shipmentId == shipmentId)
+        .join(Shipment)
+    )
+
+    return paginate(query, limit, page, slow_count=False)
