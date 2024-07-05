@@ -44,8 +44,6 @@ def test_shipment_request_body(client):
 
     body = resp_post.calls[0].request.body
 
-    print(body)
-
     assert isinstance(body, bytes)
     body_dict = json.loads(body.decode())
 
