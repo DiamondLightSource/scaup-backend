@@ -80,19 +80,32 @@ def test_shipment_request_item_not_registered(client):
         {"description": "foobar", "gross_weight": 0, "net_weight": 0, "quantity": 1}
     ]
 
+@responses.activate
 def test_shipment_request_tlc_not_registered(client):
-    """Should raise exception if top level container type is not registered"""
+    """Should use placeholder dimensions if top level container type is not registered"""
+    resp_post = responses.post(
+        f"{Config.shipping_service.url}/api/shipment_requests/",
+        status=201,
+        json={"shipmentRequestId": 50},
+    )
+
     inner_db.session.execute(
         update(TopLevelContainer)
         .filter(TopLevelContainer.id == 171)
         .values({"type": "foobar"})
     )
 
-    resp =client.post(
+    client.post(
         "/shipments/106/request",
     )
 
-    assert resp.status_code == 422
+    body = resp_post.calls[0].request.body
+
+    assert isinstance(body, bytes)
+    body_dict = json.loads(body.decode())
+
+    assert body_dict["packages"][0]["description"] == "foobar"
+    assert body_dict["packages"][0]["height"] == 0
 
 def test_create_not_in_ispyb(client):
     """Should not create shipment request if shipment not in ISPyB"""

@@ -141,7 +141,6 @@ def assert_not_booked(func):
 
 def assert_no_unassigned(func):
     def wrapper(*args, **kwargs):
-        print(get_unassigned(kwargs["shipmentId"]).samples)
         if bool(get_unassigned(kwargs["shipmentId"])):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,

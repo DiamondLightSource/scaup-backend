@@ -175,19 +175,28 @@ def build_shipment_request(shipmentId: int, token: str):
                     }
                 )
 
-        if tlc.type not in TYPE_TO_SHIPPING_SERVICE_TYPE:
-            raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_ENTITY,
-                "Top level container type not supported",
+        if tlc.type in TYPE_TO_SHIPPING_SERVICE_TYPE:
+            packages.append(
+                {
+                    "line_items": line_items,
+                    "external_id": tlc.externalId,
+                    "shippable_item_type": TYPE_TO_SHIPPING_SERVICE_TYPE[tlc.type],
+                }
             )
-
-        packages.append(
-            {
-                "line_items": line_items,
-                "external_id": tlc.externalId,
-                "shippable_item_type": TYPE_TO_SHIPPING_SERVICE_TYPE[tlc.type],
-            }
-        )
+        else:
+            # In the future, this should not be the case, we will need to have valid dimensions
+            packages.append(
+                {
+                    "line_items": line_items,
+                    "length": 0,
+                    "width": 0,
+                    "height": 0,
+                    "gross_weight": 0,
+                    "net_weight": 0,
+                    "external_id": tlc.externalId,
+                    "description": tlc.type,
+                }
+            )
 
     built_request_body = {
         # TODO: remove padding once shipping service removes regex check
