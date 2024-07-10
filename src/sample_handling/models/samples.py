@@ -9,7 +9,6 @@ class BaseSample(BaseModelWithNameValidator):
     containerId: Optional[int] = None
     location: Optional[int] = None
     details: Optional[dict[str, Any]] = None
-    comments: Optional[str] = None
     name: Optional[str] = Field(
         default=None,
         description=(

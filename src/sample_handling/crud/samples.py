@@ -1,10 +1,10 @@
 import re
 
 from fastapi import HTTPException, status
-from lims_utils.models import Paged, ProposalReference
-from sqlalchemy import and_, func, insert, select
+from lims_utils.models import Paged
+from sqlalchemy import func, insert, select
 
-from ..models.inner_db.tables import Container, Sample, Shipment
+from ..models.inner_db.tables import Container, Sample
 from ..models.samples import OptionalSample, SampleIn
 from ..utils.crud import assert_not_booked, edit_item
 from ..utils.database import inner_db, paginate, unravel
@@ -67,30 +67,15 @@ def edit_sample(sampleId: int, params: OptionalSample, token: str):
     return edit_item(Sample, params, sampleId, token)
 
 
-def get_samples(
-    limit: int,
-    page: int,
-    proposal_reference: ProposalReference | None = None,
-    shipment_id: int | None = None,
-):
-    query = select(
-        *unravel(Sample),
-        Container.name.label("parent"),
-    ).join(Container, isouter=True)
-
-
-    if shipment_id:
-        query = query.filter(Sample.shipmentId == shipment_id)
-    elif proposal_reference:
-        # Shipment IDs are already more granular than proposal references, no point in filtering twice
-        query = query.join(Shipment, Shipment.id == Sample.shipmentId).filter(
-            and_(Shipment.proposalCode == proposal_reference.code,
-            Shipment.proposalNumber == proposal_reference.number,
-            Shipment.visitNumber == proposal_reference.visit_number)
+def get_samples(shipmentId: int, limit: int, page: int):
+    query = (
+        select(
+            *unravel(Sample),
+            Container.name.label("parent"),
         )
-    else:
-        raise Exception("Either shipment_id or proposal_reference must be set")
-
-    query = query.order_by(Container.name, Container.location, Sample.location)
+        .filter(Sample.shipmentId == shipmentId)
+        .join(Container, isouter=True)
+        .order_by(Container.name, Container.location, Sample.location)
+    )
 
     return paginate(query, limit, page, slow_count=False)
