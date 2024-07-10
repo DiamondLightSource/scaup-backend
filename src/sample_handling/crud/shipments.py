@@ -114,7 +114,7 @@ def _get_item_name(item: Sample | TopLevelContainer | Container):
     if item.externalId is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Shipment not pushed to ISPyB")
 
-    name = TYPE_TO_SHIPPING_SERVICE_TYPE[item.type]
+    name = TYPE_TO_SHIPPING_SERVICE_TYPE[item.type] if item.type in TYPE_TO_SHIPPING_SERVICE_TYPE else item.type
 
     if isinstance(item, Container) and item.type == "gridBox":
         name += str(item.capacity)
@@ -157,18 +157,35 @@ def build_shipment_request(shipmentId: int, token: str):
     for tlc in shipment.children:
         line_items: list[dict] = []
         for item, count in _get_children(tlc).items():
-            line_items.append(
-                {
-                    "shippable_item_type": item,
-                    "quantity": count,
-                }
+            # If item is registered in shipping service, use shorthand instead
+            if item in TYPE_TO_SHIPPING_SERVICE_TYPE.values():
+                line_items.append(
+                    {
+                        "shippable_item_type": item,
+                        "quantity": count,
+                    }
+                )
+            else:
+                line_items.append(
+                    {
+                        "gross_weight": 0,
+                        "net_weight": 0,
+                        "description": item,
+                        "quantity": count
+                    }
+                )
+
+        if tlc.type not in TYPE_TO_SHIPPING_SERVICE_TYPE:
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_ENTITY,
+                "Top level container type not supported",
             )
 
         packages.append(
             {
                 "line_items": line_items,
                 "external_id": tlc.externalId,
-                "shippable_item_type": "CRYOGENIC_DRY_SHIPPER_CASE",
+                "shippable_item_type": TYPE_TO_SHIPPING_SERVICE_TYPE[tlc.type],
             }
         )
 
