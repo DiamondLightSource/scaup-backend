@@ -188,11 +188,11 @@ def build_shipment_request(shipmentId: int, token: str):
             packages.append(
                 {
                     "line_items": line_items,
-                    "length": 0,
-                    "width": 0,
-                    "height": 0,
-                    "gross_weight": 0,
-                    "net_weight": 0,
+                    "length": 2,
+                    "width": 2,
+                    "height": 2,
+                    "gross_weight": 2,
+                    "net_weight": 2,
                     "external_id": tlc.externalId,
                     "description": tlc.type,
                 }
