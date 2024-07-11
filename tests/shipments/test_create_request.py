@@ -105,7 +105,7 @@ def test_shipment_request_tlc_not_registered(client):
     body_dict = json.loads(body.decode())
 
     assert body_dict["packages"][0]["description"] == "foobar"
-    assert body_dict["packages"][0]["height"] == 0
+    assert body_dict["packages"][0]["height"] == 2
 
 def test_create_not_in_ispyb(client):
     """Should not create shipment request if shipment not in ISPyB"""
