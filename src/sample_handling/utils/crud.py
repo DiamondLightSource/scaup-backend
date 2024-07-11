@@ -1,44 +1,18 @@
 from typing import Type
 
 from fastapi import HTTPException, status
-from sqlalchemy import delete, func, insert, select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.orm import joinedload
 
-from ..models.containers import ContainerIn, OptionalContainer
+from ..models.containers import OptionalContainer
 from ..models.inner_db.tables import Container, Sample, Shipment, TopLevelContainer
 from ..models.samples import OptionalSample
 from ..models.shipments import UnassignedItems
-from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelContainerIn
+from ..models.top_level_containers import OptionalTopLevelContainer
 from ..utils.database import inner_db
-from ..utils.generic import pascal_to_title
 from ..utils.session import update_context
 from .external import ExternalObject, ExternalRequest
 from .query import table_query_to_generic
-
-
-def insert_with_name(
-    table: Type[Container | TopLevelContainer],
-    shipmentId: int,
-    params: ContainerIn | TopLevelContainerIn,
-):
-    if not (params.name):
-        # Gets Mypy to shut up. Essentially, the union of both valid types results in InstrumentedAttribute
-        # shortcircuiting to int directly, which causes typechecks to fail. Until PEP 484 implements intersections,
-        # this is the "cleanest" fix
-        container_count = inner_db.session.scalar(
-            select(func.count(table.id)).filter_by(shipmentId=shipmentId)  # type: ignore[arg-type]
-        )
-        params.name = (
-            f"{pascal_to_title(params.type, '_')}_{((container_count or 0) + 1)}"
-        )
-
-    container = inner_db.session.scalar(
-        insert(table).returning(table),
-        {"shipmentId": shipmentId, **params.model_dump(exclude_unset=True)},
-    )
-
-    inner_db.session.commit()
-    return container
 
 
 def edit_item(

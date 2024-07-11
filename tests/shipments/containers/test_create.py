@@ -4,26 +4,30 @@ from sample_handling.models.inner_db.tables import Container
 from sample_handling.utils.database import inner_db
 
 
-def test_create_valid_container(client):
-    """Should create new container when provided with valid parent container"""
-
-    resp = client.post(
-        "/shipments/1/containers",
-        json={"type": "gridBox", "parentId": 1},
-    )
-
-    assert resp.status_code == 201
-
-
 def test_create_valid_top_level_container(client):
     """Should create new container when provided with valid parent top level container"""
 
     resp = client.post(
         "/shipments/1/containers",
-        json={"type": "puck", "topLevelContainerId": 1},
+        json={"type": "puck", "topLevelContainerId": 1, "name": "valid_name"},
     )
 
     assert resp.status_code == 201
+
+
+def test_create_no_name_no_registered(client):
+    """Should not create item with no name and no registered container"""
+
+    resp = client.post(
+        "/shipments/1/containers",
+        json={"type": "puck"},
+    )
+
+    assert resp.status_code == 422
+    assert (
+        resp.json()["detail"][0]["msg"]
+        == "Assertion failed, Either name or barcode must be provided"
+    )
 
 
 def test_create_no_name(client):
@@ -31,13 +35,13 @@ def test_create_no_name(client):
 
     resp = client.post(
         "/shipments/1/containers",
-        json={"type": "puck"},
+        json={"type": "puck", "registeredContainer": "DLS-1"},
     )
 
     assert resp.status_code == 201
 
     assert (
-        inner_db.session.scalar(select(Container).filter(Container.name == "Puck_6"))
+        inner_db.session.scalar(select(Container).filter(Container.name == "DLS-1"))
         is not None
     )
 
@@ -47,7 +51,7 @@ def test_create_invalid_container(client):
 
     resp = client.post(
         "/shipments/1/containers",
-        json={"type": "falconTube", "parentId": 999},
+        json={"type": "falconTube", "parentId": 999, "name": "valid_name"},
     )
 
     assert resp.status_code == 404
@@ -58,7 +62,7 @@ def test_create_invalid_top_level_container(client):
 
     resp = client.post(
         "/shipments/1/containers",
-        json={"type": "falconTube", "topLevelContainerId": 999},
+        json={"type": "falconTube", "topLevelContainerId": 999, "name": "valid_name"},
     )
 
     assert resp.status_code == 404
