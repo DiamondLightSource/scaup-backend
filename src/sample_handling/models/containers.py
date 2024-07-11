@@ -79,7 +79,7 @@ class ContainerExternal(BaseExternal):
     parentContainerId: Optional[int] = Field(default=None, alias="parentId")
     requestedReturn: bool
     containerRegistryId: Optional[int] = None
-    code: Optional[int] = Field(default=None, alias="registeredContainer")
+    code: Optional[str] = Field(default=None, alias="registeredContainer")
     containerType: str = Field(alias="type")
     sessionId: Optional[int] = None
 
