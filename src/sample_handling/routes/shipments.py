@@ -7,13 +7,14 @@ from ..auth import Permissions, auth_scheme
 from ..crud import containers as container_crud
 from ..crud import pre_sessions as ps_crud
 from ..crud import samples as sample_crud
-from ..crud import shipments as crud
+from ..crud import shipments as shipment_crud
 from ..crud import top_level_containers as tlc_crud
 from ..models.containers import ContainerIn, ContainerOut
 from ..models.pre_sessions import PreSessionIn, PreSessionOut
 from ..models.samples import SampleIn, SampleOut
 from ..models.shipments import ShipmentChildren, ShipmentOut, UnassignedItems
 from ..models.top_level_containers import TopLevelContainerIn, TopLevelContainerOut
+from ..utils.crud import get_unassigned
 
 auth = Permissions.shipment
 
@@ -26,13 +27,13 @@ router = APIRouter(
 @router.get("/{shipmentId}", response_model=ShipmentChildren)
 def get_shipment(shipmentId=Depends(auth)):
     """Get shipment data"""
-    return crud.get_shipment(shipmentId=shipmentId)
+    return shipment_crud.get_shipment(shipmentId=shipmentId)
 
 
 @router.get("/{shipmentId}/unassigned", response_model=UnassignedItems)
-def get_unassigned(shipmentId=Depends(auth)):
+def get_unassigned_items(shipmentId=Depends(auth)):
     """Get unassigned items in shipment"""
-    return crud.get_unassigned(shipmentId=shipmentId)
+    return get_unassigned(shipmentId=shipmentId)
 
 
 @router.post("/{shipmentId}/push")
@@ -41,7 +42,7 @@ def push_shipment(
 ):
     """Push shipment to ISPyB. Unassigned items (such as a container with no parent top level
     container) are ignored."""
-    return crud.push_shipment(shipmentId=shipmentId, token=token.credentials)
+    return shipment_crud.push_shipment(shipmentId=shipmentId, token=token.credentials)
 
 
 @router.post(
@@ -125,13 +126,15 @@ def create_shipment_request(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
     """Create new shipment request"""
-    return crud.build_shipment_request(shipmentId, token.credentials)
+    return shipment_crud.build_shipment_request(
+        shipmentId=shipmentId, token=token.credentials
+    )
 
 
 @router.get("/{shipmentId}/request", response_class=RedirectResponse)
 def get_shipment_request(shipmentId=Depends(auth)):
     """Get shipment request"""
-    return crud.get_shipment_request(shipmentId)
+    return shipment_crud.get_shipment_request(shipmentId)
 
 
 @router.get(

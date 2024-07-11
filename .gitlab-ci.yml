@@ -1,6 +1,6 @@
 image: python:3.11
 services:
-  - gcr.io/diamond-privreg/lims/sample-handling-db:v1.4.0
+  - gcr.io/diamond-privreg/lims/sample-handling-db:v1.4.1
 stages:
   - test
   - build
@@ -12,14 +12,23 @@ install-job:
   script:
     - pip install .[dev]
 
-lint-and-integration-test-job:
+lint-job:
   stage: test
   tags:
     - argus
   before_script:
     - pip install .[dev]
   script:
-    - tox
+    - tox -e mypy
+
+integration-test-job:
+  stage: test
+  tags:
+    - argus
+  before_script:
+    - pip install .[dev]
+  script:
+    - tox -e pytest
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     reports:

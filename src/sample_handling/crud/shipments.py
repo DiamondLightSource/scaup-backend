@@ -1,9 +1,9 @@
 from collections import Counter
-from typing import Generator, Sequence, Tuple
+from typing import Generator, Sequence
 
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
-from sqlalchemy import Select, select, update
+from sqlalchemy import select, update
 from sqlalchemy.orm import joinedload
 
 from ..models.inner_db.tables import (
@@ -14,45 +14,14 @@ from ..models.inner_db.tables import (
     TopLevelContainer,
 )
 from ..models.shipments import (
-    GenericItem,
-    GenericItemData,
     ShipmentChildren,
     ShipmentOut,
-    UnassignedItems,
 )
 from ..utils.config import Config
+from ..utils.crud import assert_no_unassigned
 from ..utils.database import inner_db
 from ..utils.external import TYPE_TO_SHIPPING_SERVICE_TYPE, Expeye, ExternalRequest
-
-
-def _filter_fields(item: TopLevelContainer | Container | Sample):
-    _unwanted_fields = ["samples", "children"]
-    return {
-        key: value
-        for [key, value] in item.__dict__.items()
-        if key not in _unwanted_fields
-    }
-
-
-def _query_result_to_object(
-    result: Sequence[TopLevelContainer | Container | Sample],
-):
-    parsed_items: list[GenericItem] = []
-    for item in result:
-        parsed_item = GenericItem(
-            id=item.id,
-            name=item.name,
-            data=GenericItemData(**_filter_fields(item)),
-        )
-        if not isinstance(item, Sample):
-            if isinstance(item, Container) and item.samples:
-                parsed_item.children = _query_result_to_object(item.samples)
-            elif item.children:
-                parsed_item.children = _query_result_to_object(item.children)
-
-        parsed_items.append(parsed_item)
-
-    return parsed_items
+from ..utils.query import query_result_to_object
 
 
 def _get_shipment_tree(shipmentId: int):
@@ -79,13 +48,14 @@ def get_shipment(shipmentId: int):
     return ShipmentChildren(
         id=shipmentId,
         name=raw_shipment_data.name,
-        children=_query_result_to_object(raw_shipment_data.children),
+        children=query_result_to_object(raw_shipment_data.children),
         data=ShipmentOut.model_validate(
             raw_shipment_data, from_attributes=True
         ).model_dump(mode="json"),
     )
 
 
+@assert_no_unassigned
 def push_shipment(shipmentId: int, token: str):
     shipment = _get_shipment_tree(shipmentId)
     session_response = ExternalRequest.request(
@@ -137,45 +107,6 @@ def push_shipment(shipmentId: int, token: str):
     return modified_items
 
 
-def _table_query_to_generic(query: Select[Tuple[Sample]] | Select[Tuple[Container]]):
-    """Perform queries and convert result to generic items"""
-    results: Sequence[Sample | Container] = (
-        inner_db.session.scalars(query).unique().all()
-    )
-
-    return _query_result_to_object(results)
-
-
-def get_unassigned(shipmentId: int):
-    samples = _table_query_to_generic(
-        select(Sample).filter(
-            Sample.shipmentId == shipmentId, Sample.containerId.is_(None)
-        )
-    )
-
-    grid_boxes = _table_query_to_generic(
-        select(Container)
-        .filter(
-            Container.shipmentId == shipmentId,
-            Container.type == "gridBox",
-            Container.parentId.is_(None),
-        )
-        .options(joinedload(Container.samples))
-    )
-
-    containers = _table_query_to_generic(
-        select(Container)
-        .filter(
-            Container.shipmentId == shipmentId,
-            Container.type != "gridBox",
-            Container.topLevelContainerId.is_(None),
-        )
-        .options(joinedload(Container.children))
-    )
-
-    return UnassignedItems(samples=samples, gridBoxes=grid_boxes, containers=containers)
-
-
 def _get_item_name(item: Sample | TopLevelContainer | Container):
     """Convert internal item type to shipping service item type
 
@@ -183,7 +114,7 @@ def _get_item_name(item: Sample | TopLevelContainer | Container):
     if item.externalId is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Shipment not pushed to ISPyB")
 
-    name = TYPE_TO_SHIPPING_SERVICE_TYPE[item.type]
+    name = TYPE_TO_SHIPPING_SERVICE_TYPE[item.type] if item.type in TYPE_TO_SHIPPING_SERVICE_TYPE else item.type
 
     if isinstance(item, Container) and item.type == "gridBox":
         name += str(item.capacity)
@@ -218,6 +149,7 @@ def _get_children(
     return item_counts
 
 
+@assert_no_unassigned
 def build_shipment_request(shipmentId: int, token: str):
     shipment = _get_shipment_tree(shipmentId)
 
@@ -225,20 +157,46 @@ def build_shipment_request(shipmentId: int, token: str):
     for tlc in shipment.children:
         line_items: list[dict] = []
         for item, count in _get_children(tlc).items():
-            line_items.append(
+            # If item is registered in shipping service, use shorthand instead
+            if item in TYPE_TO_SHIPPING_SERVICE_TYPE.values():
+                line_items.append(
+                    {
+                        "shippable_item_type": item,
+                        "quantity": count,
+                    }
+                )
+            else:
+                line_items.append(
+                    {
+                        "gross_weight": 0,
+                        "net_weight": 0,
+                        "description": item,
+                        "quantity": count
+                    }
+                )
+
+        if tlc.type in TYPE_TO_SHIPPING_SERVICE_TYPE:
+            packages.append(
                 {
-                    "shippable_item_type": item,
-                    "quantity": count,
+                    "line_items": line_items,
+                    "external_id": tlc.externalId,
+                    "shippable_item_type": TYPE_TO_SHIPPING_SERVICE_TYPE[tlc.type],
                 }
             )
-
-        packages.append(
-            {
-                "line_items": line_items,
-                "external_id": tlc.externalId,
-                "shippable_item_type": "CRYOGENIC_DRY_SHIPPER_CASE",
-            }
-        )
+        else:
+            # In the future, this should not be the case, we will need to have valid dimensions
+            packages.append(
+                {
+                    "line_items": line_items,
+                    "length": 2,
+                    "width": 2,
+                    "height": 2,
+                    "gross_weight": 2,
+                    "net_weight": 2,
+                    "external_id": tlc.externalId,
+                    "description": tlc.type,
+                }
+            )
 
     built_request_body = {
         # TODO: remove padding once shipping service removes regex check

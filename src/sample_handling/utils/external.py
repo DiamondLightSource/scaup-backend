@@ -21,7 +21,7 @@ TYPE_TO_SHIPPING_SERVICE_TYPE = {
     "grid": "CRYO_EM_GRID",
     "gridBox": "CRYO_EM_GRID_BOX_",
     "puck": "UNI_PUCK",
-    "dewar": "CRYOGENIC_DRY_SHIPPER",
+    "dewar": "CRYOGENIC_DRY_SHIPPER_CASE",
     "falconTube": "FALCON_TUBE_50ML",
 }
 

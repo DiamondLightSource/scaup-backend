@@ -1,4 +1,4 @@
-from typing import Any, Literal, Optional
+from typing import Any, Optional
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
@@ -22,12 +22,12 @@ class BaseTopLevelContainer(BaseModel):
 
 
 class TopLevelContainerIn(BaseTopLevelContainer):
-    type: Literal["dewar"]
+    type: str
     code: str
 
 
 class OptionalTopLevelContainer(BaseTopLevelContainer):
-    type: Optional[Literal["dewar"]] = None
+    type: Optional[str] = None
     code: Optional[str] = None
     barCode: Optional[str] = None
 
