@@ -2,9 +2,12 @@ from fastapi import APIRouter, Body, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials
 from lims_utils.models import ProposalReference, pagination
 
+from ..models.containers import ContainerOut
+
 from ..auth import Permissions, auth_scheme
 from ..crud import proposals as crud
 from ..crud import samples as samples_crud
+from ..crud import containers as containers_crud
 from ..models.samples import SampleOut
 from ..models.shipments import MixedShipment, ShipmentIn, ShipmentOut
 from ..utils.database import Paged
@@ -52,6 +55,18 @@ def get_samples(
 ):
     """Get samples in session"""
     return samples_crud.get_samples(proposal_reference=proposalReference, **page)
+
+@router.get(
+    "/{proposalReference}/sessions/{visitNumber}/containers",
+    response_model=Paged[ContainerOut],
+)
+def get_containers(
+    proposalReference: ProposalReference = Depends(auth),
+    page: dict[str, int] = Depends(pagination),
+    lastLevel: bool = True
+):
+    """Get containers in session"""
+    return containers_crud.get_containers(last_level=lastLevel, proposal_reference=proposalReference, **page)
 
 
 @router.get("/{proposalReference}/data")
