@@ -65,6 +65,7 @@ class ContainerIn(BaseContainer):
 
 class OptionalContainer(BaseContainer):
     type: Optional[ContainerTypes] = None
+    shipmentId: Optional[int] = None
 
 
 class ContainerOut(BaseContainer):

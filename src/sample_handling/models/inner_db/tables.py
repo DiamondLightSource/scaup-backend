@@ -48,7 +48,7 @@ class TopLevelContainer(Base, BaseColumns):
 
     id: Mapped[int] = mapped_column("topLevelContainerId", primary_key=True, index=True)
     shipment: Mapped["Shipment"] = relationship(back_populates="children")
-    shipmentId: Mapped[int] = mapped_column(
+    shipmentId: Mapped[int | None] = mapped_column(
         ForeignKey("Shipment.shipmentId"), index=True
     )
 
@@ -56,6 +56,10 @@ class TopLevelContainer(Base, BaseColumns):
     code: Mapped[str] = mapped_column(String(20))
     barCode: Mapped[str | None] = mapped_column(String(20))
     type: Mapped[str] = mapped_column(String(40), server_default="dewar")
+    isInternal: Mapped[bool] = mapped_column(
+        default=False,
+        comment="Whether this container is for internal facility storage use only",
+    )
 
     children: Mapped[List["Container"] | None] = relationship(
         back_populates="topLevelContainer"
@@ -68,7 +72,7 @@ class Container(Base, BaseColumns):
     __table_args__ = (UniqueConstraint("name", "shipmentId"),)
 
     id: Mapped[int] = mapped_column("containerId", primary_key=True, index=True)
-    shipmentId: Mapped[int] = mapped_column(
+    shipmentId: Mapped[int | None] = mapped_column(
         ForeignKey("Shipment.shipmentId"), index=True
     )
     topLevelContainerId: Mapped[int | None] = mapped_column(
@@ -89,6 +93,13 @@ class Container(Base, BaseColumns):
     )
 
     requestedReturn: Mapped[bool] = mapped_column(default=False)
+    isInternal: Mapped[bool] = mapped_column(
+        default=False,
+        comment="Whether this container is for internal facility storage use only",
+    )
+    isCurrent: Mapped[bool] = mapped_column(
+        default=False, comment="Whether container position is current"
+    )
     registeredContainer: Mapped[str | None] = mapped_column()
 
     topLevelContainer: Mapped[Optional["TopLevelContainer"]] = relationship(

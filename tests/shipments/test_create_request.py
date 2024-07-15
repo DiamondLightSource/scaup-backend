@@ -3,7 +3,11 @@ import json
 import responses
 from sqlalchemy import select, update
 
-from sample_handling.models.inner_db.tables import Shipment, Container, TopLevelContainer
+from sample_handling.models.inner_db.tables import (
+    Container,
+    Shipment,
+    TopLevelContainer,
+)
 from sample_handling.utils.config import Config
 from sample_handling.utils.database import inner_db
 
@@ -62,9 +66,7 @@ def test_shipment_request_item_not_registered(client):
     )
 
     inner_db.session.execute(
-        update(Container)
-        .filter(Container.id == 712)
-        .values({"type": "foobar"})
+        update(Container).filter(Container.id == 712).values({"type": "foobar"})
     )
 
     client.post(
@@ -79,6 +81,7 @@ def test_shipment_request_item_not_registered(client):
     assert body_dict["packages"][0]["line_items"] == [
         {"description": "foobar", "gross_weight": 0, "net_weight": 0, "quantity": 1}
     ]
+
 
 @responses.activate
 def test_shipment_request_tlc_not_registered(client):
@@ -106,6 +109,7 @@ def test_shipment_request_tlc_not_registered(client):
 
     assert body_dict["packages"][0]["description"] == "foobar"
     assert body_dict["packages"][0]["height"] == 2
+
 
 def test_create_not_in_ispyb(client):
     """Should not create shipment request if shipment not in ISPyB"""

@@ -1,7 +1,7 @@
 import responses
 from sqlalchemy import select
 
-from sample_handling.models.inner_db.tables import Container
+from sample_handling.models.inner_db.tables import Container, Sample
 from sample_handling.utils.config import Config
 from sample_handling.utils.database import inner_db
 
@@ -37,6 +37,22 @@ def test_edit_inexistent_sample(client):
     )
 
     assert resp.status_code == 404
+
+
+def test_update_samples_on_shipment_id_change(client):
+    """Should update shipment ID for children if shipment ID of parent is updated"""
+
+    resp = client.patch(
+        "/containers/2",
+        json={"shipmentId": 118},
+    )
+
+    sample_shipment_id = inner_db.session.scalar(
+        select(Sample.shipmentId).filter(Sample.id == 1)
+    )
+
+    assert resp.status_code == 200
+    assert sample_shipment_id == 118
 
 
 @responses.activate

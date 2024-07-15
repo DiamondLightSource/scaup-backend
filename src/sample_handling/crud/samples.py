@@ -78,15 +78,16 @@ def get_samples(
         Container.name.label("parent"),
     ).join(Container, isouter=True)
 
-
     if shipment_id:
         query = query.filter(Sample.shipmentId == shipment_id)
     elif proposal_reference:
         # Shipment IDs are already more granular than proposal references, no point in filtering twice
         query = query.join(Shipment, Shipment.id == Sample.shipmentId).filter(
-            and_(Shipment.proposalCode == proposal_reference.code,
-            Shipment.proposalNumber == proposal_reference.number,
-            Shipment.visitNumber == proposal_reference.visit_number)
+            and_(
+                Shipment.proposalCode == proposal_reference.code,
+                Shipment.proposalNumber == proposal_reference.number,
+                Shipment.visitNumber == proposal_reference.visit_number,
+            )
         )
     else:
         raise Exception("Either shipment_id or proposal_reference must be set")
