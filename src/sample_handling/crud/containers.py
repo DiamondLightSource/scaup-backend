@@ -55,3 +55,4 @@ def update_shipment_id_in_samples(container_id: int, shipment_id: int | None):
         inner_db.session.execute(
             update(Sample).filter(Sample.containerId == container_id).values(values)
         )
+    inner_db.session.commit()

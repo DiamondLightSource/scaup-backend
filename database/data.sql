@@ -396,6 +396,7 @@ COPY public."Sample" ("sampleId", "shipmentId", "proteinId", type, location, det
 561	117	338108	grid	1	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	776	3P_1	5664919	\N
 434	97	4407	sample	\N	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	648	Sample_04	\N	\N
 562	118	338108	grid	\N	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	\N	3P_1	\N	\N
+612	117	338108	grid	\N	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	788	3P_1	\N	\N
 \.
 
 
@@ -411,6 +412,7 @@ COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status,
 106	2024-06-26 12:55:39.211687+00	\N	\N	Shipment_05	789	\N	cm	3	1
 117	2024-06-26 13:36:53.632782+00	1	Booked	1	63975	\N	bi	23047	100
 118	2024-06-26 13:40:32.191664+00	\N	\N	2	\N	\N	bi	23047	100
+126	2024-07-15 15:35:32.472987+00	\N	\N	1	\N	\N	bi	23047	99
 \.
 
 
@@ -456,14 +458,14 @@ SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 68, true);
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 611, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 612, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 125, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 126, true);
 
 
 --

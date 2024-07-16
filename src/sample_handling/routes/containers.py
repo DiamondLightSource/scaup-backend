@@ -20,7 +20,7 @@ def edit_container(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
     """Edit existing container"""
-    new_container = edit_item(Container, parameters, containerId, token.credentials)
+    new_container = edit_item(Container, parameters, containerId, token.credentials, commit=False)
     update_shipment_id_in_samples(
         container_id=containerId, shipment_id=parameters.shipmentId
     )
