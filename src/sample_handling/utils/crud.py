@@ -20,7 +20,6 @@ def edit_item(
     params: OptionalSample | OptionalTopLevelContainer | OptionalContainer,
     item_id: int,
     token: str,
-    commit = True
 ):
     """Edit item, and update representation in ISPyB if already present there
 
@@ -52,8 +51,7 @@ def edit_item(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Invalid ID provided",
             )
-        if commit:
-            inner_db.session.commit()
+        inner_db.session.commit()
 
         if updated_item and updated_item.externalId is not None:
             ext_obj = ExternalObject(updated_item, item_id)
