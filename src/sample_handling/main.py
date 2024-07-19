@@ -8,7 +8,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from . import __version__
-from .routes import containers, proposals, samples, shipments, top_level_containers
+from .routes import (
+    containers,
+    internal,
+    proposals,
+    samples,
+    shipments,
+    top_level_containers,
+)
 from .utils.config import Config
 
 app = FastAPI(version=__version__)
@@ -69,5 +76,6 @@ api.include_router(proposals.router)
 api.include_router(samples.router)
 api.include_router(containers.router)
 api.include_router(top_level_containers.router)
+api.include_router(internal.router)
 
 app.mount(os.getenv("MOUNT_POINT", "/api"), api)

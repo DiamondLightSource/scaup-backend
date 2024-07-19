@@ -4,11 +4,12 @@ import pytest
 import responses
 from fastapi.security import HTTPAuthorizationCredentials
 from fastapi.testclient import TestClient
+from lims_utils.auth import GenericUser
 from requests import PreparedRequest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from sample_handling.auth import auth_scheme
+from sample_handling.auth import User, auth_scheme
 from sample_handling.main import api, app
 from sample_handling.utils.database import inner_db
 from tests.shipments.responses import generic_creation_callback
@@ -18,7 +19,9 @@ from tests.shipments.top_level_containers.responses import (
     registered_dewar_callback,
 )
 
-from .utils.regex import (
+from .test_utils.users import admin
+
+from .test_utils.regex import (
     creation_regex,
     lab_contact_regex,
     proposal_regex,
@@ -27,12 +30,13 @@ from .utils.regex import (
     session_regex,
 )
 
-# @pytest.fixture(scope="function", autouse=True)
-# def mock_config():
-#    with patch(
-#        "sample_handling.utils.config._read_config", return_value={"auth": "this"}
-#    ) as _fixture:
-#        yield _fixture
+
+@pytest.fixture(scope="function", autouse=True)
+def mock_config():
+    with patch(
+        "sample_handling.utils.config._read_config", return_value={"auth": "this"}
+    ) as _fixture:
+        yield _fixture
 
 
 engine = create_engine(
@@ -84,6 +88,22 @@ def mock_permissions(request):
 
     with patch("sample_handling.auth.micro._check_perms", new=new_perms) as _fixture:
         yield _fixture
+
+
+def empty_method():
+    return True
+
+
+@pytest.fixture(scope="function", params=[admin])
+def mock_user(request):
+    try:
+        old_overrides = api.dependency_overrides[User]
+    except KeyError:
+        old_overrides = empty_method
+
+    api.dependency_overrides[User] = lambda: request.param
+    yield
+    api.dependency_overrides[User] = old_overrides
 
 
 @pytest.fixture(scope="function", autouse=True)

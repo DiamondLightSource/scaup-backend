@@ -1,8 +1,9 @@
 from typing import TypeVar
 
 import requests
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials
+from lims_utils.auth import GenericUser
 from lims_utils.logging import app_logger
 from lims_utils.models import parse_proposal
 from sqlalchemy import func, select
@@ -20,6 +21,29 @@ from ..utils.database import inner_db
 from .template import GenericPermissions
 
 T = TypeVar("T")
+
+
+class User(GenericUser):
+    def __init__(
+        self,
+        request: Request,
+        token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+    ):
+        response = requests.get(
+            Config.auth.endpoint + "/user",
+            headers={"Authorization": f"Bearer {token.credentials}"},
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=response.status_code, detail=response.json().get("detail")
+            )
+
+        user = response.json()
+
+        request.state.user = user.get("fedid")
+
+        super().__init__(**user)
 
 
 def _check_perms(data_id: T, endpoint: str, token: str) -> T:

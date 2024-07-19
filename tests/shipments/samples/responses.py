@@ -2,7 +2,7 @@ import json
 
 from requests import PreparedRequest
 
-from ...utils.regex import get_match, protein_regex
+from ...test_utils.regex import get_match, protein_regex
 
 
 def protein_callback(request: PreparedRequest):

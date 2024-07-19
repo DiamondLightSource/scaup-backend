@@ -2,7 +2,7 @@ import json
 
 from requests import PreparedRequest
 
-from ...utils.regex import get_match, lab_contact_regex, registered_dewar_regex
+from ...test_utils.regex import get_match, lab_contact_regex, registered_dewar_regex
 
 
 def registered_dewar_callback(request: PreparedRequest):

@@ -6,7 +6,6 @@ from ..utils.models import BaseExternal
 
 
 class BaseTopLevelContainer(BaseModel):
-    topLevelContainerId: Optional[int] = None
     status: Optional[str] = None
     capacity: Optional[int] = None
     details: Optional[dict[str, Any]] = None
