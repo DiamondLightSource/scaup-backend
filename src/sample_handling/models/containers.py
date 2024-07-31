@@ -61,6 +61,7 @@ class ContainerIn(BaseContainer):
         return self
 
     type: ContainerTypes
+    isInternal: bool = False
 
 
 class OptionalContainer(BaseContainer):

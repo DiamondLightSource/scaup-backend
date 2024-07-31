@@ -15,7 +15,9 @@ def get_unassigned(limit: int, page: int):
         Container.parentId.is_(None),
     )
 
-    return paginate(query, limit, page, slow_count=False, scalar=False)
+    paged_result = paginate(query, limit, page, slow_count=False, scalar=False)
+    paged_result.items = query_result_to_object(paged_result.items)
+    return paged_result
 
 
 def get_internal_container_tree(top_level_container_id: int):

@@ -4,7 +4,6 @@ import pytest
 import responses
 from fastapi.security import HTTPAuthorizationCredentials
 from fastapi.testclient import TestClient
-from lims_utils.auth import GenericUser
 from requests import PreparedRequest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -19,8 +18,6 @@ from tests.shipments.top_level_containers.responses import (
     registered_dewar_callback,
 )
 
-from .test_utils.users import admin
-
 from .test_utils.regex import (
     creation_regex,
     lab_contact_regex,
@@ -29,6 +26,7 @@ from .test_utils.regex import (
     registered_dewar_regex,
     session_regex,
 )
+from .test_utils.users import admin
 
 
 @pytest.fixture(scope="function", autouse=True)

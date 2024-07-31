@@ -24,10 +24,12 @@ def _check_fields(params: TopLevelContainerIn | OptionalTopLevelContainer, token
 
 @assert_not_booked
 def create_top_level_container(
-    shipmentId: int, params: TopLevelContainerIn, token: str
+    shipmentId: int | None, params: TopLevelContainerIn, token: str
 ):
     with insert_context():
-        _check_fields(params, token)
+        if params.code:
+            _check_fields(params, token)
+
         if not params.name:
             params.name = params.code
 
