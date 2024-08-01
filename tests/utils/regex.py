@@ -7,7 +7,7 @@ session_regex = re.compile(f"{Config.ispyb_api}/core/proposals/(.*)/sessions/(.*
 protein_regex = re.compile(f"{Config.ispyb_api}/sample-handling/proteins/([0-9].*)")
 lab_contact_regex = re.compile(f"{Config.ispyb_api}/sample-handling/contacts/([0-9].*)")
 registered_dewar_regex = re.compile(
-    f"{Config.ispyb_api}/sample-handling/dewars/registry/(.*)"
+    f"{Config.ispyb_api}/sample-handling/proposals/(.*)/dewar-registry/(.*)"
 )
 creation_regex = re.compile(
     f"{Config.ispyb_api}/sample-handling/(containers|proposals|dewars|shipments|proposals)/(.*)/(dewars|samples|containers|shipments)"
