@@ -12,6 +12,14 @@ Changelog
 ==========
 
 +++++++++
+v0.3.0 (01/08/2024)
++++++++++
+
+**Fixed**
+
+- Use new proposal-specific endpoint for dewar registry metadata
+
++++++++++
 v0.2.0 (06/06/2024)
 +++++++++
 
