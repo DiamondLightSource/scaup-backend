@@ -12,12 +12,20 @@ Changelog
 ==========
 
 +++++++++
-v0.3.0 (01/08/2024)
+v0.3.1 (01/08/2024)
 +++++++++
 
 **Fixed**
 
-- Use new proposal-specific endpoint for dewar registry metadata
+- Use new proposal-specific endpoints for dewar registry data
+
++++++++++
+v0.3.0 (16/07/2024)
++++++++++
+
+**Added**
+
+- Allow new generic TLC types
 
 +++++++++
 v0.2.0 (06/06/2024)
