@@ -76,7 +76,7 @@ def _check_perms(data_id: T, endpoint: str, token: str) -> T:
 
 def _generic_table_check(
     table: type[Container | TopLevelContainer | Sample],
-    itemId: int,
+    item_id: int,
     token: str,
     allow_orphan=False,
 ):
@@ -90,7 +90,7 @@ def _generic_table_check(
             ).label("proposalReference")
         )
         .select_from(table)
-        .filter_by(id=itemId)
+        .filter_by(id=item_id)
         .outerjoin(Shipment)
     ).one_or_none()
 
@@ -102,11 +102,11 @@ def _generic_table_check(
     if allow_orphan and item.proposalReference == "-":
         user = GenericUser(**_get_user(token))
         check_em_staff(user)
-        return itemId
+        return item_id
 
     _check_perms(item.proposalReference, "session", token)
 
-    return itemId
+    return item_id
 
 
 class Permissions(GenericPermissions):
