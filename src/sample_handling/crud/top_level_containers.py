@@ -12,8 +12,11 @@ from ..utils.session import insert_context
 def _check_fields(
     params: TopLevelContainerIn | OptionalTopLevelContainer,
     token: str,
-    item_id: int,
+    item_id: int | None = None,
 ):
+    if item_id is None:
+        return
+
     query = select(func.concat(Shipment.proposalCode, Shipment.proposalNumber))
 
     if isinstance(params, TopLevelContainerIn):
