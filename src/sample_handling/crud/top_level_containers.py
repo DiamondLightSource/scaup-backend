@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from sqlalchemy import insert, select
+from sqlalchemy import func, insert, select
 
 from ..models.inner_db.tables import Shipment, TopLevelContainer
 from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelContainerIn
@@ -9,17 +9,42 @@ from ..utils.external import ExternalRequest
 from ..utils.session import insert_context
 
 
-def _check_fields(params: TopLevelContainerIn | OptionalTopLevelContainer, token: str):
-    if params.code is not None:
-        code_response = ExternalRequest.request(
-            token=token, url=f"/dewars/registry/{params.code}"
+def _check_fields(
+    params: TopLevelContainerIn | OptionalTopLevelContainer,
+    token: str,
+    item_id: int,
+):
+    query = select(func.concat(Shipment.proposalCode, Shipment.proposalNumber))
+
+    if isinstance(params, TopLevelContainerIn):
+        # Used on creation, when we don't have a top level container ID to join against yet
+        query = query.filter(Shipment.id == item_id)
+    else:
+        if params.code is None:
+            # Perform no facility code check if code is not present
+            return
+
+        query = (
+            query.select_from(TopLevelContainer)
+            .filter(TopLevelContainer.id == item_id)
+            .join(Shipment)
         )
 
-        if code_response.status_code != 200:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Invalid facility code provided",
-            )
+    proposal_reference = inner_db.session.scalar(query)
+
+    if proposal_reference is not None:
+        code_response = ExternalRequest.request(
+            token=token,
+            url=f"/proposals/{proposal_reference}/dewar-registry/{params.code}",
+        )
+
+        if code_response.status_code == 200:
+            return
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Invalid facility code provided",
+    )
 
 
 @assert_not_booked
@@ -28,7 +53,7 @@ def create_top_level_container(
 ):
     with insert_context():
         if params.code:
-            _check_fields(params, token)
+            _check_fields(params, token, shipmentId)
 
         if not params.name:
             params.name = params.code
@@ -45,7 +70,7 @@ def create_top_level_container(
 def edit_top_level_container(
     topLevelContainerId: int, params: OptionalTopLevelContainer, token: str
 ):
-    _check_fields(params, token)
+    _check_fields(params, token, topLevelContainerId)
     return edit_item(TopLevelContainer, params, topLevelContainerId, token)
 
 
