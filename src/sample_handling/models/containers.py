@@ -11,7 +11,6 @@ from pydantic import (
 
 from ..utils.generic import pascal_to_title
 from ..utils.models import BaseExternal
-from .inner_db.tables import ContainerTypes
 
 
 class BaseContainer(BaseModel):
@@ -60,12 +59,12 @@ class ContainerIn(BaseContainer):
         ), "Either name or barcode must be provided"
         return self
 
-    type: ContainerTypes
+    type: str
     isInternal: bool = False
 
 
 class OptionalContainer(BaseContainer):
-    type: Optional[ContainerTypes] = None
+    type: Optional[str] = None
     shipmentId: Optional[int] = None
 
 
