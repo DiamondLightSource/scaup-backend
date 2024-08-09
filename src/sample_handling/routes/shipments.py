@@ -100,7 +100,7 @@ def get_samples(
     page: dict[str, int] = Depends(pagination),
 ):
     """Get samples in shipment"""
-    return sample_crud.get_samples(shipmentId=shipmentId, **page)
+    return sample_crud.get_samples(shipment_id=shipmentId, **page)
 
 
 @router.get(

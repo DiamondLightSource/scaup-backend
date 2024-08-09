@@ -114,7 +114,11 @@ def _get_item_name(item: Sample | TopLevelContainer | Container):
     if item.externalId is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Shipment not pushed to ISPyB")
 
-    name = TYPE_TO_SHIPPING_SERVICE_TYPE[item.type] if item.type in TYPE_TO_SHIPPING_SERVICE_TYPE else item.type
+    name = (
+        TYPE_TO_SHIPPING_SERVICE_TYPE[item.type]
+        if item.type in TYPE_TO_SHIPPING_SERVICE_TYPE
+        else item.type
+    )
 
     if isinstance(item, Container) and item.type == "gridBox":
         name += str(item.capacity)
@@ -171,7 +175,7 @@ def build_shipment_request(shipmentId: int, token: str):
                         "gross_weight": 0,
                         "net_weight": 0,
                         "description": item,
-                        "quantity": count
+                        "quantity": count,
                     }
                 )
 

@@ -35,7 +35,7 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public."Container" (
     "containerId" integer NOT NULL,
-    "shipmentId" integer NOT NULL,
+    "shipmentId" integer,
     "topLevelContainerId" integer,
     "parentId" integer,
     type character varying(40) DEFAULT 'genericContainer'::character varying NOT NULL,
@@ -46,7 +46,9 @@ CREATE TABLE public."Container" (
     "registeredContainer" character varying,
     name character varying(40) NOT NULL,
     "externalId" integer,
-    comments character varying(255)
+    comments character varying(255),
+    "isInternal" boolean NOT NULL,
+    "isCurrent" boolean NOT NULL
 );
 
 
@@ -64,6 +66,20 @@ COMMENT ON COLUMN public."Container".details IS 'Generic additional details';
 --
 
 COMMENT ON COLUMN public."Container"."externalId" IS 'Item ID in ISPyB';
+
+
+--
+-- Name: COLUMN "Container"."isInternal"; Type: COMMENT; Schema: public; Owner: sample_handling
+--
+
+COMMENT ON COLUMN public."Container"."isInternal" IS 'Whether this container is for internal facility storage use only';
+
+
+--
+-- Name: COLUMN "Container"."isCurrent"; Type: COMMENT; Schema: public; Owner: sample_handling
+--
+
+COMMENT ON COLUMN public."Container"."isCurrent" IS 'Whether container position is current';
 
 
 --
@@ -241,14 +257,15 @@ ALTER SEQUENCE public."Shipment_shipmentId_seq" OWNED BY public."Shipment"."ship
 
 CREATE TABLE public."TopLevelContainer" (
     "topLevelContainerId" integer NOT NULL,
-    "shipmentId" integer NOT NULL,
+    "shipmentId" integer,
     details json,
     code character varying(20) NOT NULL,
     "barCode" character varying(20),
     type character varying(40) DEFAULT 'dewar'::character varying NOT NULL,
     name character varying(40) NOT NULL,
     "externalId" integer,
-    comments character varying(255)
+    comments character varying(255),
+    "isInternal" boolean NOT NULL
 );
 
 
@@ -259,6 +276,13 @@ ALTER TABLE public."TopLevelContainer" OWNER TO sample_handling;
 --
 
 COMMENT ON COLUMN public."TopLevelContainer"."externalId" IS 'Item ID in ISPyB';
+
+
+--
+-- Name: COLUMN "TopLevelContainer"."isInternal"; Type: COMMENT; Schema: public; Owner: sample_handling
+--
+
+COMMENT ON COLUMN public."TopLevelContainer"."isInternal" IS 'Whether this container is for internal facility storage use only';
 
 
 --
@@ -333,18 +357,20 @@ ALTER TABLE ONLY public."TopLevelContainer" ALTER COLUMN "topLevelContainerId" S
 -- Data for Name: Container; Type: TABLE DATA; Schema: public; Owner: sample_handling
 --
 
-COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "parentId", type, capacity, location, details, "requestedReturn", "registeredContainer", name, "externalId", comments) FROM stdin;
-1	1	1	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N
-3	1	\N	\N	falconTube	\N	\N	\N	f	\N	Container_02	\N	\N
-341	89	\N	\N	puck	\N	\N	\N	f	\N	Container_03	10	\N
-4	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N
-5	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_03	\N	\N
-2	1	\N	1	gridBox	4	\N	\N	f	\N	Grid_Box_01	\N	Test Comment!
-712	97	171	\N	puck	16	\N	\N	f	\N	Container_03	20	\N
-648	97	\N	646	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N
-777	117	199	\N	puck	16	\N	{}	f	\N	Puck_2	303612	
-776	117	\N	777	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	303613	
-646	97	152	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N
+COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "parentId", type, capacity, location, details, "requestedReturn", "registeredContainer", name, "externalId", comments, "isInternal", "isCurrent") FROM stdin;
+1	1	1	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N	f	f
+3	1	\N	\N	falconTube	\N	\N	\N	f	\N	Container_02	\N	\N	f	f
+341	89	\N	\N	puck	\N	\N	\N	f	\N	Container_03	10	\N	f	f
+4	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N	f	f
+5	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_03	\N	\N	f	f
+2	1	\N	1	gridBox	4	\N	\N	f	\N	Grid_Box_01	\N	Test Comment!	f	f
+712	97	171	\N	puck	16	\N	\N	f	\N	Container_03	20	\N	f	f
+648	97	\N	646	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N	f	f
+777	117	199	\N	puck	16	\N	{}	f	\N	Puck_2	303612		f	f
+776	117	\N	777	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	303613		f	f
+646	97	152	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N	f	f
+784	\N	\N	\N	puck	\N	\N	\N	f	\N	Internal_puck	\N	\N	t	f
+788	117	\N	784	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_2	\N		f	f
 \.
 
 
@@ -370,6 +396,7 @@ COPY public."Sample" ("sampleId", "shipmentId", "proteinId", type, location, det
 561	117	338108	grid	1	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	776	3P_1	5664919	\N
 434	97	4407	sample	\N	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	648	Sample_04	\N	\N
 562	118	338108	grid	\N	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	\N	3P_1	\N	\N
+612	117	338108	grid	\N	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	788	3P_1	\N	\N
 \.
 
 
@@ -385,6 +412,7 @@ COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status,
 106	2024-06-26 12:55:39.211687+00	\N	\N	Shipment_05	789	\N	cm	3	1
 117	2024-06-26 13:36:53.632782+00	1	Booked	1	63975	\N	bi	23047	100
 118	2024-06-26 13:40:32.191664+00	\N	\N	2	\N	\N	bi	23047	100
+126	2024-07-15 15:35:32.472987+00	\N	\N	1	\N	\N	bi	23047	99
 \.
 
 
@@ -392,14 +420,14 @@ COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status,
 -- Data for Name: TopLevelContainer; Type: TABLE DATA; Schema: public; Owner: sample_handling
 --
 
-COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, code, "barCode", type, name, "externalId", comments) FROM stdin;
-3	2	\N	DLS-3	DLS-3	dewar	Dewar_03	\N	\N
-61	89	\N	DLS-4	DLS-4	dewar	Dewar_04	10	\N
-2	2	\N	DLS-2	DLS-2	dewar	Dewar_02	\N	\N
-1	1	\N	DLS-1	DLS-1	dewar	DLS-EM-0000	\N	\N
-152	97	\N	DLS-4	DLS-4	dewar	Dewar_05	\N	\N
-171	106	\N	DLS-4	DLS-4	dewar	Dewar_06	20	\N
-199	117	{}	DLS-BI-0020	\N	dewar	DLS-BI-0020	72181	
+COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, code, "barCode", type, name, "externalId", comments, "isInternal") FROM stdin;
+3	2	\N	DLS-3	DLS-3	dewar	Dewar_03	\N	\N	f
+61	89	\N	DLS-4	DLS-4	dewar	Dewar_04	10	\N	f
+2	2	\N	DLS-2	DLS-2	dewar	Dewar_02	\N	\N	f
+1	1	\N	DLS-1	DLS-1	dewar	DLS-EM-0000	\N	\N	f
+152	97	\N	DLS-4	DLS-4	dewar	Dewar_05	\N	\N	f
+171	106	\N	DLS-4	DLS-4	dewar	Dewar_06	20	\N	f
+199	117	{}	DLS-BI-0020	\N	dewar	DLS-BI-0020	72181		f
 \.
 
 
@@ -408,7 +436,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-170457b06efc
+2437fc6c6661
 \.
 
 
@@ -416,35 +444,35 @@ COPY public.alembic_version (version_num) FROM stdin;
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 783, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 824, true);
 
 
 --
 -- Name: PreSession_preSessionId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 56, true);
+SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 68, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 569, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 612, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 119, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 126, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 202, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 220, true);
 
 
 --
