@@ -48,7 +48,8 @@ CREATE TABLE public."Container" (
     "externalId" integer,
     comments character varying(255),
     "isInternal" boolean NOT NULL,
-    "isCurrent" boolean NOT NULL
+    "isCurrent" boolean NOT NULL,
+    "subType" character varying(40)
 );
 
 
@@ -357,22 +358,22 @@ ALTER TABLE ONLY public."TopLevelContainer" ALTER COLUMN "topLevelContainerId" S
 -- Data for Name: Container; Type: TABLE DATA; Schema: public; Owner: sample_handling
 --
 
-COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "parentId", type, capacity, location, details, "requestedReturn", "registeredContainer", name, "externalId", comments, "isInternal", "isCurrent") FROM stdin;
-1	1	1	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N	f	f
-3	1	\N	\N	falconTube	\N	\N	\N	f	\N	Container_02	\N	\N	f	f
-341	89	\N	\N	puck	\N	\N	\N	f	\N	Container_03	10	\N	f	f
-4	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N	f	f
-5	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_03	\N	\N	f	f
-2	1	\N	1	gridBox	4	\N	\N	f	\N	Grid_Box_01	\N	Test Comment!	f	f
-712	97	171	\N	puck	16	\N	\N	f	\N	Container_03	20	\N	f	f
-648	97	\N	646	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N	f	f
-777	117	199	\N	puck	16	\N	{}	f	\N	Puck_2	303612		f	f
-776	117	\N	777	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	303613		f	f
-646	97	152	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N	f	f
-788	117	\N	784	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_2	\N		f	f
-784	\N	\N	825	puck	12	\N	\N	f	\N	Internal_puck	\N	\N	t	f
-825	\N	221	\N	cane	10	\N	\N	f	\N	Internal_cane	\N	\N	t	f
-1162	\N	\N	\N	cane	10	\N	\N	f	\N	Orphan_cane	\N	\N	t	f
+COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "parentId", type, capacity, location, details, "requestedReturn", "registeredContainer", name, "externalId", comments, "isInternal", "isCurrent", "subType") FROM stdin;
+1	1	1	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N	f	f	\N
+3	1	\N	\N	falconTube	\N	\N	\N	f	\N	Container_02	\N	\N	f	f	\N
+341	89	\N	\N	puck	\N	\N	\N	f	\N	Container_03	10	\N	f	f	\N
+4	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N
+5	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_03	\N	\N	f	f	\N
+2	1	\N	1	gridBox	4	\N	\N	f	\N	Grid_Box_01	\N	Test Comment!	f	f	\N
+712	97	171	\N	puck	16	\N	\N	f	\N	Container_03	20	\N	f	f	\N
+648	97	\N	646	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N
+777	117	199	\N	puck	16	\N	{}	f	\N	Puck_2	303612		f	f	\N
+776	117	\N	777	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	303613		f	f	\N
+646	97	152	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N	f	f	\N
+788	117	\N	784	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_2	\N		f	f	\N
+784	\N	\N	825	puck	12	\N	\N	f	\N	Internal_puck	\N	\N	t	f	\N
+825	\N	221	\N	cane	10	\N	\N	f	\N	Internal_cane	\N	\N	t	f	\N
+1162	\N	\N	\N	cane	10	\N	\N	f	\N	Orphan_cane	\N	\N	t	f	\N
 \.
 
 
@@ -439,7 +440,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-2437fc6c6661
+223b22c06811
 \.
 
 

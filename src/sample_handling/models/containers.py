@@ -21,6 +21,7 @@ class BaseContainer(BaseModel):
     location: Optional[int] = None
     requestedReturn: Optional[bool] = False
     registeredContainer: Optional[str] = None
+    subType: Optional[str] = None
     name: Optional[str] = Field(
         default=None,
         description=(
