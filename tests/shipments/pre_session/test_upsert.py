@@ -14,9 +14,7 @@ def test_create(client):
 
     assert resp.status_code == 201
 
-    assert inner_db.session.scalar(
-        select(PreSession.details).filter(PreSession.shipmentId == 1)
-    ) == {"name": "test"}
+    assert inner_db.session.scalar(select(PreSession.details).filter(PreSession.shipmentId == 1)) == {"name": "test"}
 
 
 def test_update(client):
@@ -29,6 +27,4 @@ def test_update(client):
 
     assert resp.status_code == 201
 
-    assert inner_db.session.scalar(
-        select(PreSession.details).filter(PreSession.shipmentId == 2)
-    ) == {"name": "newName"}
+    assert inner_db.session.scalar(select(PreSession.details).filter(PreSession.shipmentId == 2)) == {"name": "newName"}

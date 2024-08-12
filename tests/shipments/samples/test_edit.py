@@ -20,10 +20,7 @@ def test_edit(client):
 
     assert data["name"] == "New_Sample_Name"
 
-    assert (
-        inner_db.session.scalar(select(Sample).filter(Sample.name == "New_Sample_Name"))
-        is not None
-    )
+    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "New_Sample_Name")) is not None
 
 
 @responses.activate

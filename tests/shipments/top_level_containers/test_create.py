@@ -34,10 +34,7 @@ def test_create_no_name(client):
     assert resp.status_code == 201
 
     assert (
-        inner_db.session.scalar(
-            select(TopLevelContainer).filter(TopLevelContainer.name == "DLS-EM-0001")
-        )
-        is not None
+        inner_db.session.scalar(select(TopLevelContainer).filter(TopLevelContainer.name == "DLS-EM-0001")) is not None
     )
 
 
@@ -55,7 +52,4 @@ def test_create_duplicate_name(client):
 
     assert resp.status_code == 400
 
-    assert (
-        resp.json()["detail"]
-        == "A container with this name already exists in this shipment"
-    )
+    assert resp.json()["detail"] == "A container with this name already exists in this shipment"

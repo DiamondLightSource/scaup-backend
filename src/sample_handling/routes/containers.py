@@ -20,9 +20,7 @@ def edit_container(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
     """Edit existing container"""
-    return update_container(
-        container_id=containerId, parameters=parameters, token=token.credentials
-    )
+    return update_container(container_id=containerId, parameters=parameters, token=token.credentials)
 
 
 @router.delete("/{containerId}", status_code=status.HTTP_204_NO_CONTENT)

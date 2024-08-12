@@ -79,9 +79,7 @@ def update_container(
         # Normally we don't care about containers because they follow more of a complicated tree structure,
         # and I'd rather leave it to the client to decide whether or not to update the shipment ID
         values = {"shipmentId": parameters.shipmentId}
-        inner_db.session.execute(
-            update(Sample).filter(Sample.containerId == container_id).values(values)
-        )
+        inner_db.session.execute(update(Sample).filter(Sample.containerId == container_id).values(values))
 
     new_container = edit_item(Container, parameters, container_id, token)
 

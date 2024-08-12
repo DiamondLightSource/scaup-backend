@@ -58,6 +58,4 @@ class Config:
             if msg.isupper():
                 raise ConfigurationError(f"Environment variable {str(exc)} is missing")
             else:
-                raise ConfigurationError(
-                    f"Key {str(exc)} missing from configuration file"
-                )
+                raise ConfigurationError(f"Key {str(exc)} missing from configuration file")

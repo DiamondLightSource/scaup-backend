@@ -17,11 +17,7 @@ def filter_fields(item: TopLevelContainer | Container | Sample):
         Item with filtered fields
     """
     _unwanted_fields = ["samples", "children"]
-    return {
-        key: value
-        for [key, value] in item.__dict__.items()
-        if key not in _unwanted_fields
-    }
+    return {key: value for [key, value] in item.__dict__.items() if key not in _unwanted_fields}
 
 
 def query_result_to_object(
@@ -62,8 +58,6 @@ def table_query_to_generic(query: Select[Tuple[Sample]] | Select[Tuple[Container
     Returns:
         Tree of generic item objects
     """
-    results: Sequence[Sample | Container] = (
-        inner_db.session.scalars(query).unique().all()
-    )
+    results: Sequence[Sample | Container] = inner_db.session.scalars(query).unique().all()
 
     return query_result_to_object(results)
