@@ -1,7 +1,6 @@
 from fastapi import HTTPException, status
 from lims_utils.models import ProposalReference
 from sqlalchemy import func, insert, select, update
-from sqlalchemy.orm import aliased
 
 from ..models.containers import ContainerIn, OptionalContainer
 from ..models.inner_db.tables import Container, Sample, Shipment
@@ -26,7 +25,11 @@ def create_container(params: ContainerIn, shipmentId: int | None = None):
 
 
 def get_containers(
-    limit: int, page: int, proposal_reference: ProposalReference, is_internal
+    limit: int,
+    page: int,
+    proposal_reference: ProposalReference,
+    is_internal: bool,
+    container_type: str | None,
 ):
     query = (
         select(Container)
@@ -39,10 +42,10 @@ def get_containers(
     )
 
     if is_internal:
-        ParentContainer = aliased(Container)
-        query = query.join(
-            ParentContainer, ParentContainer.id == Container.parentId
-        ).filter(ParentContainer.isInternal.is_(True))
+        query = query.filter(Container.isInternal.is_(True))
+
+    if container_type:
+        query = query.filter(Container.type == container_type)
 
     return paginate(query, limit, page, slow_count=True, scalar=False)
 

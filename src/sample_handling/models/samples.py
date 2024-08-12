@@ -28,6 +28,7 @@ class SampleIn(BaseSample):
 class OptionalSample(BaseSample):
     proteinId: Optional[int] = None
     type: Optional[str] = None
+    shipmentId: Optional[int] = None
 
 
 class SampleOut(BaseSample):

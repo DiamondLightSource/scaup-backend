@@ -369,7 +369,7 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 777	117	199	\N	puck	16	\N	{}	f	\N	Puck_2	303612		f	f
 776	117	\N	777	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	303613		f	f
 646	97	152	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N	f	f
-788	117	\N	784	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_2	\N		f	f
+788	117	\N	784	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_2	\N		t	f
 784	\N	\N	825	puck	12	\N	\N	f	\N	Internal_puck	\N	\N	t	f
 825	\N	221	\N	cane	10	\N	\N	f	\N	Internal_cane	\N	\N	t	f
 1162	\N	\N	\N	cane	10	\N	\N	f	\N	Orphan_cane	\N	\N	t	f
