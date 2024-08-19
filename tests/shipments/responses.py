@@ -2,7 +2,7 @@ import json
 
 from requests import PreparedRequest
 
-from ..utils.regex import creation_regex, get_match
+from ..test_utils.regex import creation_regex, get_match
 
 item_type_to_id = {
     "containers": "containerId",

@@ -12,8 +12,11 @@ from ..utils.session import insert_context
 def _check_fields(
     params: TopLevelContainerIn | OptionalTopLevelContainer,
     token: str,
-    item_id: int,
+    item_id: int | None = None,
 ):
+    if item_id is None:
+        return
+
     query = select(func.concat(Shipment.proposalCode, Shipment.proposalNumber))
 
     if isinstance(params, TopLevelContainerIn):
@@ -49,10 +52,12 @@ def _check_fields(
 
 @assert_not_booked
 def create_top_level_container(
-    shipmentId: int, params: TopLevelContainerIn, token: str
+    shipmentId: int | None, params: TopLevelContainerIn, token: str
 ):
     with insert_context():
-        _check_fields(params, token, shipmentId)
+        if params.code:
+            _check_fields(params, token, shipmentId)
+
         if not params.name:
             params.name = params.code
 

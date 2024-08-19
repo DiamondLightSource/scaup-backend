@@ -6,7 +6,6 @@ from ..utils.models import BaseExternal
 
 
 class BaseTopLevelContainer(BaseModel):
-    topLevelContainerId: Optional[int] = None
     status: Optional[str] = None
     capacity: Optional[int] = None
     details: Optional[dict[str, Any]] = None
@@ -23,7 +22,8 @@ class BaseTopLevelContainer(BaseModel):
 
 class TopLevelContainerIn(BaseTopLevelContainer):
     type: str
-    code: str
+    code: str | None = None
+    isInternal: bool = False
 
 
 class OptionalTopLevelContainer(BaseTopLevelContainer):
@@ -34,6 +34,7 @@ class OptionalTopLevelContainer(BaseTopLevelContainer):
 
 class TopLevelContainerOut(BaseTopLevelContainer):
     id: int = Field(validation_alias=AliasChoices("topLevelContainerId", "id"))
+    type: str
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
     externalId: int | None = None
 

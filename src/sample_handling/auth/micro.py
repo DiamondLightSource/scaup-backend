@@ -1,15 +1,17 @@
 from typing import TypeVar
 
 import requests
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials
+from lims_utils.auth import GenericUser
 from lims_utils.logging import app_logger
 from lims_utils.models import parse_proposal
 from sqlalchemy import func, select
 
+from sample_handling.utils.auth import check_em_staff
+
 from ..auth import auth_scheme
 from ..models.inner_db.tables import (
-    Base,
     Container,
     Sample,
     Shipment,
@@ -20,6 +22,33 @@ from ..utils.database import inner_db
 from .template import GenericPermissions
 
 T = TypeVar("T")
+
+
+def _get_user(token: str):
+    response = requests.get(
+        Config.auth.endpoint + "/user",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=response.status_code, detail=response.json().get("detail")
+        )
+
+    return response.json()
+
+
+class User(GenericUser):
+    def __init__(
+        self,
+        request: Request,
+        token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+    ):
+        user = _get_user(token.credentials)
+
+        request.state.user = user.get("fedid")
+
+        super().__init__(**user)
 
 
 def _check_perms(data_id: T, endpoint: str, token: str) -> T:
@@ -45,29 +74,39 @@ def _check_perms(data_id: T, endpoint: str, token: str) -> T:
     return data_id
 
 
-def _generic_table_check(table: type[Base], itemId: int, token: str):
-    proposal_reference = inner_db.session.scalar(
+def _generic_table_check(
+    table: type[Container | TopLevelContainer | Sample],
+    item_id: int,
+    token: str,
+    allow_orphan=False,
+):
+    item = inner_db.session.execute(
         select(
             func.concat(
                 Shipment.proposalCode,
                 Shipment.proposalNumber,
                 "-",
                 Shipment.visitNumber,
-            )
+            ).label("proposalReference")
         )
         .select_from(table)
-        .filter_by(id=itemId)
-        .join(Shipment)
-    )
+        .filter_by(id=item_id)
+        .outerjoin(Shipment)
+    ).one_or_none()
 
-    if proposal_reference is None:
+    if item is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Item does not exist"
         )
 
-    _check_perms(proposal_reference, "session", token)
+    if allow_orphan and item.proposalReference == "-":
+        user = GenericUser(**_get_user(token))
+        check_em_staff(user)
+        return item_id
 
-    return itemId
+    _check_perms(item.proposalReference, "session", token)
+
+    return item_id
 
 
 class Permissions(GenericPermissions):
@@ -127,7 +166,7 @@ class Permissions(GenericPermissions):
         containerId: int,
         token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     ) -> int:
-        return _generic_table_check(Container, containerId, token.credentials)
+        return _generic_table_check(Container, containerId, token.credentials, True)
 
     @staticmethod
     def top_level_container(
