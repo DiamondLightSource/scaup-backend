@@ -11,7 +11,7 @@ from ..utils.session import insert_context
 
 
 @assert_not_booked
-def create_container(shipmentId: int, params: ContainerIn):
+def create_container(params: ContainerIn, shipmentId: int | None = None):
     with insert_context():
         if not params.name:
             params.name = params.registeredContainer

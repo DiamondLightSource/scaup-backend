@@ -369,8 +369,10 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 777	117	199	\N	puck	16	\N	{}	f	\N	Puck_2	303612		f	f
 776	117	\N	777	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	303613		f	f
 646	97	152	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N	f	f
-784	\N	\N	\N	puck	\N	\N	\N	f	\N	Internal_puck	\N	\N	t	f
 788	117	\N	784	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_2	\N		f	f
+784	\N	\N	825	puck	12	\N	\N	f	\N	Internal_puck	\N	\N	t	f
+825	\N	221	\N	cane	10	\N	\N	f	\N	Internal_cane	\N	\N	t	f
+1162	\N	\N	\N	cane	10	\N	\N	f	\N	Orphan_cane	\N	\N	t	f
 \.
 
 
@@ -428,6 +430,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 152	97	\N	DLS-4	DLS-4	dewar	Dewar_05	\N	\N	f
 171	106	\N	DLS-4	DLS-4	dewar	Dewar_06	20	\N	f
 199	117	{}	DLS-BI-0020	\N	dewar	DLS-BI-0020	72181		f
+221	\N	{}	DLS-BI-0020	\N	dewar	DLS-BI-0020	\N		t
 \.
 
 
@@ -444,35 +447,35 @@ COPY public.alembic_version (version_num) FROM stdin;
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 824, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 1186, true);
 
 
 --
 -- Name: PreSession_preSessionId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 68, true);
+SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 188, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 612, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 1032, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 126, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 186, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 220, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 399, true);
 
 
 --
