@@ -21,6 +21,7 @@ class BaseContainer(BaseModel):
     location: Optional[int] = None
     requestedReturn: Optional[bool] = False
     registeredContainer: Optional[str] = None
+    subType: Optional[str] = None
     name: Optional[str] = Field(
         default=None,
         description=(
@@ -71,6 +72,7 @@ class OptionalContainer(BaseContainer):
 class ContainerOut(BaseContainer):
     id: int = Field(validation_alias=AliasChoices("containerId", "id"))
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
+    type: str
 
 
 class ContainerExternal(BaseExternal):

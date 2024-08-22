@@ -83,6 +83,7 @@ class Container(Base, BaseColumns):
     )
 
     type: Mapped[str] = mapped_column(String(40), server_default="genericContainer")
+    subType: Mapped[str | None] = mapped_column(String(40))
     capacity: Mapped[int | None] = mapped_column(SmallInteger)
     location: Mapped[int | None] = mapped_column(
         SmallInteger,
