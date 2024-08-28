@@ -5,3 +5,12 @@ def test_get(client):
     containers = resp.json()
     assert resp.status_code == 200
     assert len(containers["items"]) == 3
+
+
+def test_get_internal(client):
+    """Should filter out non-internal samples"""
+    resp = client.get("/proposals/bi23047/sessions/100/samples?isInternal=true")
+
+    containers = resp.json()
+    assert resp.status_code == 200
+    assert len(containers["items"]) == 1

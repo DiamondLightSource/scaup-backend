@@ -68,9 +68,7 @@ def edit_item(
 
 def get_unassigned(shipmentId: int):
     samples = table_query_to_generic(
-        select(Sample).filter(
-            Sample.shipmentId == shipmentId, Sample.containerId.is_(None)
-        )
+        select(Sample).filter(Sample.shipmentId == shipmentId, Sample.containerId.is_(None))
     )
 
     grid_boxes = table_query_to_generic(
@@ -98,9 +96,7 @@ def get_unassigned(shipmentId: int):
 
 def assert_not_booked(func):
     def wrapper(*args, **kwargs):
-        shipment_status = inner_db.session.scalar(
-            select(Shipment.status).filter(Shipment.id == kwargs["shipmentId"])
-        )
+        shipment_status = inner_db.session.scalar(select(Shipment.status).filter(Shipment.id == kwargs["shipmentId"]))
 
         if shipment_status == "Booked":
             raise HTTPException(
@@ -134,12 +130,7 @@ def delete_item(table: Type[Container | TopLevelContainer | Sample], item_id: in
         item_id: ID of the item to be deleted
     """
     if (
-        inner_db.session.scalar(
-            select(Shipment.status)
-            .select_from(table)
-            .filter_by(id=item_id)
-            .join(Shipment)
-        )
+        inner_db.session.scalar(select(Shipment.status).select_from(table).filter_by(id=item_id).join(Shipment))
         == "Booked"
     ):
         raise HTTPException(

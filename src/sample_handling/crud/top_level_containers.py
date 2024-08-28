@@ -27,11 +27,7 @@ def _check_fields(
             # Perform no facility code check if code is not present
             return
 
-        query = (
-            query.select_from(TopLevelContainer)
-            .filter(TopLevelContainer.id == item_id)
-            .join(Shipment)
-        )
+        query = query.select_from(TopLevelContainer).filter(TopLevelContainer.id == item_id).join(Shipment)
 
     proposal_reference = inner_db.session.scalar(query)
 
@@ -51,9 +47,7 @@ def _check_fields(
 
 
 @assert_not_booked
-def create_top_level_container(
-    shipmentId: int | None, params: TopLevelContainerIn, token: str
-):
+def create_top_level_container(shipmentId: int | None, params: TopLevelContainerIn, token: str):
     with insert_context():
         if params.code:
             _check_fields(params, token, shipmentId)
@@ -70,9 +64,7 @@ def create_top_level_container(
         return container
 
 
-def edit_top_level_container(
-    topLevelContainerId: int, params: OptionalTopLevelContainer, token: str
-):
+def edit_top_level_container(topLevelContainerId: int, params: OptionalTopLevelContainer, token: str):
     _check_fields(params, token, topLevelContainerId)
     return edit_item(TopLevelContainer, params, topLevelContainerId, token)
 

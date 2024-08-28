@@ -8,11 +8,11 @@ repos:
 
   - repo: local
     hooks:
-      - id: black
-        name: Run black
+      - id: format
+        name: Format with ruff
         stages: [commit]
         language: system
-        entry: black --check --diff
+        entry: ruff format --check --diff
         exclude: alembic
         types: [python]
 

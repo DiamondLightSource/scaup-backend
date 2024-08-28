@@ -31,9 +31,7 @@ from .test_utils.users import admin
 
 @pytest.fixture(scope="function", autouse=True)
 def mock_config():
-    with patch(
-        "sample_handling.utils.config._read_config", return_value={"auth": "this"}
-    ) as _fixture:
+    with patch("sample_handling.utils.config._read_config", return_value={"auth": "this"}) as _fixture:
         yield _fixture
 
 
@@ -80,9 +78,7 @@ def new_perms(item_id, _, _0):
 
 @pytest.fixture(scope="function", autouse=True)
 def mock_permissions(request):
-    api.dependency_overrides[auth_scheme] = lambda: HTTPAuthorizationCredentials(
-        credentials="token", scheme="bearer"
-    )
+    api.dependency_overrides[auth_scheme] = lambda: HTTPAuthorizationCredentials(credentials="token", scheme="bearer")
 
     with patch("sample_handling.auth.micro._check_perms", new=new_perms) as _fixture:
         yield _fixture

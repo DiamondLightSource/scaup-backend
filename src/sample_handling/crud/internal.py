@@ -25,9 +25,7 @@ def get_internal_container_tree(top_level_container_id: int):
         inner_db.session.execute(
             select(TopLevelContainer)
             .filter(TopLevelContainer.id == top_level_container_id)
-            .options(
-                joinedload(TopLevelContainer.children).joinedload(Container.children)
-            )
+            .options(joinedload(TopLevelContainer.children).joinedload(Container.children))
         )
         .unique()
         .scalar_one()
@@ -37,9 +35,7 @@ def get_internal_container_tree(top_level_container_id: int):
         id=top_level_container_id,
         name=raw_data.name,
         children=query_result_to_object(raw_data.children),
-        data=TopLevelContainerOut.model_validate(
-            raw_data, from_attributes=True
-        ).model_dump(mode="json"),
+        data=TopLevelContainerOut.model_validate(raw_data, from_attributes=True).model_dump(mode="json"),
     )
 
 

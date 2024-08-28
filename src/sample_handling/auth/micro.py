@@ -31,9 +31,7 @@ def _get_user(token: str):
     )
 
     if response.status_code != 200:
-        raise HTTPException(
-            status_code=response.status_code, detail=response.json().get("detail")
-        )
+        raise HTTPException(status_code=response.status_code, detail=response.json().get("detail"))
 
     return response.json()
 
@@ -95,9 +93,7 @@ def _generic_table_check(
     ).one_or_none()
 
     if item is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Item does not exist"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item does not exist")
 
     if allow_orphan and item.proposalReference == "-":
         user = GenericUser(**_get_user(token))
@@ -123,9 +119,7 @@ class Permissions(GenericPermissions):
         visitNumber: int,
         token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     ):
-        proposal_reference = parse_proposal(
-            proposal_reference=proposalReference, visit_number=visitNumber
-        )
+        proposal_reference = parse_proposal(proposal_reference=proposalReference, visit_number=visitNumber)
         _check_perms(f"{proposalReference}-{visitNumber}", "session", token.credentials)
         return proposal_reference
 
@@ -146,9 +140,7 @@ class Permissions(GenericPermissions):
         )
 
         if proposal_reference is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Shipment does not exist"
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shipment does not exist")
 
         _check_perms(proposal_reference, "session", token.credentials)
 
@@ -173,6 +165,4 @@ class Permissions(GenericPermissions):
         topLevelContainerId: int,
         token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     ) -> int:
-        return _generic_table_check(
-            TopLevelContainer, topLevelContainerId, token.credentials
-        )
+        return _generic_table_check(TopLevelContainer, topLevelContainerId, token.credentials)

@@ -46,9 +46,7 @@ def test_create(client, endpoint, body, table: Type[AvailableTable]):
 
     item_id = resp.json()["id"]
 
-    assert (
-        inner_db.session.scalar(select(table).filter(table.id == item_id)) is not None
-    )
+    assert inner_db.session.scalar(select(table).filter(table.id == item_id)) is not None
 
 
 @pytest.mark.parametrize(["endpoint", "body", "table"], *creation_params)

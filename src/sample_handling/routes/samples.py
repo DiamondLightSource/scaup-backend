@@ -24,9 +24,7 @@ def edit_sample(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
     """Edit existing sample"""
-    return crud.edit_sample(
-        sampleId=sampleId, params=parameters, token=token.credentials
-    )
+    return crud.edit_sample(sampleId=sampleId, params=parameters, token=token.credentials)
 
 
 @router.delete("/{sampleId}", status_code=status.HTTP_204_NO_CONTENT)

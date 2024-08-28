@@ -13,9 +13,7 @@ from ..utils.session import update_context
 
 
 def _get_protein(proteinId: int, token):
-    upstream_compound = ExternalRequest.request(
-        token=token, url=f"/proteins/{proteinId}"
-    )
+    upstream_compound = ExternalRequest.request(token=token, url=f"/proteins/{proteinId}")
 
     if upstream_compound.status_code != 200:
         raise HTTPException(
@@ -34,9 +32,7 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
     clean_name = re.sub(r"[^a-zA-Z0-9_]", "", clean_name)
 
     if not (params.name):
-        sample_count = inner_db.session.scalar(
-            select(func.count(Sample.id)).filter(Sample.shipmentId == shipmentId)
-        )
+        sample_count = inner_db.session.scalar(select(func.count(Sample.id)).filter(Sample.shipmentId == shipmentId))
         params.name = f"{clean_name}_{(sample_count or 0) + 1}"
     else:
         # Prefix with compound name regardless
@@ -72,6 +68,7 @@ def get_samples(
     page: int,
     proposal_reference: ProposalReference | None = None,
     shipment_id: int | None = None,
+    is_internal: bool = False,
 ):
     query = select(
         *unravel(Sample),
@@ -91,6 +88,9 @@ def get_samples(
         )
     else:
         raise Exception("Either shipment_id or proposal_reference must be set")
+
+    if is_internal:
+        query = query.filter(Container.isInternal.is_(True))
 
     query = query.order_by(Container.name, Container.location, Sample.location)
 

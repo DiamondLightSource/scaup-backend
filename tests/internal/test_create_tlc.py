@@ -19,9 +19,4 @@ def test_create(mock_user, client):
 
     item_id = resp.json()["id"]
 
-    assert (
-        inner_db.session.scalar(
-            select(TopLevelContainer).filter(TopLevelContainer.id == item_id)
-        )
-        is not None
-    )
+    assert inner_db.session.scalar(select(TopLevelContainer).filter(TopLevelContainer.id == item_id)) is not None
