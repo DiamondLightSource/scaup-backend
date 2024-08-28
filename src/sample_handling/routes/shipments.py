@@ -37,9 +37,7 @@ def get_unassigned_items(shipmentId=Depends(auth)):
 
 
 @router.post("/{shipmentId}/push")
-def push_shipment(
-    shipmentId=Depends(auth), token: HTTPAuthorizationCredentials = Depends(auth_scheme)
-):
+def push_shipment(shipmentId=Depends(auth), token: HTTPAuthorizationCredentials = Depends(auth_scheme)):
     """Push shipment to ISPyB. Unassigned items (such as a container with no parent top level
     container) are ignored."""
     return shipment_crud.push_shipment(shipmentId=shipmentId, token=token.credentials)
@@ -57,9 +55,7 @@ def create_top_level_container(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
     """Create new container in shipment"""
-    return tlc_crud.create_top_level_container(
-        shipmentId=shipmentId, params=parameters, token=token.credentials
-    )
+    return tlc_crud.create_top_level_container(shipmentId=shipmentId, params=parameters, token=token.credentials)
 
 
 @router.post(
@@ -85,9 +81,7 @@ def create_sample(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
     """Create new sample in shipment"""
-    return sample_crud.create_sample(
-        shipmentId=shipmentId, params=parameters, token=token.credentials
-    )
+    return sample_crud.create_sample(shipmentId=shipmentId, params=parameters, token=token.credentials)
 
 
 @router.get(
@@ -100,7 +94,7 @@ def get_samples(
     page: dict[str, int] = Depends(pagination),
 ):
     """Get samples in shipment"""
-    return sample_crud.get_samples(shipment_id=shipmentId, **page)
+    return sample_crud.get_samples(**page, shipment_id=shipmentId, is_internal=False)
 
 
 @router.get(
@@ -126,9 +120,7 @@ def create_shipment_request(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
     """Create new shipment request"""
-    return shipment_crud.build_shipment_request(
-        shipmentId=shipmentId, token=token.credentials
-    )
+    return shipment_crud.build_shipment_request(shipmentId=shipmentId, token=token.credentials)
 
 
 @router.get("/{shipmentId}/request", response_class=RedirectResponse)

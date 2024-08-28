@@ -15,9 +15,7 @@ TopLevelContainerTypes = Literal["dewar", "toolbox", "parcel"]
 
 class BaseColumns:
     name: Mapped[str] = mapped_column(String(40))
-    externalId: Mapped[int | None] = mapped_column(
-        unique=True, comment="Item ID in ISPyB"
-    )
+    externalId: Mapped[int | None] = mapped_column(unique=True, comment="Item ID in ISPyB")
     comments: Mapped[str | None] = mapped_column(String(255))
 
 
@@ -29,13 +27,9 @@ class Shipment(Base, BaseColumns):
     proposalNumber: Mapped[int] = mapped_column(index=True)
     visitNumber: Mapped[int] = mapped_column(index=True)
 
-    creationDate: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    creationDate: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    children: Mapped[List["TopLevelContainer"]] = relationship(
-        back_populates="shipment"
-    )
+    children: Mapped[List["TopLevelContainer"]] = relationship(back_populates="shipment")
 
     shipmentRequest: Mapped[int | None] = mapped_column()
     status: Mapped[str | None] = mapped_column(String(25))
@@ -47,9 +41,7 @@ class TopLevelContainer(Base, BaseColumns):
 
     id: Mapped[int] = mapped_column("topLevelContainerId", primary_key=True, index=True)
     shipment: Mapped["Shipment"] = relationship(back_populates="children")
-    shipmentId: Mapped[int | None] = mapped_column(
-        ForeignKey("Shipment.shipmentId"), index=True
-    )
+    shipmentId: Mapped[int | None] = mapped_column(ForeignKey("Shipment.shipmentId"), index=True)
 
     details: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     code: Mapped[str] = mapped_column(String(20))
@@ -60,9 +52,7 @@ class TopLevelContainer(Base, BaseColumns):
         comment="Whether this container is for internal facility storage use only",
     )
 
-    children: Mapped[List["Container"] | None] = relationship(
-        back_populates="topLevelContainer"
-    )
+    children: Mapped[List["Container"] | None] = relationship(back_populates="topLevelContainer")
 
 
 class Container(Base, BaseColumns):
@@ -71,16 +61,12 @@ class Container(Base, BaseColumns):
     __table_args__ = (UniqueConstraint("name", "shipmentId"),)
 
     id: Mapped[int] = mapped_column("containerId", primary_key=True, index=True)
-    shipmentId: Mapped[int | None] = mapped_column(
-        ForeignKey("Shipment.shipmentId"), index=True
-    )
+    shipmentId: Mapped[int | None] = mapped_column(ForeignKey("Shipment.shipmentId"), index=True)
     topLevelContainerId: Mapped[int | None] = mapped_column(
         ForeignKey("TopLevelContainer.topLevelContainerId", ondelete="SET NULL"),
         index=True,
     )
-    parentId: Mapped[int | None] = mapped_column(
-        ForeignKey("Container.containerId", ondelete="SET NULL")
-    )
+    parentId: Mapped[int | None] = mapped_column(ForeignKey("Container.containerId", ondelete="SET NULL"))
 
     type: Mapped[str] = mapped_column(String(40), server_default="genericContainer")
     subType: Mapped[str | None] = mapped_column(String(40))
@@ -88,23 +74,17 @@ class Container(Base, BaseColumns):
     location: Mapped[int | None] = mapped_column(
         SmallInteger,
     )
-    details: Mapped[dict[str, Any] | None] = mapped_column(
-        JSON, comment="Generic additional details"
-    )
+    details: Mapped[dict[str, Any] | None] = mapped_column(JSON, comment="Generic additional details")
 
     requestedReturn: Mapped[bool] = mapped_column(default=False)
     isInternal: Mapped[bool] = mapped_column(
         default=False,
         comment="Whether this container is for internal facility storage use only",
     )
-    isCurrent: Mapped[bool] = mapped_column(
-        default=False, comment="Whether container position is current"
-    )
+    isCurrent: Mapped[bool] = mapped_column(default=False, comment="Whether container position is current")
     registeredContainer: Mapped[str | None] = mapped_column()
 
-    topLevelContainer: Mapped[Optional["TopLevelContainer"]] = relationship(
-        back_populates="children"
-    )
+    topLevelContainer: Mapped[Optional["TopLevelContainer"]] = relationship(back_populates="children")
     children: Mapped[List["Container"] | None] = relationship("Container")
     samples: Mapped[List["Sample"] | None] = relationship(back_populates="container")
 
@@ -113,16 +93,12 @@ class Sample(Base, BaseColumns):
     __tablename__ = "Sample"
 
     id: Mapped[int] = mapped_column("sampleId", primary_key=True, index=True)
-    shipmentId: Mapped[int] = mapped_column(
-        ForeignKey("Shipment.shipmentId"), index=True
-    )
+    shipmentId: Mapped[int] = mapped_column(ForeignKey("Shipment.shipmentId"), index=True)
     proteinId: Mapped[int] = mapped_column()
 
     type: Mapped[str] = mapped_column(String(40), server_default="sample")
     location: Mapped[int | None] = mapped_column(SmallInteger)
-    details: Mapped[dict[str, Any] | None] = mapped_column(
-        JSON, comment="Generic additional details"
-    )
+    details: Mapped[dict[str, Any] | None] = mapped_column(JSON, comment="Generic additional details")
 
     containerId: Mapped[int | None] = mapped_column(
         ForeignKey("Container.containerId", ondelete="SET NULL"), index=True
@@ -134,12 +110,8 @@ class PreSession(Base):
     __tablename__ = "PreSession"
 
     id: Mapped[int] = mapped_column("preSessionId", primary_key=True, index=True)
-    shipmentId: Mapped[int] = mapped_column(
-        ForeignKey("Shipment.shipmentId"), index=True, unique=True
-    )
-    details: Mapped[dict[str, Any] | None] = mapped_column(
-        JSON, comment="Generic additional details"
-    )
+    shipmentId: Mapped[int] = mapped_column(ForeignKey("Shipment.shipmentId"), index=True, unique=True)
+    details: Mapped[dict[str, Any] | None] = mapped_column(JSON, comment="Generic additional details")
 
 
 AvailableTable = Sample | Container | TopLevelContainer | Shipment

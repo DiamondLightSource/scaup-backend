@@ -52,9 +52,10 @@ def get_shipments(
 def get_samples(
     proposalReference: ProposalReference = Depends(auth),
     page: dict[str, int] = Depends(pagination),
+    isInternal: bool = False,
 ):
     """Get samples in session"""
-    return samples_crud.get_samples(proposal_reference=proposalReference, **page)
+    return samples_crud.get_samples(proposal_reference=proposalReference, is_internal=isInternal, **page)
 
 
 @router.get(
@@ -68,10 +69,14 @@ def get_containers(
         description="Only display containers assigned to internal containers",
         default=False,
     ),
+    type: str = Query(description="Container type to filter by", default=None, examples=["gridBox"]),
 ):
     """Get containers in session"""
     return containers_crud.get_containers(
-        is_internal=isInternal, proposal_reference=proposalReference, **page
+        is_internal=isInternal,
+        proposal_reference=proposalReference,
+        container_type=type,
+        **page,
     )
 
 
@@ -83,6 +88,4 @@ def get_shipment_data(
     """Get lab data for the proposal (lab contacts, proteins...)
 
     We can skip auth on this one since it is calling Expeye, and auth is done there"""
-    return ExternalRequest.request(
-        token=token.credentials, url=f"/proposals/{proposalReference}/data"
-    ).json()
+    return ExternalRequest.request(token=token.credentials, url=f"/proposals/{proposalReference}/data").json()

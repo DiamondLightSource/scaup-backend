@@ -27,9 +27,7 @@ def create_shipment(proposal_reference: ProposalReference, params: ShipmentIn):
 def get_shipments(proposal_reference: ProposalReference, limit: int, page: int):
     query = select(
         *unravel(Shipment),
-        case((Shipment.externalId.is_not(None), "submitted"), else_="draft").label(
-            "creationStatus"
-        ),
+        case((Shipment.externalId.is_not(None), "submitted"), else_="draft").label("creationStatus"),
     ).filter(
         Shipment.proposalCode == proposal_reference.code,
         Shipment.proposalNumber == proposal_reference.number,

@@ -20,11 +20,7 @@ def test_edit(client):
     assert data["name"] == "New_Container_Name"
 
     assert (
-        inner_db.session.scalar(
-            select(TopLevelContainer).filter(
-                TopLevelContainer.name == "New_Container_Name"
-            )
-        )
+        inner_db.session.scalar(select(TopLevelContainer).filter(TopLevelContainer.name == "New_Container_Name"))
         is not None
     )
 

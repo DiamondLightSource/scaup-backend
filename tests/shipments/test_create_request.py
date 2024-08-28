@@ -51,9 +51,7 @@ def test_shipment_request_body(client):
     assert isinstance(body, bytes)
     body_dict = json.loads(body.decode())
 
-    assert body_dict["packages"][0]["line_items"] == [
-        {"shippable_item_type": "UNI_PUCK", "quantity": 1}
-    ]
+    assert body_dict["packages"][0]["line_items"] == [{"shippable_item_type": "UNI_PUCK", "quantity": 1}]
 
 
 @responses.activate
@@ -65,9 +63,7 @@ def test_shipment_request_item_not_registered(client):
         json={"shipmentRequestId": 50},
     )
 
-    inner_db.session.execute(
-        update(Container).filter(Container.id == 712).values({"type": "foobar"})
-    )
+    inner_db.session.execute(update(Container).filter(Container.id == 712).values({"type": "foobar"}))
 
     client.post(
         "/shipments/106/request",
@@ -92,11 +88,7 @@ def test_shipment_request_tlc_not_registered(client):
         json={"shipmentRequestId": 50},
     )
 
-    inner_db.session.execute(
-        update(TopLevelContainer)
-        .filter(TopLevelContainer.id == 171)
-        .values({"type": "foobar"})
-    )
+    inner_db.session.execute(update(TopLevelContainer).filter(TopLevelContainer.id == 171).values({"type": "foobar"}))
 
     client.post(
         "/shipments/106/request",

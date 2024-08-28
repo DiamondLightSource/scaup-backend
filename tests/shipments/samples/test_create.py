@@ -29,10 +29,7 @@ def test_create_no_name(client):
 
     assert resp.status_code == 201
 
-    assert (
-        inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein_01_4"))
-        is not None
-    )
+    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein_01_4")) is not None
 
 
 @responses.activate
@@ -46,10 +43,7 @@ def test_create_name_but_dirty_compound_name(client):
 
     assert resp.status_code == 201
 
-    assert (
-        inner_db.session.scalar(select(Sample).filter(Sample.name == "nvid_name_test"))
-        is not None
-    )
+    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "nvid_name_test")) is not None
 
 
 @responses.activate
@@ -62,9 +56,7 @@ def test_create_multiple_copies(client):
     )
 
     assert resp.status_code == 201
-    names = inner_db.session.scalars(
-        select(Sample.name).filter(Sample.name.like("Protein_01_4%"))
-    ).all()
+    names = inner_db.session.scalars(select(Sample.name).filter(Sample.name.like("Protein_01_4%"))).all()
 
     assert len(names) == 3
     assert names[2] == "Protein_01_4_2"

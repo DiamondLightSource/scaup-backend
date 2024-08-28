@@ -20,12 +20,7 @@ def test_edit(client):
 
     assert data["name"] == "New_Container_Name"
 
-    assert (
-        inner_db.session.scalar(
-            select(Container).filter(Container.name == "New_Container_Name")
-        )
-        is not None
-    )
+    assert inner_db.session.scalar(select(Container).filter(Container.name == "New_Container_Name")) is not None
 
 
 def test_edit_inexistent_sample(client):
@@ -49,9 +44,7 @@ def test_update_samples_on_shipment_id_change(client):
         json={"shipmentId": 118},
     )
 
-    sample_shipment_id = inner_db.session.scalar(
-        select(Sample.shipmentId).filter(Sample.id == 561)
-    )
+    sample_shipment_id = inner_db.session.scalar(select(Sample.shipmentId).filter(Sample.id == 561))
 
     assert resp.status_code == 200
     assert sample_shipment_id == 118
@@ -71,9 +64,7 @@ def test_update_shipment_across_proposal(client):
 @responses.activate
 def test_push_to_ispyb(client):
     """Should push to ISPyB if container has externalId present"""
-    patch_resp = responses.patch(
-        f"{Config.ispyb_api}/sample-handling/containers/10", "{}"
-    )
+    patch_resp = responses.patch(f"{Config.ispyb_api}/sample-handling/containers/10", "{}")
 
     client.patch(
         "/containers/341",

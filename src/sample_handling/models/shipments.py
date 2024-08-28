@@ -9,9 +9,7 @@ from ..utils.models import BaseExternal
 def result_to_item_data(result: dict[str, Any]):
     # Ignore private properties
     result_as_dict = {
-        key: value
-        for [key, value] in result.items()
-        if key[0] != "_" and key not in ["id", "name", "children"]
+        key: value for [key, value] in result.items() if key[0] != "_" and key not in ["id", "name", "children"]
     }
 
     if "details" in result and result["details"] is not None:
@@ -53,9 +51,7 @@ class GenericItemData(BaseModel):
     def coerce_extra_into_data(cls, data: Any):
         return result_to_item_data(data)
 
-    model_config = ConfigDict(
-        from_attributes=True, arbitrary_types_allowed=True, extra="allow"
-    )
+    model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True, extra="allow")
 
 
 class GenericItem(BaseModel):

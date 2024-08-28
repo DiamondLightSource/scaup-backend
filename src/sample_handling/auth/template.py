@@ -11,9 +11,7 @@ class GenericPermissions(Protocol):
 
     @staticmethod
     def session(proposalReference: str, visitNumber: int):
-        return parse_proposal(
-            proposal_reference=proposalReference, visit_number=visitNumber
-        )
+        return parse_proposal(proposal_reference=proposalReference, visit_number=visitNumber)
 
     @staticmethod
     def shipment(shipmentId: int) -> int:
