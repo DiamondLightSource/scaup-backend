@@ -8,6 +8,7 @@ from ..utils.models import BaseExternal, BaseModelWithNameValidator
 class BaseSample(BaseModelWithNameValidator):
     containerId: Optional[int] = None
     location: Optional[int] = None
+    subLocation: Optional[int] = None
     details: Optional[dict[str, Any]] = None
     comments: Optional[str] = None
     name: Optional[str] = Field(
@@ -41,5 +42,6 @@ class SampleOut(BaseSample):
 class SampleExternal(BaseExternal):
     """Inner DB to ISPyB conversion model"""
 
+    subLocation: Optional[int]
     location: Optional[int]
     name: str
