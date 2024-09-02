@@ -37,6 +37,7 @@ class SampleOut(BaseSample):
     proteinId: int
     parent: Optional[str] = None
     type: str
+    dataCollectionGroupId: Optional[int] = None
 
 
 class SampleExternal(BaseExternal):
