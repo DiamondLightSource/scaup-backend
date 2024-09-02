@@ -13,9 +13,7 @@ def create_pre_session_info(shipmentId: int, params: PreSessionIn):
     new_columns = {"shipmentId": shipmentId, **params.model_dump(exclude_unset=True)}
 
     pre_session = inner_db.session.scalar(
-        insert(PreSession)
-        .on_conflict_do_update(index_elements=["shipmentId"], set_=new_columns)
-        .returning(PreSession),
+        insert(PreSession).on_conflict_do_update(index_elements=["shipmentId"], set_=new_columns).returning(PreSession),
         new_columns,
     )
 
@@ -24,9 +22,7 @@ def create_pre_session_info(shipmentId: int, params: PreSessionIn):
 
 
 def get_pre_session_info(shipmentId: int):
-    pre_session_info = inner_db.session.scalar(
-        select(PreSession).filter(PreSession.shipmentId == shipmentId)
-    )
+    pre_session_info = inner_db.session.scalar(select(PreSession).filter(PreSession.shipmentId == shipmentId))
     if not pre_session_info:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,

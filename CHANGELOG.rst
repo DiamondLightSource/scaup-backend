@@ -1,15 +1,24 @@
-# Changelog
+==========
+Changelog
+==========
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### Changed
++++++++++
+v0.4.0 (28/08/2024)
++++++++++
 
-==========
-Changelog
-==========
+**Added**
+
+- :code:`subType` column in :code:`Container`
+- :code:`isInternal` column in :code:`Container`
+- :code:`isCurrent` column in :code:`Container`
+- :code:`subLocation` column in :code:`Sample`
+- Inventory endpoints (:code:`topLevelContainer` as parent)
+- New filters for samples/containers listing endpoints
 
 +++++++++
 v0.3.1 (01/08/2024)

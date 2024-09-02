@@ -24,10 +24,7 @@ def test_create_no_name_no_registered(client):
     )
 
     assert resp.status_code == 422
-    assert (
-        resp.json()["detail"][0]["msg"]
-        == "Assertion failed, Either name or barcode must be provided"
-    )
+    assert resp.json()["detail"][0]["msg"] == "Assertion failed, Either name or barcode must be provided"
 
 
 def test_create_no_name(client):
@@ -40,10 +37,7 @@ def test_create_no_name(client):
 
     assert resp.status_code == 201
 
-    assert (
-        inner_db.session.scalar(select(Container).filter(Container.name == "DLS-1"))
-        is not None
-    )
+    assert inner_db.session.scalar(select(Container).filter(Container.name == "DLS-1")) is not None
 
 
 def test_create_invalid_container(client):

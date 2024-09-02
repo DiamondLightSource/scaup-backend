@@ -55,9 +55,7 @@ class BaseContainer(BaseModel):
 class ContainerIn(BaseContainer):
     @model_validator(mode="after")
     def check_name(self) -> "ContainerIn":
-        assert (
-            self.name is not None or self.registeredContainer is not None
-        ), "Either name or barcode must be provided"
+        assert self.name is not None or self.registeredContainer is not None, "Either name or barcode must be provided"
         return self
 
     type: str

@@ -34,9 +34,7 @@ class ExternalObject:
     external_key = ""
     url = ""
 
-    def __init__(
-        self, item: AvailableTable, item_id: int | str, root_id: int | None = None
-    ):
+    def __init__(self, item: AvailableTable, item_id: int | str, root_id: int | None = None):
         match item:
             case Shipment():
                 self.url = f"/proposals/{item_id}/shipments"
@@ -143,7 +141,5 @@ class Expeye:
 
         return {
             "externalId": external_id,
-            "link": "".join(
-                [Config.ispyb_api, ext_obj.external_link_prefix, str(external_id)]
-            ),
+            "link": "".join([Config.ispyb_api, ext_obj.external_link_prefix, str(external_id)]),
         }

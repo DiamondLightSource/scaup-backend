@@ -30,9 +30,7 @@ def _get_shipment_tree(shipmentId: int):
             select(Shipment)
             .filter(Shipment.id == shipmentId)
             .options(
-                joinedload(Shipment.children)
-                .joinedload(TopLevelContainer.children)
-                .joinedload(Container.children)
+                joinedload(Shipment.children).joinedload(TopLevelContainer.children).joinedload(Container.children)
             )
         )
         .unique()
@@ -49,9 +47,7 @@ def get_shipment(shipmentId: int):
         id=shipmentId,
         name=raw_shipment_data.name,
         children=query_result_to_object(raw_shipment_data.children),
-        data=ShipmentOut.model_validate(
-            raw_shipment_data, from_attributes=True
-        ).model_dump(mode="json"),
+        data=ShipmentOut.model_validate(raw_shipment_data, from_attributes=True).model_dump(mode="json"),
     )
 
 
@@ -80,11 +76,7 @@ def push_shipment(shipmentId: int, token: str):
         parent.externalId = created_item["externalId"]
 
         if not isinstance(parent, Sample):
-            children = (
-                parent.samples
-                if isinstance(parent, Container) and parent.samples
-                else parent.children
-            )
+            children = parent.samples if isinstance(parent, Container) and parent.samples else parent.children
 
             if children is not None:
                 for item in children:
@@ -94,11 +86,7 @@ def push_shipment(shipmentId: int, token: str):
                     # Issue itself
                     yield created_item
 
-    modified_items = list(
-        create_all_items_in_shipment(
-            shipment, f"{shipment.proposalCode}{shipment.proposalNumber}"
-        )
-    )
+    modified_items = list(create_all_items_in_shipment(shipment, f"{shipment.proposalCode}{shipment.proposalNumber}"))
 
     update(Shipment).filter(Shipment.id == shipmentId).values({"status": "Submitted"})
 
@@ -116,11 +104,7 @@ def _get_item_name(item: Sample | TopLevelContainer | Container):
     if item.externalId is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Shipment not pushed to ISPyB")
 
-    name = (
-        TYPE_TO_SHIPPING_SERVICE_TYPE[item.type]
-        if item.type in TYPE_TO_SHIPPING_SERVICE_TYPE
-        else item.type
-    )
+    name = TYPE_TO_SHIPPING_SERVICE_TYPE[item.type] if item.type in TYPE_TO_SHIPPING_SERVICE_TYPE else item.type
 
     if isinstance(item, Container) and item.type == "gridBox":
         name += str(item.capacity)
@@ -223,9 +207,7 @@ def build_shipment_request(shipmentId: int, token: str):
     )
 
     if response.status_code != 201:
-        app_logger.error(
-            f"Error while pushing shipment {shipmentId} to shipping service: {response.text}"
-        )
+        app_logger.error(f"Error while pushing shipment {shipmentId} to shipping service: {response.text}")
         raise HTTPException(
             status.HTTP_424_FAILED_DEPENDENCY,
             "Failed to create shipment request in upstream shipping service",
@@ -246,9 +228,7 @@ def build_shipment_request(shipmentId: int, token: str):
 
 
 def get_shipment_request(shipmentId: int):
-    request_id = inner_db.session.scalar(
-        select(Shipment.shipmentRequest).filter(Shipment.id == shipmentId)
-    )
+    request_id = inner_db.session.scalar(select(Shipment.shipmentRequest).filter(Shipment.id == shipmentId))
 
     if request_id is None:
         raise HTTPException(

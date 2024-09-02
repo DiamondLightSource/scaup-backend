@@ -12,9 +12,7 @@ from sample_handling.utils.external import Expeye
 @responses.activate
 def test_create():
     """Should create new ISPyB object and return data"""
-    resp = Expeye.upsert(
-        "token", Container(id=1, shipmentId=1, type="puck", requestedReturn=False), 10
-    )
+    resp = Expeye.upsert("token", Container(id=1, shipmentId=1, type="puck", requestedReturn=False), 10)
 
     # Our mock function "creates" a new item identified the parent's ID incremented by 1
     assert resp["externalId"] == 11
@@ -41,9 +39,7 @@ def test_patch():
 
     Expeye.upsert(
         "token",
-        Container(
-            id=1, externalId=20, shipmentId=1, type="puck", requestedReturn=False
-        ),
+        Container(id=1, externalId=20, shipmentId=1, type="puck", requestedReturn=False),
         10,
     )
 
