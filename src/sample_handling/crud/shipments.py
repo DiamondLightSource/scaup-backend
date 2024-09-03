@@ -224,7 +224,7 @@ def build_shipment_request(shipmentId: int, token: str):
         + f"{shipment.visitNumber}/shipments/{shipment.id}",
         "packages": packages,
         "dispatch_callback_url": f"{Config.shipping_service.callback_url}/shipments/{shipmentId}"
-        + f"/callback?token={jwt_token}",
+        + f"/update-status?token={jwt_token}",
     }
 
     response = ExternalRequest.request(
