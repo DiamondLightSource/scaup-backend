@@ -29,7 +29,7 @@ def test_create_shipment_request(client):
 
     shipment = inner_db.session.execute(select(Shipment).filter_by(id=106)).scalar_one()
 
-    assert shipment.status == "Booked"
+    assert shipment.status == "Request Created"
     assert shipment.shipmentRequest == 50
 
 

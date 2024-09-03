@@ -10,6 +10,7 @@ from sqlalchemy.orm import sessionmaker
 
 from sample_handling.auth import User, auth_scheme
 from sample_handling.main import api, app
+from sample_handling.utils.auth import check_jwt
 from sample_handling.utils.database import inner_db
 from tests.shipments.responses import generic_creation_callback
 from tests.shipments.samples.responses import protein_callback
@@ -90,6 +91,13 @@ def mock_permissions(request):
 
 def empty_method():
     return True
+
+
+def check_jwt_override(shipmentId: int, token: str):
+    return shipmentId
+
+
+api.dependency_overrides[check_jwt] = check_jwt_override
 
 
 @pytest.fixture(scope="function", params=[admin])

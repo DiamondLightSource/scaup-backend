@@ -1,6 +1,8 @@
+import time
 from collections import Counter
 from typing import Generator, Sequence
 
+import jwt
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
 from sqlalchemy import select, update
@@ -16,6 +18,7 @@ from ..models.inner_db.tables import (
 from ..models.shipments import (
     ShipmentChildren,
     ShipmentOut,
+    StatusUpdate,
 )
 from ..utils.config import Config
 from ..utils.crud import assert_no_unassigned
@@ -204,6 +207,15 @@ def build_shipment_request(shipmentId: int, token: str):
                 }
             )
 
+    jwt_token = jwt.encode(
+        {
+            "id": shipmentId,
+            "exp": int(time.time()) + 1.3e6,
+            "aud": Config.shipping_service.callback_url,
+        },
+        Config.shipping_service.secret,
+    )
+
     built_request_body = {
         # TODO: remove padding once shipping service removes regex check
         "proposal": f"{shipment.proposalCode}{shipment.proposalNumber:06}",
@@ -211,6 +223,8 @@ def build_shipment_request(shipmentId: int, token: str):
         "origin_url": f"{Config.frontend_url}/proposals/{shipment.proposalCode}{shipment.proposalNumber}/sessions/"
         + f"{shipment.visitNumber}/shipments/{shipment.id}",
         "packages": packages,
+        "dispatch_callback_url": f"{Config.shipping_service.callback_url}/shipments/{shipmentId}"
+        + f"/callback?token={jwt_token}",
     }
 
     response = ExternalRequest.request(
@@ -237,7 +251,7 @@ def build_shipment_request(shipmentId: int, token: str):
         update(Shipment)
         .returning(Shipment)
         .filter_by(id=shipmentId)
-        .values({"status": "Booked", "shipmentRequest": shipment_request_id})
+        .values({"status": "Request Created", "shipmentRequest": shipment_request_id})
     )
 
     inner_db.session.commit()
@@ -257,3 +271,16 @@ def get_shipment_request(shipmentId: int):
         )
 
     return f"{Config.shipping_service.url}/shipment-requests/{request_id}/incoming"
+
+
+def handle_callback(shipment_id: int, callback_body: StatusUpdate):
+    updated_shipment = inner_db.session.scalar(
+        update(Shipment)
+        .returning(Shipment)
+        .filter_by(id=shipment_id)
+        .values({"status": callback_body.status})
+    )
+
+    inner_db.session.commit()
+
+    return updated_shipment

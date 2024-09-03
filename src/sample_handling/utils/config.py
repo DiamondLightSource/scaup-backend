@@ -25,6 +25,8 @@ class DB:
 @dataclass
 class ShippingService:
     url: str = "https://localtest.diamond.ac.uk/"
+    secret: str = "no-secret"
+    callback_url: str = "https://localhost/api"
 
 
 def _read_config():
@@ -50,6 +52,10 @@ class Config:
             Config.ispyb_api = conf["ispyb_api"]
             Config.frontend_url = conf["frontend_url"]
             Config.shipping_service = ShippingService(**conf["shipping_service"])
+
+            Config.shipping_service.secret = os.environ.get(
+                "SHIPPING_SERVICE_SECRET", "no-secret"
+            )
 
         except TypeError as exc:
             raise ConfigurationError(str(exc).replace(".__init__()", "")) from exc
