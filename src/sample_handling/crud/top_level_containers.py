@@ -71,9 +71,9 @@ def edit_top_level_container(topLevelContainerId: int, params: OptionalTopLevelC
 
 def get_top_level_containers(shipmentId: int, limit: int, page: int):
     query = (
-        select(*unravel(TopLevelContainer), Shipment.status.label("status"))
+        select(TopLevelContainer)
         .filter(TopLevelContainer.shipmentId == shipmentId)
         .join(Shipment)
     )
 
-    return paginate(query, limit, page, slow_count=False)
+    return paginate(query, limit, page, slow_count=False, scalar=False)
