@@ -4,7 +4,7 @@ from sqlalchemy import func, insert, select
 from ..models.inner_db.tables import Shipment, TopLevelContainer
 from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelContainerIn
 from ..utils.crud import assert_not_booked, edit_item
-from ..utils.database import inner_db, paginate, unravel
+from ..utils.database import inner_db, paginate
 from ..utils.external import ExternalRequest
 from ..utils.session import insert_context
 
