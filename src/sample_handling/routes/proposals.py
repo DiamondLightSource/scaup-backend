@@ -52,10 +52,18 @@ def get_shipments(
 def get_samples(
     proposalReference: ProposalReference = Depends(auth),
     page: dict[str, int] = Depends(pagination),
+    ignoreExternal: bool = True,
     isInternal: bool = False,
 ):
     """Get samples in session"""
-    return samples_crud.get_samples(proposal_reference=proposalReference, is_internal=isInternal, **page)
+    return samples_crud.get_samples(
+        **page,
+        proposal_reference=proposalReference,
+        ignore_external=ignoreExternal,
+        shipment_id=None,
+        token=None,
+        is_internal=isInternal,
+    )
 
 
 @router.get(

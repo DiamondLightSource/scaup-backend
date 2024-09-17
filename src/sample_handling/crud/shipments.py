@@ -88,6 +88,8 @@ def push_shipment(shipmentId: int, token: str):
 
     modified_items = list(create_all_items_in_shipment(shipment, f"{shipment.proposalCode}{shipment.proposalNumber}"))
 
+    update(Shipment).filter(Shipment.id == shipmentId).values({"status": "Submitted"})
+
     # Save all externalId updates in a single transaction
     inner_db.session.commit()
 

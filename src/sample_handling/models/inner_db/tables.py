@@ -98,7 +98,14 @@ class Sample(Base, BaseColumns):
 
     type: Mapped[str] = mapped_column(String(40), server_default="sample")
     location: Mapped[int | None] = mapped_column(SmallInteger)
-    details: Mapped[dict[str, Any] | None] = mapped_column(JSON, comment="Generic additional details")
+    # Compromise, as a sample can belong to both a primary container and a secondary, temporary one
+    subLocation: Mapped[int | None] = mapped_column(
+        SmallInteger,
+        comment="Additional location, such as cassette slot or multi-sample pin position",
+    )
+    details: Mapped[dict[str, Any] | None] = mapped_column(
+        JSON, comment="Generic additional details"
+    )
 
     containerId: Mapped[int | None] = mapped_column(
         ForeignKey("Container.containerId", ondelete="SET NULL"), index=True

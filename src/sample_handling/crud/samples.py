@@ -5,7 +5,7 @@ from lims_utils.models import Paged, ProposalReference
 from sqlalchemy import and_, func, insert, select
 
 from ..models.inner_db.tables import Container, Sample, Shipment
-from ..models.samples import OptionalSample, SampleIn
+from ..models.samples import OptionalSample, SampleIn, SampleOut
 from ..utils.crud import assert_not_booked, edit_item
 from ..utils.database import inner_db, paginate, unravel
 from ..utils.external import ExternalRequest
@@ -68,6 +68,8 @@ def get_samples(
     page: int,
     proposal_reference: ProposalReference | None = None,
     shipment_id: int | None = None,
+    ignore_external: bool = True,
+    token: str | None = None,
     is_internal: bool = False,
 ):
     query = select(
@@ -93,5 +95,30 @@ def get_samples(
         query = query.filter(Container.isInternal.is_(True))
 
     query = query.order_by(Container.name, Container.location, Sample.location)
+    samples = paginate(query, limit, page, slow_count=False)
 
-    return paginate(query, limit, page, slow_count=False)
+    if ignore_external or token is None:
+        return samples
+
+    ext_shipment_id = inner_db.session.scalar(
+        select(Shipment.externalId).filter(Shipment.id == shipment_id)
+    )
+
+    if ext_shipment_id is None:
+        return samples
+
+    ext_samples = ExternalRequest.request(
+        token, method="GET", url=f"/shipments/{ext_shipment_id}/samples"
+    )
+
+    if ext_samples.status_code != 200:
+        return samples
+
+    for ext_sample in ext_samples.json()["items"]:
+        if ext_sample["dataCollectionGroupId"]:
+            for i, sample in enumerate(samples.items):
+                new_sample = SampleOut.model_validate(sample, from_attributes=True)
+                new_sample.dataCollectionGroupId = ext_sample["dataCollectionGroupId"]
+                samples.items[i] = new_sample
+
+    return samples

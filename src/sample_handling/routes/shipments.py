@@ -91,10 +91,18 @@ def create_sample(
 )
 def get_samples(
     shipmentId=Depends(auth),
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     page: dict[str, int] = Depends(pagination),
+    ignoreExternal: bool = True,
 ):
     """Get samples in shipment"""
-    return sample_crud.get_samples(**page, shipment_id=shipmentId, is_internal=False)
+    return sample_crud.get_samples(
+        **page,
+        shipment_id=shipmentId,
+        ignore_external=ignoreExternal,
+        token=token.credentials,
+        is_internal=False,
+    )
 
 
 @router.get(
