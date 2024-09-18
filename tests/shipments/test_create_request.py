@@ -103,6 +103,18 @@ def test_shipment_request_tlc_not_registered(client):
     assert body_dict["packages"][0]["height"] == 2
 
 
+@responses.activate
+def test_shipment_request_no_packages(client):
+    """Should return 400 if there are no shippable packages in the shipment"""
+    inner_db.session.execute(update(TopLevelContainer).filter(TopLevelContainer.id == 171).values({"type": "walk-in"}))
+
+    resp = client.post(
+        "/shipments/106/request",
+    )
+
+    assert resp.status_code == 400
+
+
 def test_create_not_in_ispyb(client):
     """Should not create shipment request if shipment not in ISPyB"""
     resp = client.post(

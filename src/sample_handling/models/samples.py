@@ -13,9 +13,7 @@ class BaseSample(BaseModelWithNameValidator):
     comments: Optional[str] = None
     name: Optional[str] = Field(
         default=None,
-        description=(
-            "Sample name, if not provided, the provided protein's name followed by the sample index is used"
-        ),
+        description=("Sample name, if not provided, the provided protein's name followed by the sample index is used"),
     )
 
 

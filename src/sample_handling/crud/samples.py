@@ -100,16 +100,12 @@ def get_samples(
     if ignore_external or token is None:
         return samples
 
-    ext_shipment_id = inner_db.session.scalar(
-        select(Shipment.externalId).filter(Shipment.id == shipment_id)
-    )
+    ext_shipment_id = inner_db.session.scalar(select(Shipment.externalId).filter(Shipment.id == shipment_id))
 
     if ext_shipment_id is None:
         return samples
 
-    ext_samples = ExternalRequest.request(
-        token, method="GET", url=f"/shipments/{ext_shipment_id}/samples"
-    )
+    ext_samples = ExternalRequest.request(token, method="GET", url=f"/shipments/{ext_shipment_id}/samples")
 
     if ext_samples.status_code != 200:
         return samples

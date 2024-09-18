@@ -42,9 +42,7 @@ def test_get_external(client):
 @responses.activate
 def test_get_external_bad_response(client):
     """Should return samples from internal database if external response is not 200"""
-    responses.get(
-        f"{Config.ispyb_api}/sample-handling/shipments/256/samples", status=404
-    )
+    responses.get(f"{Config.ispyb_api}/sample-handling/shipments/256/samples", status=404)
 
     resp = client.get(
         "/shipments/89/samples?ignoreExternal=false",
