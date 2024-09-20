@@ -23,7 +23,8 @@ dependencies = [
     "types-requests",
     "lims_utils",
     "requests",
-    "alembic"
+    "alembic",
+    "pyjwt~=2.9.0"
 ]
 dynamic = ["version"]
 license.file = "LICENSE"
@@ -63,6 +64,7 @@ name = "Guilherme de Freitas"
 
 [tool.setuptools_scm]
 write_to = "src/sample_handling/_version.py"
+fallback_version = "0.5.0"
 
 [tool.mypy]
 ignore_missing_imports = true # Ignore missing stubs in imported modules
