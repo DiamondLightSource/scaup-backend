@@ -80,3 +80,12 @@ class UnassignedItems(BaseModel):
 class ShipmentExternal(BaseExternal):
     shippingName: str = Field(alias="name")
     creationDate: datetime
+
+
+class StatusUpdate(BaseModel):
+    origin_url: str
+    journey_type: str
+    status: str
+    tracking_number: str
+    pickup_confirmation_code: str | None = None
+    pickup_confirmation_timestamp: datetime | None
