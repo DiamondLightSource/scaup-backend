@@ -51,7 +51,13 @@ def test_shipment_request_body(client):
     assert isinstance(body, bytes)
     body_dict = json.loads(body.decode())
 
-    assert body_dict["packages"][0]["line_items"] == [{"shippable_item_type": "UNI_PUCK", "quantity": 1}]
+    assert body_dict["packages"][0]["line_items"] == [
+        {"shippable_item_type": "UNI_PUCK", "quantity": 1},
+        {
+            "quantity": 1,
+            "shippable_item_type": "CRYOGENIC_DRY_SHIPPER",
+        },
+    ]
 
 
 @responses.activate
@@ -75,7 +81,11 @@ def test_shipment_request_item_not_registered(client):
     body_dict = json.loads(body.decode())
 
     assert body_dict["packages"][0]["line_items"] == [
-        {"description": "foobar", "gross_weight": 0, "net_weight": 0, "quantity": 1}
+        {"description": "foobar", "gross_weight": 0, "net_weight": 0, "quantity": 1},
+        {
+            "quantity": 1,
+            "shippable_item_type": "CRYOGENIC_DRY_SHIPPER",
+        },
     ]
 
 
