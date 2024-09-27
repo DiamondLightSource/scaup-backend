@@ -165,6 +165,15 @@ def build_shipment_request(shipmentId: int, token: str):
                     }
                 )
 
+        # Dewar cases do NOT include the dewar, this merely adds them to the outermost package
+        if tlc.type == "dewar":
+            line_items.append(
+                {
+                    "shippable_item_type": "CRYOGENIC_DRY_SHIPPER",
+                    "quantity": 1,
+                }
+            )
+
         if tlc.type in TYPE_TO_SHIPPING_SERVICE_TYPE:
             packages.append(
                 {
