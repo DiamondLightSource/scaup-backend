@@ -109,9 +109,6 @@ def _get_item_name(item: Sample | TopLevelContainer | Container):
 
     name = TYPE_TO_SHIPPING_SERVICE_TYPE[item.type] if item.type in TYPE_TO_SHIPPING_SERVICE_TYPE else item.type
 
-    if isinstance(item, Container) and item.type == "gridBox":
-        name += str(item.capacity)
-
     return name
 
 
@@ -185,7 +182,7 @@ def build_shipment_request(shipmentId: int, token: str):
                     "shippable_item_type": TYPE_TO_SHIPPING_SERVICE_TYPE[tlc.type],
                 }
             )
-        else:
+        elif tlc.type != "walk-in":
             # In the future, this should not be the case, we will need to have valid dimensions
             packages.append(
                 {
@@ -199,6 +196,9 @@ def build_shipment_request(shipmentId: int, token: str):
                     "description": tlc.type,
                 }
             )
+
+    if not packages:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No items to be shipped")
 
     jwt_token = jwt.encode(
         {

@@ -103,9 +103,7 @@ class Sample(Base, BaseColumns):
         SmallInteger,
         comment="Additional location, such as cassette slot or multi-sample pin position",
     )
-    details: Mapped[dict[str, Any] | None] = mapped_column(
-        JSON, comment="Generic additional details"
-    )
+    details: Mapped[dict[str, Any] | None] = mapped_column(JSON, comment="Generic additional details")
 
     containerId: Mapped[int | None] = mapped_column(
         ForeignKey("Container.containerId", ondelete="SET NULL"), index=True
