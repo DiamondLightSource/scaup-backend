@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Depends, status
+from fastapi import APIRouter, Body, Depends, Response, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials
 from lims_utils.models import Paged, pagination
@@ -159,3 +159,17 @@ def create_pre_session(
 ):
     """Upsert new pre session information"""
     return ps_crud.create_pre_session_info(shipmentId=shipmentId, params=parameters)
+
+
+@router.get(
+    "/{shipmentId}/tracking-labels",
+    responses={200: {"content": {"application/pdf": {}}}},
+)
+def get_shipping_labels(shipmentId=Depends(auth), token: HTTPAuthorizationCredentials = Depends(auth_scheme)):
+    """Get shipping labels for dewar"""
+    headers = {"Content-Disposition": 'inline; filename="labels.pdf"'}
+    return Response(
+        bytes(tlc_crud.get_shipping_labels(shipmentId, token.credentials)),
+        headers=headers,
+        media_type="application/pdf",
+    )

@@ -1,7 +1,8 @@
+import uuid
 from datetime import datetime
 from typing import Any, List, Literal, Optional
 
-from sqlalchemy import JSON, DateTime, ForeignKey, SmallInteger, String, func
+from sqlalchemy import JSON, UUID, DateTime, ForeignKey, SmallInteger, String, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.schema import UniqueConstraint
 
@@ -32,7 +33,7 @@ class Shipment(Base, BaseColumns):
     children: Mapped[List["TopLevelContainer"]] = relationship(back_populates="shipment")
 
     shipmentRequest: Mapped[int | None] = mapped_column()
-    status: Mapped[str | None] = mapped_column(String(25))
+    status: Mapped[str | None] = mapped_column(String(25), server_default="Created")
 
 
 class TopLevelContainer(Base, BaseColumns):
@@ -45,7 +46,7 @@ class TopLevelContainer(Base, BaseColumns):
 
     details: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     code: Mapped[str] = mapped_column(String(20))
-    barCode: Mapped[str | None] = mapped_column(String(20))
+    barCode: Mapped[UUID | None] = mapped_column(UUID(as_uuid=True), default=uuid.uuid4)
     type: Mapped[str] = mapped_column(String(40), server_default="dewar")
     isInternal: Mapped[bool] = mapped_column(
         default=False,
@@ -103,9 +104,7 @@ class Sample(Base, BaseColumns):
         SmallInteger,
         comment="Additional location, such as cassette slot or multi-sample pin position",
     )
-    details: Mapped[dict[str, Any] | None] = mapped_column(
-        JSON, comment="Generic additional details"
-    )
+    details: Mapped[dict[str, Any] | None] = mapped_column(JSON, comment="Generic additional details")
 
     containerId: Mapped[int | None] = mapped_column(
         ForeignKey("Container.containerId", ondelete="SET NULL"), index=True

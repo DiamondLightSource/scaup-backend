@@ -1,3 +1,4 @@
+import uuid
 from typing import Any, Optional
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
@@ -42,3 +43,4 @@ class TopLevelContainerOut(BaseTopLevelContainer):
 class TopLevelContainerExternal(BaseExternal):
     comments: Optional[str] = None
     code: str
+    barCode: uuid.UUID

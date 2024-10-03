@@ -23,6 +23,8 @@ dependencies = [
     "types-requests",
     "lims_utils",
     "requests",
+    "fpdf2~=2.7.9",
+    "qrcode~=7.4.2",
     "alembic"
 ]
 dynamic = ["version"]
@@ -63,6 +65,7 @@ name = "Guilherme de Freitas"
 
 [tool.setuptools_scm]
 write_to = "src/sample_handling/_version.py"
+fallback_version = "0.6.0"
 
 [tool.mypy]
 ignore_missing_imports = true # Ignore missing stubs in imported modules
