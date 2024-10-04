@@ -19,7 +19,7 @@ from .config import Config
 TYPE_TO_SHIPPING_SERVICE_TYPE = {
     "sample": "CRYO_EM_GRID",
     "grid": "CRYO_EM_GRID",
-    "gridBox": "CRYO_EM_GRID_BOX_",
+    "gridBox": "CRYO_EM_GRID_BOX",
     "puck": "UNI_PUCK",
     "dewar": "CRYOGENIC_DRY_SHIPPER_CASE",
     "falconTube": "FALCON_TUBE_50ML",

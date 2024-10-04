@@ -10,7 +10,7 @@ from ..assets.paths import CUT_HERE, DIAMOND_LOGO, THIS_SIDE_UP
 from ..models.inner_db.tables import Shipment, TopLevelContainer
 from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelContainerIn
 from ..utils.crud import assert_not_booked, edit_item
-from ..utils.database import inner_db, paginate, unravel
+from ..utils.database import inner_db, paginate
 from ..utils.external import ExternalRequest
 from ..utils.session import insert_context
 
@@ -80,12 +80,12 @@ def edit_top_level_container(topLevelContainerId: int, params: OptionalTopLevelC
 
 def get_top_level_containers(shipmentId: int, limit: int, page: int):
     query = (
-        select(*unravel(TopLevelContainer), Shipment.status.label("status"))
+        select(TopLevelContainer)
         .filter(TopLevelContainer.shipmentId == shipmentId)
         .join(Shipment)
     )
 
-    return paginate(query, limit, page, slow_count=False)
+    return paginate(query, limit, page, slow_count=False, scalar=False)
 
 
 class TrackingLabelPages(FPDF):

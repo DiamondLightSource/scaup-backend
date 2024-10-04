@@ -8,6 +8,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v0.5.0 (24/09/2024)
++++++++++
+
+**Added**
+
+- Callback handler, passes callback URL to shipping service
+- Add ISPyB data to samples endpoint
+
+**Fixed**
+
+- Allow orphan containers in authorisation
+- Fixed dummy authentication
+
+**Removed**
+
+- Unused top level container fields
+
++++++++++
 v0.4.0 (28/08/2024)
 +++++++++
 

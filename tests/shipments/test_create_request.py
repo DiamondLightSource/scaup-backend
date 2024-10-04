@@ -1,5 +1,6 @@
 import json
 
+import jwt
 import responses
 from sqlalchemy import select, update
 
@@ -29,7 +30,7 @@ def test_create_shipment_request(client):
 
     shipment = inner_db.session.execute(select(Shipment).filter_by(id=106)).scalar_one()
 
-    assert shipment.status == "Booked"
+    assert shipment.status == "Request Created"
     assert shipment.shipmentRequest == 50
 
 
@@ -58,6 +59,35 @@ def test_shipment_request_body(client):
             "shippable_item_type": "CRYOGENIC_DRY_SHIPPER",
         },
     ]
+
+
+@responses.activate
+def test_shipment_request_callback(client):
+    """Should send callback URL to shipping service"""
+    resp_post = responses.post(
+        f"{Config.shipping_service.url}/api/shipment_requests/",
+        status=201,
+        json={"shipmentRequestId": 50},
+    )
+
+    client.post(
+        "/shipments/106/request",
+    )
+
+    body = resp_post.calls[0].request.body
+
+    assert isinstance(body, bytes)
+    body_dict = json.loads(body.decode())
+
+    token = body_dict["dispatch_callback_url"].split("=")[1]
+    decoded_token = jwt.decode(
+        token,
+        Config.shipping_service.secret,
+        "HS256",
+        audience=Config.shipping_service.callback_url,
+    )
+
+    assert decoded_token["id"] == 106
 
 
 @responses.activate
@@ -111,6 +141,18 @@ def test_shipment_request_tlc_not_registered(client):
 
     assert body_dict["packages"][0]["description"] == "foobar"
     assert body_dict["packages"][0]["height"] == 2
+
+
+@responses.activate
+def test_shipment_request_no_packages(client):
+    """Should return 400 if there are no shippable packages in the shipment"""
+    inner_db.session.execute(update(TopLevelContainer).filter(TopLevelContainer.id == 171).values({"type": "walk-in"}))
+
+    resp = client.post(
+        "/shipments/106/request",
+    )
+
+    assert resp.status_code == 400
 
 
 def test_create_not_in_ispyb(client):
