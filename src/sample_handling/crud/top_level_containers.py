@@ -104,7 +104,7 @@ class TrackingLabelPages(FPDF):
         table = (
             ("Proposal", f"{dewar.proposalCode}{dewar.proposalNumber}-{dewar.visitNumber or "?"}"),
             ("Shipment", dewar.name),
-            ("Label", dewar.code),
+            ("Code", dewar.code),
             ("Instrument", self.location),
             ("Local Contact", self.local_contact),
             ("Printed", str(date.today())),
