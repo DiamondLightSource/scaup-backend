@@ -7,10 +7,7 @@ from ..utils.models import BaseExternal
 
 
 class BaseTopLevelContainer(BaseModel):
-    status: Optional[str] = None
-    capacity: Optional[int] = None
     details: Optional[dict[str, Any]] = None
-    location: Optional[int] = None
     comments: Optional[str] = None
     name: Optional[str] = Field(
         default=None,

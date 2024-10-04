@@ -12,8 +12,14 @@ from ..crud import top_level_containers as tlc_crud
 from ..models.containers import ContainerIn, ContainerOut
 from ..models.pre_sessions import PreSessionIn, PreSessionOut
 from ..models.samples import SampleIn, SampleOut
-from ..models.shipments import ShipmentChildren, ShipmentOut, UnassignedItems
+from ..models.shipments import (
+    ShipmentChildren,
+    ShipmentOut,
+    StatusUpdate,
+    UnassignedItems,
+)
 from ..models.top_level_containers import TopLevelContainerIn, TopLevelContainerOut
+from ..utils.auth import check_jwt
 from ..utils.crud import get_unassigned
 
 auth = Permissions.shipment
@@ -172,4 +178,17 @@ def get_shipping_labels(shipmentId=Depends(auth), token: HTTPAuthorizationCreden
         bytes(tlc_crud.get_shipping_labels(shipmentId, token.credentials)),
         headers=headers,
         media_type="application/pdf",
+
+
+@router.post(
+    "/{shipmentId}/update-status",
+    response_model=ShipmentOut,
+)
+def update_shipment_status(
+    shipmentId=Depends(check_jwt),
+    parameters: StatusUpdate = Body(),
+):
+    """Update shipment status"""
+    return shipment_crud.handle_callback(
+        shipment_id=shipmentId, callback_body=parameters
     )
