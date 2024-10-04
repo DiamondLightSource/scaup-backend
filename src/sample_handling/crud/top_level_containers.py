@@ -79,11 +79,7 @@ def edit_top_level_container(topLevelContainerId: int, params: OptionalTopLevelC
 
 
 def get_top_level_containers(shipmentId: int, limit: int, page: int):
-    query = (
-        select(TopLevelContainer)
-        .filter(TopLevelContainer.shipmentId == shipmentId)
-        .join(Shipment)
-    )
+    query = select(TopLevelContainer).filter(TopLevelContainer.shipmentId == shipmentId).join(Shipment)
 
     return paginate(query, limit, page, slow_count=False, scalar=False)
 

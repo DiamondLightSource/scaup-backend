@@ -178,6 +178,7 @@ def get_shipping_labels(shipmentId=Depends(auth), token: HTTPAuthorizationCreden
         bytes(tlc_crud.get_shipping_labels(shipmentId, token.credentials)),
         headers=headers,
         media_type="application/pdf",
+    )
 
 
 @router.post(
@@ -189,6 +190,4 @@ def update_shipment_status(
     parameters: StatusUpdate = Body(),
 ):
     """Update shipment status"""
-    return shipment_crud.handle_callback(
-        shipment_id=shipmentId, callback_body=parameters
-    )
+    return shipment_crud.handle_callback(shipment_id=shipmentId, callback_body=parameters)

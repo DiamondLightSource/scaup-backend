@@ -264,10 +264,7 @@ def get_shipment_request(shipmentId: int):
 
 def handle_callback(shipment_id: int, callback_body: StatusUpdate):
     updated_shipment = inner_db.session.scalar(
-        update(Shipment)
-        .returning(Shipment)
-        .filter_by(id=shipment_id)
-        .values({"status": callback_body.status})
+        update(Shipment).returning(Shipment).filter_by(id=shipment_id).values({"status": callback_body.status})
     )
 
     inner_db.session.commit()

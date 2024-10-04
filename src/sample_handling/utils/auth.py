@@ -25,9 +25,7 @@ def check_jwt(token: str, shipmentId: int):
         )
     except (DecodeError, ExpiredSignatureError, InvalidAudienceError) as e:
         app_logger.warning(f"Error while parsing token {token}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token provided"
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token provided")
 
     if decoded_body["id"] != shipmentId:
         raise HTTPException(
