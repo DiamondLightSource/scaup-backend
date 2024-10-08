@@ -10,11 +10,12 @@ from ..models.samples import OptionalSample
 from ..models.shipments import UnassignedItems
 from ..models.top_level_containers import OptionalTopLevelContainer
 from ..utils.database import inner_db
-from ..utils.session import update_context
+from ..utils.session import retry_if_exists
 from .external import ExternalObject, ExternalRequest
 from .query import table_query_to_generic
 
 
+@retry_if_exists
 def edit_item(
     table: Type[Container | TopLevelContainer | Sample],
     params: OptionalSample | OptionalTopLevelContainer | OptionalContainer,
@@ -38,32 +39,31 @@ def edit_item(
         # Name is set to None, but is not considered as unset, so we need to check again
         exclude_fields = set()
 
-    with update_context():
-        updated_item = inner_db.session.scalar(
-            update(table)
-            .returning(table)
-            .filter_by(id=item_id)
-            .values(params.model_dump(exclude_unset=True, exclude=exclude_fields))
+    updated_item = inner_db.session.scalar(
+        update(table)
+        .returning(table)
+        .filter_by(id=item_id)
+        .values(params.model_dump(exclude_unset=True, exclude=exclude_fields))
+    )
+
+    if not updated_item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Invalid ID provided",
+        )
+    inner_db.session.commit()
+
+    if updated_item and updated_item.externalId is not None:
+        ext_obj = ExternalObject(updated_item, item_id)
+
+        ExternalRequest.request(
+            token,
+            method="PATCH",
+            url=f"{ext_obj.external_link_prefix}{updated_item.externalId}",
+            json=ext_obj.item_body.model_dump(mode="json"),
         )
 
-        if not updated_item:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Invalid ID provided",
-            )
-        inner_db.session.commit()
-
-        if updated_item and updated_item.externalId is not None:
-            ext_obj = ExternalObject(updated_item, item_id)
-
-            ExternalRequest.request(
-                token,
-                method="PATCH",
-                url=f"{ext_obj.external_link_prefix}{updated_item.externalId}",
-                json=ext_obj.item_body.model_dump(mode="json"),
-            )
-
-        return updated_item
+    return updated_item
 
 
 def get_unassigned(shipmentId: int):

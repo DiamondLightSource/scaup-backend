@@ -87,3 +87,33 @@ def test_create_invalid_container(client):
     )
 
     assert resp.status_code == 404
+
+
+@responses.activate
+def test_duplicate_location(client):
+    """Should reset location from old sample if another sample already occupies that position"""
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"containerId": 4, "location": 1, "proteinId": 4407, "name": "Test"},
+    )
+
+    conflicting_sample = inner_db.session.scalar(select(Sample.location).filter(Sample.id == 3))
+
+    assert resp.status_code == 201
+    assert conflicting_sample is None
+
+
+@responses.activate
+def test_duplicate_sublocation(client):
+    """Should reset sublocation from old sample if another sample already occupies that position"""
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"containerId": 4, "subLocation": 1, "proteinId": 4407},
+    )
+
+    conflicting_sample = inner_db.session.scalar(select(Sample.subLocation).filter(Sample.id == 3))
+
+    assert resp.status_code == 201
+    assert conflicting_sample is None

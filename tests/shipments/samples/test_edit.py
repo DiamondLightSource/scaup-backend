@@ -57,3 +57,33 @@ def test_push_to_ispyb(client):
     )
 
     assert patch_resp.call_count == 1
+
+
+@responses.activate
+def test_duplicate_location(client):
+    """Should reset location from old sample if another sample already occupies that position"""
+
+    resp = client.patch(
+        "/samples/2",
+        json={"containerId": 4, "location": 1},
+    )
+
+    conflicting_sample = inner_db.session.scalar(select(Sample.location).filter(Sample.id == 3))
+
+    assert resp.status_code == 200
+    assert conflicting_sample is None
+
+
+@responses.activate
+def test_duplicate_sublocation(client):
+    """Should reset sublocation from old sample if another sample already occupies that position"""
+
+    resp = client.patch(
+        "/samples/2",
+        json={"subLocation": 1},
+    )
+
+    conflicting_sample = inner_db.session.scalar(select(Sample.subLocation).filter(Sample.id == 3))
+
+    assert resp.status_code == 200
+    assert conflicting_sample is None

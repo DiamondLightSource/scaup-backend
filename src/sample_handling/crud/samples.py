@@ -9,7 +9,7 @@ from ..models.samples import OptionalSample, SampleIn, SampleOut
 from ..utils.crud import assert_not_booked, edit_item
 from ..utils.database import inner_db, paginate, unravel
 from ..utils.external import ExternalRequest
-from ..utils.session import update_context
+from ..utils.session import retry_if_exists
 
 
 def _get_protein(proteinId: int, token):
@@ -25,6 +25,7 @@ def _get_protein(proteinId: int, token):
 
 
 @assert_not_booked
+@retry_if_exists
 def create_sample(shipmentId: int, params: SampleIn, token: str):
     upstream_compound = _get_protein(params.proteinId, token)
 
@@ -38,21 +39,20 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
         # Prefix with compound name regardless
         params.name = f"{clean_name}_{params.name}"
 
-    with update_context():
-        samples = inner_db.session.scalars(
-            insert(Sample).returning(Sample),
-            [
-                {
-                    "shipmentId": shipmentId,
-                    **params.model_dump(exclude_unset=True, exclude={"copies"}),
-                    "name": f"{params.name}{f'_{i}' if i else ''}",
-                }
-                for i in range(params.copies)
-            ],
-        ).all()
+    samples = inner_db.session.scalars(
+        insert(Sample).returning(Sample),
+        [
+            {
+                "shipmentId": shipmentId,
+                **params.model_dump(exclude_unset=True, exclude={"copies"}),
+                "name": f"{params.name}{f'_{i}' if i else ''}",
+            }
+            for i in range(params.copies)
+        ],
+    ).all()
 
-        inner_db.session.commit()
-        return Paged(items=samples, total=params.copies, page=0, limit=params.copies)
+    inner_db.session.commit()
+    return Paged(items=samples, total=params.copies, page=0, limit=params.copies)
 
 
 def edit_sample(sampleId: int, params: OptionalSample, token: str):

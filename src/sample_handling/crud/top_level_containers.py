@@ -12,7 +12,7 @@ from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelCon
 from ..utils.crud import assert_not_booked, edit_item
 from ..utils.database import inner_db, paginate
 from ..utils.external import ExternalRequest
-from ..utils.session import insert_context
+from ..utils.session import retry_if_exists
 
 headings_style = FontFace(emphasis=None)
 bold_style = FontFace(emphasis="BOLD")
@@ -56,21 +56,21 @@ def _check_fields(
 
 
 @assert_not_booked
+@retry_if_exists
 def create_top_level_container(shipmentId: int | None, params: TopLevelContainerIn, token: str):
-    with insert_context():
-        if params.code:
-            _check_fields(params, token, shipmentId)
+    if params.code:
+        _check_fields(params, token, shipmentId)
 
-        if not params.name:
-            params.name = params.code
+    if not params.name:
+        params.name = params.code
 
-        container = inner_db.session.scalar(
-            insert(TopLevelContainer).returning(TopLevelContainer),
-            {"shipmentId": shipmentId, **params.model_dump(exclude_unset=True)},
-        )
+    container = inner_db.session.scalar(
+        insert(TopLevelContainer).returning(TopLevelContainer),
+        {"shipmentId": shipmentId, **params.model_dump(exclude_unset=True)},
+    )
 
-        inner_db.session.commit()
-        return container
+    inner_db.session.commit()
+    return container
 
 
 def edit_top_level_container(topLevelContainerId: int, params: OptionalTopLevelContainer, token: str):

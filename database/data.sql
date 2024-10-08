@@ -374,7 +374,6 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 5	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_03	\N	\N	f	f	\N
 2	1	\N	1	gridBox	4	\N	\N	f	\N	Grid_Box_01	\N	Test Comment!	f	f	\N
 712	97	171	\N	puck	16	\N	\N	f	\N	Container_03	20	\N	f	f	\N
-648	97	\N	646	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N
 777	117	199	\N	puck	16	\N	{}	f	\N	Puck_2	303612		f	f	\N
 776	117	\N	777	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	303613		f	f	\N
 646	97	152	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N	f	f	\N
@@ -382,6 +381,10 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 784	\N	\N	825	puck	12	\N	\N	f	\N	Internal_puck	\N	\N	t	f	\N
 825	\N	221	\N	cane	10	\N	\N	f	\N	Internal_cane	\N	\N	t	f	\N
 1162	\N	\N	\N	cane	10	\N	\N	f	\N	Orphan_cane	\N	\N	t	f	\N
+1336	204	\N	\N	puck	16	\N	\N	f	\N	Container_01	\N	\N	f	f	\N
+1307	204	\N	1336	gridBox	4	2	\N	f	\N	Grid_Box_01	\N	\N	f	f	\N
+1335	204	\N	1336	gridBox	4	3	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N
+648	97	\N	646	gridBox	4	1	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N
 \.
 
 
@@ -401,13 +404,13 @@ COPY public."PreSession" ("preSessionId", "shipmentId", details) FROM stdin;
 
 COPY public."Sample" ("sampleId", "shipmentId", "proteinId", type, location, details, "containerId", name, "externalId", comments, "subLocation") FROM stdin;
 2	1	4407	sample	\N	{"foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "buffer": "3", "concentration": "5", "vitrificationConditions": "", "clipped": false}	\N	Sample_02	\N	\N	\N
-3	1	4407	sample	1	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	4	Sample_02	\N	\N	\N
 1	1	4407	sample	1	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	2	Sample_01	\N	\N	\N
 336	89	4407	sample	\N	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	\N	Sample_04	10	\N	\N
 561	117	338108	grid	1	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	776	3P_1	5664919	\N	\N
 434	97	4407	sample	\N	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	648	Sample_04	\N	\N	\N
 562	118	338108	grid	\N	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	\N	3P_1	\N	\N	\N
 612	117	338108	grid	\N	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	788	3P_1	\N	\N	\N
+3	1	4407	sample	1	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	4	Sample_02	\N	\N	1
 \.
 
 
@@ -424,6 +427,7 @@ COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status,
 117	2024-06-26 13:36:53.632782+00	1	Booked	1	63975	\N	bi	23047	100
 118	2024-06-26 13:40:32.191664+00	\N	\N	2	\N	\N	bi	23047	100
 126	2024-07-15 15:35:32.472987+00	\N	\N	1	\N	\N	bi	23047	99
+204	2024-07-15 15:35:32.472987+00	\N	Created	3	\N	\N	bi	23047	99
 \.
 
 
@@ -448,7 +452,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-e74dc941aa16
+5968a694dd6a
 \.
 
 
@@ -456,35 +460,35 @@ e74dc941aa16
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 1277, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 1534, true);
 
 
 --
 -- Name: PreSession_preSessionId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 214, true);
+SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 270, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 1123, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 1373, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 199, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 228, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 451, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 563, true);
 
 
 --
@@ -501,6 +505,22 @@ ALTER TABLE ONLY public."Container"
 
 ALTER TABLE ONLY public."Container"
     ADD CONSTRAINT "Container_pkey" PRIMARY KEY ("containerId");
+
+
+--
+-- Name: Container Container_unique_location; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."Container"
+    ADD CONSTRAINT "Container_unique_location" UNIQUE (location, "parentId");
+
+
+--
+-- Name: Container Container_unique_name; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."Container"
+    ADD CONSTRAINT "Container_unique_name" UNIQUE (name, "shipmentId");
 
 
 --
@@ -525,6 +545,22 @@ ALTER TABLE ONLY public."Sample"
 
 ALTER TABLE ONLY public."Sample"
     ADD CONSTRAINT "Sample_pkey" PRIMARY KEY ("sampleId");
+
+
+--
+-- Name: Sample Sample_unique_location; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."Sample"
+    ADD CONSTRAINT "Sample_unique_location" UNIQUE (location, "containerId");
+
+
+--
+-- Name: Sample Sample_unique_sublocation; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."Sample"
+    ADD CONSTRAINT "Sample_unique_sublocation" UNIQUE ("subLocation", "shipmentId");
 
 
 --
@@ -573,14 +609,6 @@ ALTER TABLE ONLY public."TopLevelContainer"
 
 ALTER TABLE ONLY public.alembic_version
     ADD CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num);
-
-
---
--- Name: Container uq_name_shipment; Type: CONSTRAINT; Schema: public; Owner: sample_handling
---
-
-ALTER TABLE ONLY public."Container"
-    ADD CONSTRAINT uq_name_shipment UNIQUE (name, "shipmentId");
 
 
 --

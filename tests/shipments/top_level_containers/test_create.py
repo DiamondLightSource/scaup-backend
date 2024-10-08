@@ -50,6 +50,5 @@ def test_create_duplicate_name(client):
         },
     )
 
-    assert resp.status_code == 400
-
-    assert resp.json()["detail"] == "A container with this name already exists in this shipment"
+    assert resp.status_code == 409
+    assert resp.json()["detail"] == "Name already in use inside shipment"
