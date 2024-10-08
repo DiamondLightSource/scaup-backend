@@ -90,10 +90,17 @@ def test_duplicate_location(client):
 
     resp = client.post(
         "/shipments/97/containers",
-        json={"type": "gridBox", "name": "Invalid_Container", "location": 1, "parentId": 646},
+        json={
+            "type": "gridBox",
+            "name": "Invalid_Container",
+            "location": 1,
+            "parentId": 646,
+        },
     )
 
-    conflicting_grid_box = inner_db.session.scalar(select(Container.location).filter(Container.id == 648))
+    conflicting_grid_box = inner_db.session.execute(
+        select(Container.location, Container.parentId).filter(Container.id == 648)
+    ).one()
 
     assert resp.status_code == 201
-    assert conflicting_grid_box is None
+    assert conflicting_grid_box.location is None and conflicting_grid_box.parentId is None

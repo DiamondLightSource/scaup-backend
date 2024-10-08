@@ -68,10 +68,12 @@ def test_duplicate_location(client):
         json={"containerId": 4, "location": 1},
     )
 
-    conflicting_sample = inner_db.session.scalar(select(Sample.location).filter(Sample.id == 3))
+    conflicting_sample = inner_db.session.execute(
+        select(Sample.location, Sample.containerId).filter(Sample.id == 3)
+    ).one()
 
     assert resp.status_code == 200
-    assert conflicting_sample is None
+    assert conflicting_sample.containerId is None and conflicting_sample.location is None
 
 
 @responses.activate

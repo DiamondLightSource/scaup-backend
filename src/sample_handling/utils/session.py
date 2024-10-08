@@ -12,9 +12,9 @@ from .database import inner_db
 UNIQUE_VIOLATION_REGEX = r"\((.*)\)=\((.*)\)"
 
 CONSTRAINT_VIOLATION_TO_COLUMN = {
-    "Sample_unique_sublocation": "subLocation",
-    "Sample_unique_location": "location",
-    "Container_unique_location": "location",
+    "Sample_unique_sublocation": {"subLocation": None},
+    "Sample_unique_location": {"location": None, "containerId": None},
+    "Container_unique_location": {"location": None, "parentId": None},
 }
 
 
@@ -63,7 +63,7 @@ def retry_if_exists(func):
                     # Clear out location/sublocation in conflicting rows
                     inner_db.session.execute(
                         update(getattr(db_tables, e.__cause__.diag.table_name)).filter_by(**columns),
-                        {CONSTRAINT_VIOLATION_TO_COLUMN[constraint]: None},
+                        CONSTRAINT_VIOLATION_TO_COLUMN[constraint],
                     )
 
                     return func(*args, **kwargs)

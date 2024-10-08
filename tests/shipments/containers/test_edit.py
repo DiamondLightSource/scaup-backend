@@ -82,7 +82,9 @@ def test_duplicate_location(client):
         json={"location": 3},
     )
 
-    conflicting_grid_box = inner_db.session.scalar(select(Container.location).filter(Container.id == 1335))
+    conflicting_grid_box = inner_db.session.execute(
+        select(Container.location, Container.parentId).filter(Container.id == 1335)
+    ).one()
 
     assert resp.status_code == 200
-    assert conflicting_grid_box is None
+    assert conflicting_grid_box.parentId is None and conflicting_grid_box.location is None
