@@ -32,9 +32,7 @@ def test_jwt_check_exp():
 
 def test_jwt_invalid_aud():
     """Should not allow unmatched audiences"""
-    token = jwt.encode(
-        {"id": 1, "exp": 9e9, "aud": "invalid-aud"}, Config.shipping_service.secret
-    )
+    token = jwt.encode({"id": 1, "exp": 9e9, "aud": "invalid-aud"}, Config.shipping_service.secret)
 
     with pytest.raises(HTTPException, match="401: Invalid token provided"):
         check_jwt(token, 1)
@@ -58,9 +56,7 @@ def test_jwt_invalid_shipment_id():
         Config.shipping_service.secret,
     )
 
-    with pytest.raises(
-        HTTPException, match="403: Token not valid for this shipment ID"
-    ):
+    with pytest.raises(HTTPException, match="403: Token not valid for this shipment ID"):
         check_jwt(token, 1)
 
 

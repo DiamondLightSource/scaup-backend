@@ -165,6 +165,4 @@ class Permissions(GenericPermissions):
         topLevelContainerId: int,
         token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     ) -> int:
-        return _generic_table_check(
-            TopLevelContainer, topLevelContainerId, token.credentials, True
-        )
+        return _generic_table_check(TopLevelContainer, topLevelContainerId, token.credentials, True)
