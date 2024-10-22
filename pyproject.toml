@@ -25,7 +25,8 @@ dependencies = [
     "requests",
     "fpdf2~=2.7.9",
     "qrcode~=7.4.2",
-    "pyjwt~=2.9.0"
+    "pyjwt~=2.9.0",
+    "alembic"
 ]
 dynamic = ["version"]
 license.file = "LICENSE"
