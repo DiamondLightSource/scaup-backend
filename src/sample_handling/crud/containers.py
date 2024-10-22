@@ -6,22 +6,22 @@ from ..models.containers import ContainerIn, OptionalContainer
 from ..models.inner_db.tables import Container, Sample, Shipment
 from ..utils.crud import assert_not_booked, edit_item
 from ..utils.database import inner_db, paginate
-from ..utils.session import insert_context
+from ..utils.session import retry_if_exists
 
 
 @assert_not_booked
+@retry_if_exists
 def create_container(params: ContainerIn, shipmentId: int | None = None):
-    with insert_context():
-        if not params.name:
-            params.name = params.registeredContainer
+    if not params.name:
+        params.name = params.registeredContainer
 
-        container = inner_db.session.scalar(
-            insert(Container).returning(Container),
-            {"shipmentId": shipmentId, **params.model_dump(exclude_unset=True)},
-        )
+    container = inner_db.session.scalar(
+        insert(Container).returning(Container),
+        {"shipmentId": shipmentId, **params.model_dump(exclude_unset=True)},
+    )
 
-        inner_db.session.commit()
-        return container
+    inner_db.session.commit()
+    return container
 
 
 def get_containers(

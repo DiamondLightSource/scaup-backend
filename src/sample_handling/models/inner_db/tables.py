@@ -59,7 +59,10 @@ class TopLevelContainer(Base, BaseColumns):
 class Container(Base, BaseColumns):
     __tablename__ = "Container"
 
-    __table_args__ = (UniqueConstraint("name", "shipmentId"),)
+    __table_args__ = (
+        UniqueConstraint("name", "shipmentId", name="Container_unique_name"),
+        UniqueConstraint("location", "parentId", name="Container_unique_location"),
+    )
 
     id: Mapped[int] = mapped_column("containerId", primary_key=True, index=True)
     shipmentId: Mapped[int | None] = mapped_column(ForeignKey("Shipment.shipmentId"), index=True)
@@ -92,6 +95,10 @@ class Container(Base, BaseColumns):
 
 class Sample(Base, BaseColumns):
     __tablename__ = "Sample"
+    __table_args__ = (
+        UniqueConstraint("location", "containerId", name="Sample_unique_location"),
+        UniqueConstraint("subLocation", "shipmentId", name="Sample_unique_sublocation"),
+    )
 
     id: Mapped[int] = mapped_column("sampleId", primary_key=True, index=True)
     shipmentId: Mapped[int] = mapped_column(ForeignKey("Shipment.shipmentId"), index=True)

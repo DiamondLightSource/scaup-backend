@@ -72,3 +72,19 @@ def test_push_to_ispyb(client):
     )
 
     assert patch_resp.call_count == 1
+
+
+def test_duplicate_location(client):
+    """Should reset location from old container if another container already occupies that position"""
+
+    resp = client.patch(
+        "/containers/1307",
+        json={"location": 3},
+    )
+
+    conflicting_grid_box = inner_db.session.execute(
+        select(Container.location, Container.parentId).filter(Container.id == 1335)
+    ).one()
+
+    assert resp.status_code == 200
+    assert conflicting_grid_box.parentId is None and conflicting_grid_box.location is None
