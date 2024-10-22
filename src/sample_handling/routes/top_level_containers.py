@@ -14,7 +14,7 @@ auth = Permissions.top_level_container
 
 
 router = APIRouter(
-    tags=["Containers"],
+    tags=["Top Level Containers"],
     prefix="/topLevelContainers",
 )
 

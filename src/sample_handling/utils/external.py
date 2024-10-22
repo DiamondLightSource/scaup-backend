@@ -84,7 +84,7 @@ class ExternalRequest:
         kwargs["method"] = kwargs.get("method", "GET")
         kwargs["headers"] = {"Authorization": f"Bearer {token}"}
 
-        return requests.request(**kwargs, verify=False)
+        return requests.request(**kwargs)
 
 
 class Expeye:

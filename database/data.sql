@@ -219,7 +219,7 @@ CREATE TABLE public."Shipment" (
     "shipmentId" integer NOT NULL,
     "creationDate" timestamp with time zone DEFAULT now() NOT NULL,
     "shipmentRequest" integer,
-    status character varying(25),
+    status character varying(25) DEFAULT 'Created'::character varying,
     name character varying(40) NOT NULL,
     "externalId" integer,
     comments character varying(255),
@@ -269,12 +269,12 @@ CREATE TABLE public."TopLevelContainer" (
     "shipmentId" integer,
     details json,
     code character varying(20) NOT NULL,
-    "barCode" character varying(20),
     type character varying(40) DEFAULT 'dewar'::character varying NOT NULL,
     name character varying(40) NOT NULL,
     "externalId" integer,
     comments character varying(255),
-    "isInternal" boolean NOT NULL
+    "isInternal" boolean NOT NULL,
+    "barCode" uuid
 );
 
 
@@ -431,15 +431,15 @@ COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status,
 -- Data for Name: TopLevelContainer; Type: TABLE DATA; Schema: public; Owner: sample_handling
 --
 
-COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, code, "barCode", type, name, "externalId", comments, "isInternal") FROM stdin;
-3	2	\N	DLS-3	DLS-3	dewar	Dewar_03	\N	\N	f
-61	89	\N	DLS-4	DLS-4	dewar	Dewar_04	10	\N	f
-2	2	\N	DLS-2	DLS-2	dewar	Dewar_02	\N	\N	f
-1	1	\N	DLS-1	DLS-1	dewar	DLS-EM-0000	\N	\N	f
-152	97	\N	DLS-4	DLS-4	dewar	Dewar_05	\N	\N	f
-171	106	\N	DLS-4	DLS-4	dewar	Dewar_06	20	\N	f
-199	117	{}	DLS-BI-0020	\N	dewar	DLS-BI-0020	72181		f
-221	\N	{}	DLS-BI-0020	\N	dewar	DLS-BI-0020	\N		t
+COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, code, type, name, "externalId", comments, "isInternal", "barCode") FROM stdin;
+3	2	\N	DLS-3	dewar	Dewar_03	\N	\N	f	\N
+61	89	\N	DLS-4	dewar	Dewar_04	10	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c
+2	2	\N	DLS-2	dewar	Dewar_02	\N	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c
+1	1	\N	DLS-1	dewar	DLS-EM-0000	\N	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c
+152	97	\N	DLS-4	dewar	Dewar_05	\N	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c
+171	106	\N	DLS-4	dewar	Dewar_06	20	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c
+199	117	{}	DLS-BI-0020	dewar	DLS-BI-0020	72181		f	1100af88-2e0b-46a7-93f9-2737a0b23d0c
+221	\N	{}	DLS-BI-0020	dewar	DLS-BI-0020	\N		t	1100af88-2e0b-46a7-93f9-2737a0b23d0c
 \.
 
 
@@ -448,7 +448,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-bc8b830b4e87
+e74dc941aa16
 \.
 
 
@@ -456,35 +456,35 @@ bc8b830b4e87
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 1186, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 1277, true);
 
 
 --
 -- Name: PreSession_preSessionId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 188, true);
+SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 214, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 1032, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 1123, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 186, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 199, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 399, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 451, true);
 
 
 --

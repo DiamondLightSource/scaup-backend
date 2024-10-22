@@ -91,7 +91,7 @@ def push_shipment(shipmentId: int, token: str):
 
     modified_items = list(create_all_items_in_shipment(shipment, f"{shipment.proposalCode}{shipment.proposalNumber}"))
 
-    update(Shipment).filter(Shipment.id == shipmentId).values({"status": "Submitted"})
+    inner_db.session.execute(update(Shipment).filter(Shipment.id == shipmentId).values({"status": "Submitted"}))
 
     # Save all externalId updates in a single transaction
     inner_db.session.commit()
@@ -264,10 +264,7 @@ def get_shipment_request(shipmentId: int):
 
 def handle_callback(shipment_id: int, callback_body: StatusUpdate):
     updated_shipment = inner_db.session.scalar(
-        update(Shipment)
-        .returning(Shipment)
-        .filter_by(id=shipment_id)
-        .values({"status": callback_body.status})
+        update(Shipment).returning(Shipment).filter_by(id=shipment_id).values({"status": callback_body.status})
     )
 
     inner_db.session.commit()

@@ -140,4 +140,8 @@ def register_responses():
         callback=proposal_callback,
     )
 
-    responses.add(responses.GET, session_regex, json={"sessionId": 1})
+    responses.add(
+        responses.GET,
+        session_regex,
+        json={"sessionId": 1, "beamLineOperator": "John Doe", "beamLineName": "m03"},
+    )

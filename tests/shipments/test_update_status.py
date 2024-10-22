@@ -5,7 +5,7 @@ from sample_handling.utils.database import inner_db
 
 
 def test_post(client):
-    """Should get shipment details as tree of generic items""",
+    ("""Should get shipment details as tree of generic items""",)
     resp = client.post(
         "/shipments/118/update-status",
         params={"token": ""},
@@ -21,8 +21,6 @@ def test_post(client):
 
     assert resp.status_code == 200
 
-    new_status = inner_db.session.scalar(
-        select(Shipment.status).filter(Shipment.id == 118)
-    )
+    new_status = inner_db.session.scalar(select(Shipment.status).filter(Shipment.id == 118))
 
     assert new_status == "New Status"

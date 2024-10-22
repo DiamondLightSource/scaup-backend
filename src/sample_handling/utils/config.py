@@ -53,9 +53,7 @@ class Config:
             Config.frontend_url = conf["frontend_url"]
             Config.shipping_service = ShippingService(**conf["shipping_service"])
 
-            Config.shipping_service.secret = os.environ.get(
-                "SHIPPING_SERVICE_SECRET", "no-secret"
-            )
+            Config.shipping_service.secret = os.environ.get("SHIPPING_SERVICE_SECRET", "no-secret")
 
         except TypeError as exc:
             raise ConfigurationError(str(exc).replace(".__init__()", "")) from exc
