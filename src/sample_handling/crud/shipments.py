@@ -59,7 +59,6 @@ def push_shipment(shipmentId: int, token: str):
     shipment = _get_shipment_tree(shipmentId)
     session_response = ExternalRequest.request(
         token,
-        module="/core",
         url=f"/proposals/{shipment.proposalCode}{shipment.proposalNumber}/sessions/{shipment.visitNumber}",
     )
     session_id = session_response.json()["sessionId"]
@@ -224,7 +223,6 @@ def build_shipment_request(shipmentId: int, token: str):
         base_url=Config.shipping_service.url,
         token=token,
         method="POST",
-        module="",
         url="/api/shipment_requests/",
         json=built_request_body,
     )
