@@ -149,7 +149,6 @@ def get_shipping_labels(shipment_id: int, token: str):
 
     expeye_response = ExternalRequest.request(
         token=token,
-        module="/core",
         url=f"/proposals/{data[0].proposalCode}{data[0].proposalNumber}/sessions/{data[0].visitNumber}",
     )
 

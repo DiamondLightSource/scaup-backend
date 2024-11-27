@@ -1,7 +1,8 @@
+import json
 import uuid
 from typing import Any, Optional
 
-from pydantic import AliasChoices, BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, computed_field, field_validator
 
 from ..utils.models import BaseExternal
 
@@ -38,6 +39,16 @@ class TopLevelContainerOut(BaseTopLevelContainer):
 
 
 class TopLevelContainerExternal(BaseExternal):
-    comments: Optional[str] = None
+    comments: str
     code: str
     barCode: uuid.UUID
+
+    @computed_field
+    def facilityCode(self) -> str:
+        return self.code
+
+    # The dewar logistics service expects this to be a valid JSON string
+    @field_validator("comments", mode="before")
+    @classmethod
+    def pascal_to_name(cls, v):
+        return json.dumps({} if not v else {"comments": v})
