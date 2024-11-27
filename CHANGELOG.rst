@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v0.6.1 (27/11/2024)
++++++++++
+
+**Changed**
+
+- Include barcode data when pushing to ISPyB, to ensure compatibility with the dewar logistics service
+
++++++++++
 v0.6.0 (22/10/2024)
 +++++++++
 
