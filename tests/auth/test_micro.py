@@ -1,8 +1,8 @@
 import pytest
 from fastapi import HTTPException
 
-from sample_handling.auth.micro import _generic_table_check
-from sample_handling.models.inner_db.tables import Container, Sample, TopLevelContainer
+from scaup.auth.micro import _generic_table_check
+from scaup.models.inner_db.tables import Container, Sample, TopLevelContainer
 
 
 @pytest.mark.parametrize("table", [Sample, Container, TopLevelContainer])

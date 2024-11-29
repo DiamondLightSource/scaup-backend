@@ -1,8 +1,8 @@
 import pytest
 from sqlalchemy import select
 
-from sample_handling.models.inner_db.tables import TopLevelContainer
-from sample_handling.utils.database import inner_db
+from scaup.models.inner_db.tables import TopLevelContainer
+from scaup.utils.database import inner_db
 
 from ..test_utils.users import admin
 

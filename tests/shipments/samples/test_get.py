@@ -1,6 +1,6 @@
 import responses
 
-from sample_handling.utils.config import Config
+from scaup.utils.config import Config
 
 
 def test_get(client):

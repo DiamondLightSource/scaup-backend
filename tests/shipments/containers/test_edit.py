@@ -1,9 +1,9 @@
 import responses
 from sqlalchemy import select
 
-from sample_handling.models.inner_db.tables import Container, Sample
-from sample_handling.utils.config import Config
-from sample_handling.utils.database import inner_db
+from scaup.models.inner_db.tables import Container, Sample
+from scaup.utils.config import Config
+from scaup.utils.database import inner_db
 
 
 def test_edit(client):

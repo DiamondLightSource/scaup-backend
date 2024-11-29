@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
-from sample_handling.models.inner_db.tables import Shipment
-from sample_handling.utils.database import inner_db
+from scaup.models.inner_db.tables import Shipment
+from scaup.utils.database import inner_db
 
 
 def test_post(client):

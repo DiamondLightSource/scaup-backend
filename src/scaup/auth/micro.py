@@ -8,7 +8,7 @@ from lims_utils.logging import app_logger
 from lims_utils.models import parse_proposal
 from sqlalchemy import func, select
 
-from sample_handling.utils.auth import check_em_staff
+from scaup.utils.auth import check_em_staff
 
 from ..auth import auth_scheme
 from ..models.inner_db.tables import (

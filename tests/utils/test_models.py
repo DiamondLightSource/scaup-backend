@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from sample_handling.utils.models import BaseExternal, BaseModelWithNameValidator
+from scaup.utils.models import BaseExternal, BaseModelWithNameValidator
 
 
 class SubClassModel(BaseModelWithNameValidator):

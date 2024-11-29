@@ -1,8 +1,8 @@
 apiVersion: backstage.io/v1alpha1
 kind: System
 metadata:
-  name: sample-handling
-  title: Sample Handling
+  name: Scaup
+  title: Scaup
   description: Application for declaring contents and building sample shipments
 spec:
   owner: group:lims
@@ -10,12 +10,12 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: sample-handling-backend
-  title: Sample Handling Backend
+  name: scaup-backend
+  title: Scaup Backend
   description: >
-    Sample Handling API
+    Scaup API
   links:
-    - url: https://ebic-sample-handling.diamond.ac.uk/api/docs
+    - url: https://ebic-scaup.diamond.ac.uk/api/docs
       title: Live server API documentation
   tags:
     - python
@@ -24,25 +24,24 @@ spec:
   type: service
   lifecycle: production
   owner: group:lims
-  system: sample-handling
+  system: scaup
   providesApis:
-    - sample-handling-api
+    - scaup-api
   consumesApis:
     - microauth-api
-    - expeye-sample-handling-api
     - expeye-core-api
     - sample-shipping-api
 ---
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
-  name: sample-handling-api
+  name: scaup-api
   description: >
-    Sample Handling API
+    Scaup API
 spec:
   type: openapi
   lifecycle: production
   owner: group:lims
-  system: sample-handling
+  system: scaup
   definition:
-    $text: https://ebic-sample-handling.diamond.ac.uk/api/openapi.json
+    $text: https://ebic-scaup.diamond.ac.uk/api/openapi.json

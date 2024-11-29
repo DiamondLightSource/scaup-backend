@@ -1,7 +1,7 @@
 import pytest
 from fastapi import HTTPException
 
-from sample_handling.utils.crud import assert_no_unassigned, assert_not_booked
+from scaup.utils.crud import assert_no_unassigned, assert_not_booked
 
 
 def test_disallow_unassigned(client):

@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
-from sample_handling.models.inner_db.tables import PreSession
-from sample_handling.utils.database import inner_db
+from scaup.models.inner_db.tables import PreSession
+from scaup.utils.database import inner_db
 
 
 def test_create(client):

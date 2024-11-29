@@ -1,4 +1,4 @@
-FROM bitnami/postgresql:16-debian-11
+FROM bitnami/postgresql:17-debian-12
 
 WORKDIR /docker-entrypoint-initdb.d
 

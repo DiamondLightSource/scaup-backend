@@ -3,7 +3,7 @@ requires = ["setuptools>=64", "setuptools_scm[toml]>=6.2", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sample_handling"
+name = "scaup"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: Apache Software License",
@@ -11,7 +11,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
-description = "eBIC's sample handling backend"
+description = "Scaup's backend"
 
 dependencies = [
     "typing-extensions;python_version<'3.8'",
@@ -53,10 +53,10 @@ dev = [
 ]
 
 [project.scripts]
-sample_handling = "sample_handling.__main__:main"
+scaup = "scaup.__main__:main"
 
 [project.urls]
-GitHub = "https://gitlab.diamond.ac.uk/lims/ebic-sample-handling-backend"
+GitHub = "https://gitlab.diamond.ac.uk/lims/ebic-scaup/backend"
 
 [[project.authors]] # Further authors may be added by duplicating this section
 email = "guilherme.de-freitas@diamond.ac.uk"
@@ -64,7 +64,7 @@ name = "Guilherme de Freitas"
 
 
 [tool.setuptools_scm]
-write_to = "src/sample_handling/_version.py"
+write_to = "src/scaup/_version.py"
 fallback_version = "0.6.0"
 
 [tool.mypy]
@@ -79,7 +79,7 @@ addopts = """
 filterwarnings = "error"
 
 [tool.coverage.run]
-data_file = "/tmp/sample_handling.coverage"
+data_file = "/tmp/scaup.coverage"
 
 [tool.coverage.paths]
 # Tests are run from installed location, map back to the src directory
@@ -103,7 +103,7 @@ allowlist_externals =
     sphinx-build
     sphinx-autobuild
 commands =
-    pytest: pytest tests --cov=sample_handling --cov-report term --cov-report xml:cov.xml -s {posargs}
+    pytest: pytest tests --cov=scaup --cov-report term --cov-report xml:cov.xml -s {posargs}
     mypy: mypy src tests {posargs}
     pre-commit: pre-commit run --all-files {posargs}
 setenv =

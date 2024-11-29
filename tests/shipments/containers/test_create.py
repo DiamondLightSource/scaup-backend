@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
-from sample_handling.models.inner_db.tables import Container
-from sample_handling.utils.database import inner_db
+from scaup.models.inner_db.tables import Container
+from scaup.utils.database import inner_db
 
 
 def test_create_valid_top_level_container(client):
