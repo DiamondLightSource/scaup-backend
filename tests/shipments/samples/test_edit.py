@@ -1,7 +1,7 @@
 import responses
 from sqlalchemy import select
 
-from scaupner_db.tables import Sample
+from scaup.models.inner_db.tables import Sample
 from scaup.utils.config import Config
 from scaup.utils.database import inner_db
 

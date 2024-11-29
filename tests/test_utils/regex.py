@@ -1,6 +1,6 @@
 import re
 
-from scaupfig import Config
+from scaup.utils.config import Config
 
 session_regex = re.compile(f"{Config.ispyb_api}/proposals/(.*)/sessions/(.*)")
 

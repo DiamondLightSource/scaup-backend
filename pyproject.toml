@@ -7,9 +7,9 @@ name = "scaup"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: Apache Software License",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12"
 ]
 description = "Scaup's backend"
 
@@ -30,7 +30,7 @@ dependencies = [
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.rst"
-requires-python = ">=3.9"    
+requires-python = ">=3.10"    
 
 [project.optional-dependencies]
 dev = [
@@ -61,7 +61,6 @@ GitHub = "https://gitlab.diamond.ac.uk/lims/ebic-scaup/backend"
 [[project.authors]] # Further authors may be added by duplicating this section
 email = "guilherme.de-freitas@diamond.ac.uk"
 name = "Guilherme de Freitas"
-
 
 [tool.setuptools_scm]
 write_to = "src/scaup/_version.py"

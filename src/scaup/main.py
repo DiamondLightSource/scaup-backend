@@ -18,7 +18,7 @@ from .routes import (
 )
 from .utils.config import Config
 
-app = FastAPI(version=__version__)
+app = FastAPI(version=__version__, title="Scaup API")
 
 api = FastAPI()
 
