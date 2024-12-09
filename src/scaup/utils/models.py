@@ -25,4 +25,4 @@ class BaseExternal(OrmBaseModel):
     """Base model for internal-to-external (ISPyB) item conversions"""
 
     comments: Optional[str] = None
-    source: str = "eBIC-SH"
+    source: str = "eBIC-Scaup"
