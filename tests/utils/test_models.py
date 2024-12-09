@@ -39,4 +39,4 @@ def test_append_origin(client):
     """Should include origin of item in source column"""
     instance = BaseExternal(comments="test")
 
-    assert instance.source == "eBIC-SH"
+    assert instance.source == "eBIC-Scaup"
