@@ -8,7 +8,7 @@ from .template import GenericPermissions
 auth_type = Config.auth.type.lower()
 auth_scheme = CookieOrHTTPBearer(cookie_key=Config.auth.cookie_key)
 
-_current_auth = importlib.import_module("sample_handling.auth." + auth_type)
+_current_auth = importlib.import_module("scaup.auth." + auth_type)
 
 _Permissions = _current_auth.Permissions
 _User = _current_auth.User

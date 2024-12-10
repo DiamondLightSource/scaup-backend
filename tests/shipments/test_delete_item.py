@@ -3,13 +3,13 @@ from typing import Type
 import pytest
 from sqlalchemy import select
 
-from sample_handling.models.inner_db.tables import (
+from scaup.models.inner_db.tables import (
     AvailableTable,
     Container,
     Sample,
     TopLevelContainer,
 )
-from sample_handling.utils.database import inner_db
+from scaup.utils.database import inner_db
 
 
 @pytest.mark.parametrize(

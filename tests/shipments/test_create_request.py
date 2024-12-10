@@ -4,13 +4,13 @@ import jwt
 import responses
 from sqlalchemy import select, update
 
-from sample_handling.models.inner_db.tables import (
+from scaup.models.inner_db.tables import (
     Container,
     Shipment,
     TopLevelContainer,
 )
-from sample_handling.utils.config import Config
-from sample_handling.utils.database import inner_db
+from scaup.utils.config import Config
+from scaup.utils.database import inner_db
 
 
 @responses.activate

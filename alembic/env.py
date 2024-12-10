@@ -8,7 +8,7 @@ from sqlalchemy import engine_from_config, pool
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from sample_handling.models.inner_db.tables import Base
+from scaup.models.inner_db.tables import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

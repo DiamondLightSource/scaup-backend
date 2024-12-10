@@ -2,8 +2,8 @@ import jwt
 import pytest
 from fastapi import HTTPException
 
-from sample_handling.utils.auth import check_em_staff, check_jwt
-from sample_handling.utils.config import Config
+from scaup.utils.auth import check_em_staff, check_jwt
+from scaup.utils.config import Config
 
 from ..test_utils.users import admin, em_admin, user
 

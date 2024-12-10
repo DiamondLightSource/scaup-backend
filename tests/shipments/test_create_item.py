@@ -4,12 +4,12 @@ import pytest
 import responses
 from sqlalchemy import select
 
-from sample_handling.models.inner_db.tables import (
+from scaup.models.inner_db.tables import (
     AvailableTable,
     Container,
     TopLevelContainer,
 )
-from sample_handling.utils.database import inner_db
+from scaup.utils.database import inner_db
 
 creation_params = (
     [

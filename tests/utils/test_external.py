@@ -4,9 +4,9 @@ import pytest
 import responses
 from fastapi import HTTPException
 
-from sample_handling.models.inner_db.tables import Container
-from sample_handling.utils.config import Config
-from sample_handling.utils.external import Expeye
+from scaup.models.inner_db.tables import Container
+from scaup.utils.config import Config
+from scaup.utils.external import Expeye
 
 
 @responses.activate

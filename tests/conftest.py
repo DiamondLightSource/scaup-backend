@@ -8,10 +8,10 @@ from requests import PreparedRequest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from sample_handling.auth import User, auth_scheme
-from sample_handling.main import api, app
-from sample_handling.utils.auth import check_jwt
-from sample_handling.utils.database import inner_db
+from scaup.auth import User, auth_scheme
+from scaup.main import api, app
+from scaup.utils.auth import check_jwt
+from scaup.utils.database import inner_db
 from tests.shipments.responses import generic_creation_callback
 from tests.shipments.samples.responses import protein_callback
 from tests.shipments.top_level_containers.responses import (
@@ -32,7 +32,7 @@ from .test_utils.users import admin
 
 @pytest.fixture(scope="function", autouse=True)
 def mock_config():
-    with patch("sample_handling.utils.config._read_config", return_value={"auth": "this"}) as _fixture:
+    with patch("scaup.utils.config._read_config", return_value={"auth": "this"}) as _fixture:
         yield _fixture
 
 
@@ -81,7 +81,7 @@ def new_perms(item_id, _, _0):
 def mock_permissions(request):
     api.dependency_overrides[auth_scheme] = lambda: HTTPAuthorizationCredentials(credentials="token", scheme="bearer")
 
-    with patch("sample_handling.auth.micro._check_perms", new=new_perms) as _fixture:
+    with patch("scaup.auth.micro._check_perms", new=new_perms) as _fixture:
         yield _fixture
 
 

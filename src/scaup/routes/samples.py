@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Body, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials
 
-from sample_handling.utils.crud import delete_item
+from scaup.utils.crud import delete_item
 
 from ..auth import Permissions, auth_scheme
 from ..crud import samples as crud

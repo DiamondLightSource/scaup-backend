@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from sample_handling.utils.models import BaseExternal, BaseModelWithNameValidator
+from scaup.utils.models import BaseExternal, BaseModelWithNameValidator
 
 
 class SubClassModel(BaseModelWithNameValidator):
@@ -39,4 +39,4 @@ def test_append_origin(client):
     """Should include origin of item in source column"""
     instance = BaseExternal(comments="test")
 
-    assert instance.source == "eBIC-SH"
+    assert instance.source == "eBIC-Scaup"

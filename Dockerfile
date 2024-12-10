@@ -48,4 +48,4 @@ COPY alembic/ /alembic/alembic
 
 # change this entrypoint if it is not the same as the repo
 ENTRYPOINT ["uvicorn"]
-CMD ["sample_handling.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["scaup.main:app", "--host", "0.0.0.0", "--port", "8000"]

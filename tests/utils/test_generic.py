@@ -1,4 +1,4 @@
-from sample_handling.utils.generic import pascal_to_title
+from scaup.utils.generic import pascal_to_title
 
 
 def test_convert():
