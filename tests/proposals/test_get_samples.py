@@ -17,7 +17,7 @@ def test_get_internal(client):
 
 def test_exclude_internal(client):
     """Should filter out samples assigned to internal containers"""
-    resp = client.get("/proposals/bi23047/sessions/100/samples?excludeInternal=true")
+    resp = client.get("/proposals/bi23047/sessions/100/samples?ignoreInternal=true")
 
     containers = resp.json()
     assert resp.status_code == 200
