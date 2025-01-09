@@ -107,7 +107,8 @@ def get_samples(
         shipment_id=shipmentId,
         ignore_external=ignoreExternal,
         token=token.credentials,
-        is_internal=False,
+        internal_only=False,
+        ignore_internal=False
     )
 
 
