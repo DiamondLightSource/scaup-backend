@@ -9,8 +9,16 @@ def test_get(client):
 
 def test_get_internal(client):
     """Should filter out non-internal samples"""
-    resp = client.get("/proposals/bi23047/sessions/100/samples?isInternal=true")
+    resp = client.get("/proposals/bi23047/sessions/100/samples?internalOnly=true")
 
     containers = resp.json()
     assert resp.status_code == 200
     assert len(containers["items"]) == 1
+
+def test_exclude_internal(client):
+    """Should filter out samples assigned to internal containers"""
+    resp = client.get("/proposals/bi23047/sessions/100/samples?excludeInternal=true")
+
+    containers = resp.json()
+    assert resp.status_code == 200
+    assert len(containers["items"]) == 2

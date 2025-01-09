@@ -70,7 +70,8 @@ def get_samples(
     shipment_id: int | None = None,
     ignore_external: bool = True,
     token: str | None = None,
-    is_internal: bool = False,
+    internal_only: bool = False,
+    ignore_internal: bool = False
 ):
     query = select(
         *unravel(Sample),
@@ -91,8 +92,11 @@ def get_samples(
     else:
         raise Exception("Either shipment_id or proposal_reference must be set")
 
-    if is_internal:
+    if internal_only:
         query = query.filter(Container.isInternal.is_(True))
+
+    if ignore_internal:
+        query = query.filter(Container.isInternal.is_not(True))
 
     query = query.order_by(Container.name, Container.location, Sample.location)
     samples = paginate(query, limit, page, slow_count=False)
