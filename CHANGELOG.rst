@@ -14,6 +14,11 @@ v0.7.0 (01/01/2025)
 **Added**
 
 - Query parameter to ignore samples in internal containers
+- Sample collection name is now returned alongside sample list
+
+**Changed**
+
+- Sample name is now checked against macromolecule to prevent duplicate prefixes
 
 +++++++++
 v0.6.2 (10/12/2024)
