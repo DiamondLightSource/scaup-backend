@@ -3,11 +3,12 @@
 --
 
 -- Dumped from database version 16.2
--- Dumped by pg_dump version 16.1
+-- Dumped by pg_dump version 17.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -49,7 +50,8 @@ CREATE TABLE public."Container" (
     comments character varying(255),
     "isInternal" boolean NOT NULL,
     "isCurrent" boolean NOT NULL,
-    "subType" character varying(40)
+    "subType" character varying(40),
+    "creationDate" timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -162,7 +164,8 @@ CREATE TABLE public."Sample" (
     name character varying(40) NOT NULL,
     "externalId" integer,
     comments character varying(255),
-    "subLocation" smallint
+    "subLocation" smallint,
+    "creationDate" timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -274,7 +277,8 @@ CREATE TABLE public."TopLevelContainer" (
     "externalId" integer,
     comments character varying(255),
     "isInternal" boolean NOT NULL,
-    "barCode" uuid
+    "barCode" uuid,
+    "creationDate" timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -366,25 +370,25 @@ ALTER TABLE ONLY public."TopLevelContainer" ALTER COLUMN "topLevelContainerId" S
 -- Data for Name: Container; Type: TABLE DATA; Schema: public; Owner: sample_handling
 --
 
-COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "parentId", type, capacity, location, details, "requestedReturn", "registeredContainer", name, "externalId", comments, "isInternal", "isCurrent", "subType") FROM stdin;
-1	1	1	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N	f	f	\N
-3	1	\N	\N	falconTube	\N	\N	\N	f	\N	Container_02	\N	\N	f	f	\N
-341	89	\N	\N	puck	\N	\N	\N	f	\N	Container_03	10	\N	f	f	\N
-4	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N
-5	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_03	\N	\N	f	f	\N
-2	1	\N	1	gridBox	4	\N	\N	f	\N	Grid_Box_01	\N	Test Comment!	f	f	\N
-712	97	171	\N	puck	16	\N	\N	f	\N	Container_03	20	\N	f	f	\N
-777	117	199	\N	puck	16	\N	{}	f	\N	Puck_2	303612		f	f	\N
-776	117	\N	777	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	303613		f	f	\N
-646	97	152	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N	f	f	\N
-788	117	\N	784	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_2	\N		t	f	\N
-784	\N	\N	825	puck	12	\N	\N	f	\N	Internal_puck	\N	\N	t	f	\N
-825	\N	221	\N	cane	10	\N	\N	f	\N	Internal_cane	\N	\N	t	f	\N
-1162	\N	\N	\N	cane	10	\N	\N	f	\N	Orphan_cane	\N	\N	t	f	\N
-1336	204	\N	\N	puck	16	\N	\N	f	\N	Container_01	\N	\N	f	f	\N
-1307	204	\N	1336	gridBox	4	2	\N	f	\N	Grid_Box_01	\N	\N	f	f	\N
-1335	204	\N	1336	gridBox	4	3	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N
-648	97	\N	646	gridBox	4	1	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N
+COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "parentId", type, capacity, location, details, "requestedReturn", "registeredContainer", name, "externalId", comments, "isInternal", "isCurrent", "subType", "creationDate") FROM stdin;
+1	1	1	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
+3	1	\N	\N	falconTube	\N	\N	\N	f	\N	Container_02	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
+341	89	\N	\N	puck	\N	\N	\N	f	\N	Container_03	10	\N	f	f	\N	2025-01-10 08:54:42.073855+00
+4	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
+5	1	\N	\N	gridBox	4	\N	\N	f	\N	Grid_Box_03	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
+2	1	\N	1	gridBox	4	\N	\N	f	\N	Grid_Box_01	\N	Test Comment!	f	f	\N	2025-01-10 08:54:42.073855+00
+712	97	171	\N	puck	16	\N	\N	f	\N	Container_03	20	\N	f	f	\N	2025-01-10 08:54:42.073855+00
+777	117	199	\N	puck	16	\N	{}	f	\N	Puck_2	303612		f	f	\N	2025-01-10 08:54:42.073855+00
+776	117	\N	777	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	303613		f	f	\N	2025-01-10 08:54:42.073855+00
+646	97	152	\N	puck	\N	\N	\N	f	\N	Container_01	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
+788	117	\N	784	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_2	\N		t	f	\N	2025-01-10 08:54:42.073855+00
+784	\N	\N	825	puck	12	\N	\N	f	\N	Internal_puck	\N	\N	t	f	\N	2025-01-10 08:54:42.073855+00
+825	\N	221	\N	cane	10	\N	\N	f	\N	Internal_cane	\N	\N	t	f	\N	2025-01-10 08:54:42.073855+00
+1162	\N	\N	\N	cane	10	\N	\N	f	\N	Orphan_cane	\N	\N	t	f	\N	2025-01-10 08:54:42.073855+00
+1336	204	\N	\N	puck	16	\N	\N	f	\N	Container_01	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
+1307	204	\N	1336	gridBox	4	2	\N	f	\N	Grid_Box_01	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
+1335	204	\N	1336	gridBox	4	3	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
+648	97	\N	646	gridBox	4	1	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
 \.
 
 
@@ -402,15 +406,15 @@ COPY public."PreSession" ("preSessionId", "shipmentId", details) FROM stdin;
 -- Data for Name: Sample; Type: TABLE DATA; Schema: public; Owner: sample_handling
 --
 
-COPY public."Sample" ("sampleId", "shipmentId", "proteinId", type, location, details, "containerId", name, "externalId", comments, "subLocation") FROM stdin;
-2	1	4407	sample	\N	{"foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "buffer": "3", "concentration": "5", "vitrificationConditions": "", "clipped": false}	\N	Sample_02	\N	\N	\N
-1	1	4407	sample	1	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	2	Sample_01	\N	\N	\N
-336	89	4407	sample	\N	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	\N	Sample_04	10	\N	\N
-561	117	338108	grid	1	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	776	3P_1	5664919	\N	\N
-434	97	4407	sample	\N	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	648	Sample_04	\N	\N	\N
-562	118	338108	grid	\N	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	\N	3P_1	\N	\N	\N
-612	117	338108	grid	\N	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	788	3P_1	\N	\N	\N
-3	1	4407	sample	1	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	4	Sample_02	\N	\N	1
+COPY public."Sample" ("sampleId", "shipmentId", "proteinId", type, location, details, "containerId", name, "externalId", comments, "subLocation", "creationDate") FROM stdin;
+2	1	4407	sample	\N	{"foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "buffer": "3", "concentration": "5", "vitrificationConditions": "", "clipped": false}	\N	Sample_02	\N	\N	\N	2025-01-10 08:54:42.073855+00
+1	1	4407	sample	1	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	2	Sample_01	\N	\N	\N	2025-01-10 08:54:42.073855+00
+336	89	4407	sample	\N	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	\N	Sample_04	10	\N	\N	2025-01-10 08:54:42.073855+00
+561	117	338108	grid	1	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	776	3P_1	5664919	\N	\N	2025-01-10 08:54:42.073855+00
+434	97	4407	sample	\N	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	648	Sample_04	\N	\N	\N	2025-01-10 08:54:42.073855+00
+562	118	338108	grid	\N	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	\N	3P_1	\N	\N	\N	2025-01-10 08:54:42.073855+00
+612	117	338108	grid	\N	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	788	3P_1	\N	\N	\N	2025-01-10 08:54:42.073855+00
+3	1	4407	sample	1	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	4	Sample_02	\N	\N	1	2025-01-10 08:54:42.073855+00
 \.
 
 
@@ -428,6 +432,7 @@ COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status,
 118	2024-06-26 13:40:32.191664+00	\N	\N	2	\N	\N	bi	23047	100
 126	2024-07-15 15:35:32.472987+00	\N	\N	1	\N	\N	bi	23047	99
 204	2024-07-15 15:35:32.472987+00	\N	Created	3	\N	\N	bi	23047	99
+229	2025-01-10 08:54:23.171217+00	\N	Created	100	\N	\N	bi	23047	102
 \.
 
 
@@ -435,15 +440,15 @@ COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status,
 -- Data for Name: TopLevelContainer; Type: TABLE DATA; Schema: public; Owner: sample_handling
 --
 
-COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, code, type, name, "externalId", comments, "isInternal", "barCode") FROM stdin;
-3	2	\N	DLS-3	dewar	Dewar_03	\N	\N	f	\N
-61	89	\N	DLS-4	dewar	Dewar_04	10	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c
-2	2	\N	DLS-2	dewar	Dewar_02	\N	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c
-1	1	\N	DLS-1	dewar	DLS-EM-0000	\N	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c
-152	97	\N	DLS-4	dewar	Dewar_05	\N	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c
-171	106	\N	DLS-4	dewar	Dewar_06	20	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c
-199	117	{}	DLS-BI-0020	dewar	DLS-BI-0020	72181		f	1100af88-2e0b-46a7-93f9-2737a0b23d0c
-221	\N	{}	DLS-BI-0020	dewar	DLS-BI-0020	\N		t	1100af88-2e0b-46a7-93f9-2737a0b23d0c
+COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, code, type, name, "externalId", comments, "isInternal", "barCode", "creationDate") FROM stdin;
+3	2	\N	DLS-3	dewar	Dewar_03	\N	\N	f	\N	2025-01-10 08:54:42.073855+00
+61	89	\N	DLS-4	dewar	Dewar_04	10	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
+2	2	\N	DLS-2	dewar	Dewar_02	\N	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
+1	1	\N	DLS-1	dewar	DLS-EM-0000	\N	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
+152	97	\N	DLS-4	dewar	Dewar_05	\N	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
+171	106	\N	DLS-4	dewar	Dewar_06	20	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
+199	117	{}	DLS-BI-0020	dewar	DLS-BI-0020	72181		f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
+221	\N	{}	DLS-BI-0020	dewar	DLS-BI-0020	\N		t	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
 \.
 
 
@@ -452,7 +457,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-5968a694dd6a
+7325165750bc
 \.
 
 
@@ -460,35 +465,35 @@ COPY public.alembic_version (version_num) FROM stdin;
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 1534, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 1588, true);
 
 
 --
 -- Name: PreSession_preSessionId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 270, true);
+SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 282, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 1373, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 1451, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 228, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 235, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 563, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 587, true);
 
 
 --

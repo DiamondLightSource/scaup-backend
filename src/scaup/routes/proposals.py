@@ -54,7 +54,7 @@ def get_samples(
     page: dict[str, int] = Depends(pagination),
     ignoreExternal: bool = True,
     internalOnly: bool = False,
-    ignoreInternal: bool = False
+    ignoreInternal: bool = False,
 ):
     """Get samples in session"""
     return samples_crud.get_samples(
@@ -64,7 +64,7 @@ def get_samples(
         shipment_id=None,
         token=None,
         internal_only=internalOnly,
-        ignore_internal=ignoreInternal
+        ignore_internal=ignoreInternal,
     )
 
 
