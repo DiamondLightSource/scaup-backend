@@ -37,7 +37,8 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
         params.name = f"{clean_name}_{(sample_count or 0) + 1}"
     else:
         # Prefix with compound name regardless
-        params.name = f"{clean_name}_{params.name}"
+        if not params.name.startswith(clean_name):
+            params.name = f"{clean_name}_{params.name}"
 
     samples = inner_db.session.scalars(
         insert(Sample).returning(Sample),
@@ -71,18 +72,24 @@ def get_samples(
     ignore_external: bool = True,
     token: str | None = None,
     internal_only: bool = False,
-    ignore_internal: bool = False
+    ignore_internal: bool = False,
 ):
-    query = select(
-        *unravel(Sample),
-        Container.name.label("parent"),
-    ).join(Container, isouter=True)
+    query = (
+        select(
+            *unravel(Sample),
+            Container.name.label("parent"),
+            Shipment.name.label("parentShipmentName"),
+        )
+        .select_from(Shipment)
+        .join(Sample, Sample.shipmentId == Shipment.id)
+        .join(Container, isouter=True)
+    )
 
     if shipment_id:
         query = query.filter(Sample.shipmentId == shipment_id)
     elif proposal_reference:
         # Shipment IDs are already more granular than proposal references, no point in filtering twice
-        query = query.join(Shipment, Shipment.id == Sample.shipmentId).filter(
+        query = query.filter(
             and_(
                 Shipment.proposalCode == proposal_reference.code,
                 Shipment.proposalNumber == proposal_reference.number,
