@@ -36,6 +36,7 @@ class SampleOut(BaseSample):
     parent: Optional[str] = None
     type: str
     dataCollectionGroupId: Optional[int] = None
+    parentShipmentName: Optional[str] = None
 
 
 class SampleExternal(BaseExternal):

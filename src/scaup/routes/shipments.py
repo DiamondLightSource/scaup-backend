@@ -108,7 +108,7 @@ def get_samples(
         ignore_external=ignoreExternal,
         token=token.credentials,
         internal_only=False,
-        ignore_internal=False
+        ignore_internal=False,
     )
 
 

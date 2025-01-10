@@ -119,3 +119,21 @@ def test_duplicate_sublocation(client):
 
     assert resp.status_code == 201
     assert conflicting_sample is None
+
+
+@responses.activate
+def test_duplicated_prefix(client):
+    """Should not prepend prefix if the user-provided name already contains the macromolecule name"""
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={
+            "containerId": 4,
+            "subLocation": 1,
+            "proteinId": 4407,
+            "name": "Protein_01_test",
+        },
+    )
+
+    assert resp.status_code == 201
+    assert resp.json()["items"][0]["name"] == "Protein_01_test"
