@@ -1,10 +1,15 @@
-import jwt
+from typing import Any
+
 from fastapi import HTTPException, status
-from jwt import DecodeError, ExpiredSignatureError, InvalidAudienceError
+from jwt import DecodeError, ExpiredSignatureError, InvalidAudienceError, decode
 from lims_utils.auth import GenericUser
 from lims_utils.logging import app_logger
 
 from .config import Config
+
+
+def is_admin(perms: list[int]):
+    return bool(set(Config.auth.read_all_perms) & set(perms))
 
 
 def check_em_staff(user: GenericUser):
@@ -15,17 +20,24 @@ def check_em_staff(user: GenericUser):
         )
 
 
-def check_jwt(token: str, shipmentId: int):
+def decode_jwt(token: str, aud: str = Config.shipping_service.callback_url) -> dict[str, Any]:
     try:
-        decoded_body = jwt.decode(
+        decoded_body = decode(
             token,
-            Config.shipping_service.secret,
-            algorithms=["HS256"],
-            audience=Config.shipping_service.callback_url,
+            Config.auth.jwt_public,
+            algorithms=["ES256"],
+            audience=aud,
         )
+
+        return decoded_body
     except (DecodeError, ExpiredSignatureError, InvalidAudienceError) as e:
         app_logger.warning(f"Error while parsing token {token}: {e}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token provided")
+
+
+def check_jwt(token: str, shipmentId: int):
+    """Check JWT created by SCAUP to be used in callbacks"""
+    decoded_body = decode_jwt(token)
 
     if decoded_body["id"] != shipmentId:
         raise HTTPException(

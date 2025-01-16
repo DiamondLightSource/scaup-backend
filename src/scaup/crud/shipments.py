@@ -1,6 +1,6 @@
 import time
 from collections import Counter
-from typing import Generator, Sequence
+from typing import Generator, List, Sequence
 
 import jwt
 from fastapi import HTTPException, status
@@ -15,6 +15,7 @@ from ..models.inner_db.tables import (
     Shipment,
     TopLevelContainer,
 )
+from ..models.samples import SublocationAssignment
 from ..models.shipments import (
     ShipmentChildren,
     ShipmentOut,
@@ -205,7 +206,8 @@ def build_shipment_request(shipmentId: int, token: str):
             "exp": int(time.time()) + 1.3e6,
             "aud": Config.shipping_service.callback_url,
         },
-        Config.shipping_service.secret,
+        Config.auth.jwt_private,
+        algorithm="ES256",
     )
 
     built_request_body = {
@@ -268,3 +270,45 @@ def handle_callback(shipment_id: int, callback_body: StatusUpdate):
     inner_db.session.commit()
 
     return updated_shipment
+
+
+def assign_dcg_to_sublocation(shipment_id: int, parameters: List[SublocationAssignment]):
+    for s_assignment in parameters:
+        ext_id = inner_db.session.scalar(
+            select(Sample.externalId).filter(
+                Sample.shipmentId == shipment_id,
+                Sample.subLocation == s_assignment.subLocation,
+            )
+        )
+
+        if ext_id is None:
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND,
+                f"Sample not pushed to ISPyB, or sample not found for sublocation {s_assignment.subLocation}",
+            )
+
+        request_url = f"/data-groups/{s_assignment.dataCollectionGroupId}"
+        request_body = {"sampleId": ext_id}
+
+        resp = ExternalRequest.request(
+            method="PATCH",
+            token=Config.ispyb_api.jwt,
+            url=request_url,
+            json=request_body,
+        )
+
+        if resp.status_code == 404:
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND,
+                f"Data collection group {s_assignment.dataCollectionGroupId} does not exist",
+            )
+        elif resp.status_code != 200:
+            app_logger.warning(
+                f"Expeye upstream returned {resp.text} with status code {resp.status_code} for request to"
+                + f"{request_url} with body {request_body}."
+            )
+
+            raise HTTPException(
+                status.HTTP_424_FAILED_DEPENDENCY,
+                "Failed to push changes upstream",
+            )

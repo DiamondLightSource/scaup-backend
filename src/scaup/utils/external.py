@@ -71,7 +71,7 @@ class ExternalRequest:
     @staticmethod
     def request(
         token,
-        base_url=Config.ispyb_api,
+        base_url=Config.ispyb_api.url,
         *args,
         **kwargs,
     ):
@@ -140,5 +140,5 @@ class Expeye:
 
         return {
             "externalId": external_id,
-            "link": "".join([Config.ispyb_api, ext_obj.external_link_prefix, str(external_id)]),
+            "link": "".join([Config.ispyb_api.url, ext_obj.external_link_prefix, str(external_id)]),
         }

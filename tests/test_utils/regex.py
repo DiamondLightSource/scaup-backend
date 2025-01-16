@@ -2,13 +2,13 @@ import re
 
 from scaup.utils.config import Config
 
-session_regex = re.compile(f"{Config.ispyb_api}/proposals/(.*)/sessions/(.*)")
+session_regex = re.compile(f"{Config.ispyb_api.url}/proposals/(.*)/sessions/(.*)")
 
-protein_regex = re.compile(f"{Config.ispyb_api}/proteins/([0-9].*)")
-lab_contact_regex = re.compile(f"{Config.ispyb_api}/contacts/([0-9].*)")
-registered_dewar_regex = re.compile(f"{Config.ispyb_api}/proposals/(.*)/dewar-registry/(.*)")
+protein_regex = re.compile(f"{Config.ispyb_api.url}/proteins/([0-9].*)")
+lab_contact_regex = re.compile(f"{Config.ispyb_api.url}/contacts/([0-9].*)")
+registered_dewar_regex = re.compile(f"{Config.ispyb_api.url}/proposals/(.*)/dewar-registry/(.*)")
 creation_regex = re.compile(
-    f"{Config.ispyb_api}/(containers|proposals|dewars|shipments|proposals)/(.*)/(dewars|samples|containers|shipments)"
+    f"{Config.ispyb_api.url}/(containers|proposals|dewars|shipments|proposals)/(.*)/(dewars|samples|containers|shipments)"
 )
 proposal_regex = re.compile(f"{Config.auth.endpoint}/permission/proposal/(.*)")
 

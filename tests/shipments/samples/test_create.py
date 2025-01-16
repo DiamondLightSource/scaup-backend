@@ -67,7 +67,7 @@ def test_create_invalid_protein(client):
     """Should not create new sample when provided with inexistent sample protein/
     compound"""
 
-    responses.get(f"{Config.ispyb_api}/proteins/1", status=404)
+    responses.get(f"{Config.ispyb_api.url}/proteins/1", status=404)
 
     resp = client.post(
         "/shipments/1/samples",

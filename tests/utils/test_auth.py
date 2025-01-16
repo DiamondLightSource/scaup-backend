@@ -23,8 +23,7 @@ def test_allow(mock_user):
 def test_jwt_check_exp():
     """Should allow unexpired valid tokens that match the current shipment"""
     token = jwt.encode(
-        {"id": 1, "exp": 9e9, "aud": Config.shipping_service.callback_url},
-        Config.shipping_service.secret,
+        {"id": 1, "exp": 9e9, "aud": Config.shipping_service.callback_url}, Config.auth.jwt_private, algorithm="ES256"
     )
 
     assert check_jwt(token, 1) == 1
@@ -32,7 +31,7 @@ def test_jwt_check_exp():
 
 def test_jwt_invalid_aud():
     """Should not allow unmatched audiences"""
-    token = jwt.encode({"id": 1, "exp": 9e9, "aud": "invalid-aud"}, Config.shipping_service.secret)
+    token = jwt.encode({"id": 1, "exp": 9e9, "aud": "invalid-aud"}, Config.auth.jwt_private, algorithm="ES256")
 
     with pytest.raises(HTTPException, match="401: Invalid token provided"):
         check_jwt(token, 1)
@@ -41,8 +40,7 @@ def test_jwt_invalid_aud():
 def test_jwt_invalid_exp():
     """Should not allow expired tokens"""
     token = jwt.encode(
-        {"id": 1, "exp": 0, "aud": Config.shipping_service.callback_url},
-        Config.shipping_service.secret,
+        {"id": 1, "exp": 0, "aud": Config.shipping_service.callback_url}, Config.auth.jwt_private, algorithm="ES256"
     )
 
     with pytest.raises(HTTPException, match="401: Invalid token provided"):
@@ -52,8 +50,7 @@ def test_jwt_invalid_exp():
 def test_jwt_invalid_shipment_id():
     """Should not allow tokens that do not match the passed shipment ID"""
     token = jwt.encode(
-        {"id": 999, "exp": 9e9, "aud": Config.shipping_service.callback_url},
-        Config.shipping_service.secret,
+        {"id": 999, "exp": 9e9, "aud": Config.shipping_service.callback_url}, Config.auth.jwt_private, algorithm="ES256"
     )
 
     with pytest.raises(HTTPException, match="403: Token not valid for this shipment ID"):
