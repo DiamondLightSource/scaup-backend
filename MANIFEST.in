@@ -1,3 +1,5 @@
 include src/scaup/assets/cut-here.png
 include src/scaup/assets/diamond-logo.jpg
 include src/scaup/assets/this-side-up.png
+include src/scaup/assets/DejaVuSans-Bold.ttf
+include src/scaup/assets/DejaVuSans.ttf

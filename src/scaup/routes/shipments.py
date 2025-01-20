@@ -7,6 +7,7 @@ from lims_utils.models import Paged, pagination
 
 from ..auth import Permissions, auth_scheme
 from ..crud import containers as container_crud
+from ..crud import pdf as pdf_crud
 from ..crud import pre_sessions as ps_crud
 from ..crud import samples as sample_crud
 from ..crud import shipments as shipment_crud
@@ -178,7 +179,7 @@ def get_shipping_labels(shipmentId=Depends(auth), token: HTTPAuthorizationCreden
     """Get shipping labels for dewar"""
     headers = {"Content-Disposition": 'inline; filename="labels.pdf"'}
     return Response(
-        bytes(tlc_crud.get_shipping_labels(shipmentId, token.credentials)),
+        bytes(pdf_crud.get_shipping_labels(shipmentId, token.credentials)),
         headers=headers,
         media_type="application/pdf",
     )
@@ -205,3 +206,14 @@ def assign_dcg_in_sublocation(
 ):
     """Update data collection group sample ID in ISPyB. Does not return data."""
     return shipment_crud.assign_dcg_to_sublocation(shipment_id=shipmentId, parameters=parameters)
+
+
+@router.get(
+    "/{shipmentId}/pdf-report",
+)
+def get_pdf_report(
+    shipmentId=Depends(auth),
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+):
+    """Get PDF report of shipment"""
+    return pdf_crud.generate_report(shipment_id=shipmentId, token=token.credentials)
