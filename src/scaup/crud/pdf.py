@@ -28,14 +28,21 @@ from ..utils.generic import pascal_to_title
 headings_style = FontFace(emphasis=None)
 bold_style = FontFace(emphasis="BOLD")
 
-UNITS = {"pixelSize": "Å/px", "totalDose": "e-/Å2", "dosePerFrame": "e⁻/Å²"}
+UNITS = {
+    "pixelSize": " Å/px",
+    "totalDose": " e-/Å2",
+    "dosePerFrame": " e⁻/Å²",
+    "tiltSpan": "°",
+    "startAngle": "°",
+    "tiltStep": "°",
+}
 
 
 def _add_unit(key: str, val: str | bool | int | float):
     """Convert value to string and append unit if applicable"""
     new_val = val if type(val) is not bool else "Yes" if val else "No"
     if key in UNITS and val != "":
-        return f"{new_val} {UNITS[key]}"
+        return f"{new_val}{UNITS[key]}"
     return new_val
 
 
@@ -77,7 +84,9 @@ class TrackingLabelPages(FPDF):
             self.image(img, x=74, y=offset, h=60, w=60)
             self.set_y(55 + offset)
 
-            with self.table(borders_layout="HORIZONTAL_LINES", headings_style=headings_style) as pdf_table:
+            with self.table(
+                borders_layout="HORIZONTAL_LINES", headings_style=headings_style
+            ) as pdf_table:
                 for row in table:
                     pdf_row = pdf_table.row()
                     for i, datum in enumerate(row):
@@ -115,7 +124,9 @@ def get_shipping_labels(shipment_id: int, token: str):
     # Microauth should have already checked that the session exists
     assert "beamLineName" in current_session
 
-    pdf = TrackingLabelPages(current_session["beamLineName"], current_session["beamLineOperator"])
+    pdf = TrackingLabelPages(
+        current_session["beamLineName"], current_session["beamLineOperator"]
+    )
     for dewar in data:
         pdf.add_dewar(dewar)
 
@@ -151,7 +162,9 @@ class ReportPDF(FPDF):
 
 
 def generate_report(shipment_id: int, token: str):
-    shipment = inner_db.session.scalar(select(Shipment).filter(Shipment.id == shipment_id))
+    shipment = inner_db.session.scalar(
+        select(Shipment).filter(Shipment.id == shipment_id)
+    )
 
     expeye_response = ExternalRequest.request(
         token=token,
@@ -207,7 +220,9 @@ def generate_report(shipment_id: int, token: str):
         )
         current_row += 1
 
-    pre_session = inner_db.session.scalar(select(PreSession).filter(PreSession.shipmentId == shipment_id))
+    pre_session = inner_db.session.scalar(
+        select(PreSession).filter(PreSession.shipmentId == shipment_id)
+    )
 
     if pre_session is None:
         raise HTTPException(
@@ -216,7 +231,10 @@ def generate_report(shipment_id: int, token: str):
         )
 
     # TODO: rethink this once we're using user-provided templates
-    pre_session_table = [(pascal_to_title(key), _add_unit(key, value)) for key, value in pre_session.details.items()]
+    pre_session_table = [
+        (pascal_to_title(key), _add_unit(key, value))
+        for key, value in pre_session.details.items()
+    ]
 
     pdf = ReportPDF()
     pdf.add_page()
@@ -232,7 +250,8 @@ def generate_report(shipment_id: int, token: str):
 
     headers = {
         "Content-Disposition": (
-            "inline;" + 'filename="report-{shipment.proposalCode}{shipment.proposalNumber}-{shipment.visitNumber}.pdf"'
+            "inline;"
+            + 'filename="report-{shipment.proposalCode}{shipment.proposalNumber}-{shipment.visitNumber}.pdf"'
         )
     }
     return Response(
