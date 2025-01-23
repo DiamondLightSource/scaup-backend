@@ -30,7 +30,7 @@ bold_style = FontFace(emphasis="BOLD")
 
 UNITS = {
     "pixelSize": " Å/px",
-    "totalDose": " e-/Å2",
+    "totalDose": " e-/Å²",
     "dosePerFrame": " e⁻/Å²",
     "tiltSpan": "°",
     "startAngle": "°",
