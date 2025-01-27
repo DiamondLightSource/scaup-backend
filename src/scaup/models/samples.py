@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from pydantic import AliasChoices, Field
+from pydantic import AliasChoices, BaseModel, Field
 
 from ..utils.models import BaseExternal, BaseModelWithNameValidator
 
@@ -45,3 +45,8 @@ class SampleExternal(BaseExternal):
     subLocation: Optional[int]
     location: Optional[int]
     name: str
+
+
+class SublocationAssignment(BaseModel):
+    subLocation: int
+    dataCollectionGroupId: int
