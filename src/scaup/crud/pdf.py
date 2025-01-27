@@ -68,7 +68,7 @@ class TrackingLabelPages(FPDF):
                 "Proposal",
                 f"{dewar.proposalCode}{dewar.proposalNumber}-{dewar.visitNumber or "?"}",
             ),
-            ("Shipment", dewar.name),
+            ("Sample Collection", dewar.name),
             ("Code", dewar.code),
             ("Instrument", self.location),
             ("Local Contact", self.local_contact),
