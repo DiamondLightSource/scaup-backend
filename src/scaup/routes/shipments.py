@@ -205,7 +205,7 @@ def assign_dcg_in_sublocation(
     parameters: List[SublocationAssignment] = Body(),
 ):
     """Update data collection group sample ID in ISPyB. Does not return data."""
-    return shipment_crud.assign_dcg_to_sublocation(shipment_id=shipmentId, parameters=parameters)
+    return shipment_crud.assign_dcg_to_sublocation_in_shipment(shipment_id=shipmentId, parameters=parameters)
 
 
 @router.get(

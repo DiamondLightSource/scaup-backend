@@ -22,7 +22,7 @@ from ..models.shipments import (
     StatusUpdate,
 )
 from ..utils.config import Config
-from ..utils.crud import assert_no_unassigned
+from ..utils.crud import assert_no_unassigned, assign_dcg_to_sublocation
 from ..utils.database import inner_db
 from ..utils.external import TYPE_TO_SHIPPING_SERVICE_TYPE, Expeye, ExternalRequest
 from ..utils.query import query_result_to_object
@@ -272,7 +272,7 @@ def handle_callback(shipment_id: int, callback_body: StatusUpdate):
     return updated_shipment
 
 
-def assign_dcg_to_sublocation(shipment_id: int, parameters: List[SublocationAssignment]):
+def assign_dcg_to_sublocation_in_shipment(shipment_id: int, parameters: List[SublocationAssignment]):
     for s_assignment in parameters:
         ext_id = inner_db.session.scalar(
             select(Sample.externalId).filter(
@@ -281,34 +281,4 @@ def assign_dcg_to_sublocation(shipment_id: int, parameters: List[SublocationAssi
             )
         )
 
-        if ext_id is None:
-            raise HTTPException(
-                status.HTTP_404_NOT_FOUND,
-                f"Sample not pushed to ISPyB, or sample not found for sublocation {s_assignment.subLocation}",
-            )
-
-        request_url = f"/data-groups/{s_assignment.dataCollectionGroupId}"
-        request_body = {"sampleId": ext_id}
-
-        resp = ExternalRequest.request(
-            method="PATCH",
-            token=Config.ispyb_api.jwt,
-            url=request_url,
-            json=request_body,
-        )
-
-        if resp.status_code == 404:
-            raise HTTPException(
-                status.HTTP_404_NOT_FOUND,
-                f"Data collection group {s_assignment.dataCollectionGroupId} does not exist",
-            )
-        elif resp.status_code != 200:
-            app_logger.warning(
-                f"Expeye upstream returned {resp.text} with status code {resp.status_code} for request to"
-                + f"{request_url} with body {request_body}."
-            )
-
-            raise HTTPException(
-                status.HTTP_424_FAILED_DEPENDENCY,
-                "Failed to push changes upstream",
-            )
+        assign_dcg_to_sublocation(ext_id, s_assignment)

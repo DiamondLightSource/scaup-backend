@@ -1,8 +1,11 @@
 import json
 
 import responses
+from sqlalchemy import update
 
+from scaup.models.inner_db.tables import Sample
 from scaup.utils.config import Config
+from scaup.utils.database import inner_db
 
 
 @responses.activate
@@ -15,7 +18,7 @@ def test_post(client):
     )
 
     resp = client.post(
-        "/shipments/1/assign-data-collection-groups",
+        "/proposals/cm1/sessions/1/assign-data-collection-groups",
         json=[{"subLocation": 1, "dataCollectionGroupId": 99}],
     )
 
@@ -36,7 +39,7 @@ def test_post_inexistent(client):
     )
 
     resp = client.post(
-        "/shipments/1/assign-data-collection-groups",
+        "/proposals/cm1/sessions/1/assign-data-collection-groups",
         json=[{"subLocation": 1, "dataCollectionGroupId": 99}],
     )
 
@@ -53,7 +56,7 @@ def test_post_upstream_failure(client):
     )
 
     resp = client.post(
-        "/shipments/1/assign-data-collection-groups",
+        "/proposals/cm1/sessions/1/assign-data-collection-groups",
         json=[{"subLocation": 1, "dataCollectionGroupId": 99}],
     )
 
@@ -63,7 +66,7 @@ def test_post_upstream_failure(client):
 def test_no_external_id(client):
     """Should raise HTTP error if sample in sublocation hasn't been pushed to ISPyB"""
     resp = client.post(
-        "/shipments/117/assign-data-collection-groups",
+        "/proposals/bi23047/sessions/100/assign-data-collection-groups",
         json=[{"subLocation": 2, "dataCollectionGroupId": 99}],
     )
 
@@ -73,8 +76,19 @@ def test_no_external_id(client):
 def test_no_sublocation(client):
     """Should raise HTTP error if sample in sublocation has no samples"""
     resp = client.post(
-        "/shipments/1/assign-data-collection-groups",
+        "/proposals/bi23047/sessions/100/assign-data-collection-groups",
         json=[{"subLocation": 5, "dataCollectionGroupId": 99}],
     )
 
     assert resp.status_code == 404
+
+def test_multiple_samples_in_sublocation(client):
+    """Should raise HTTP error if multiple samples in a session have the same sublocation"""
+
+    inner_db.session.execute(update(Sample).filter(Sample.id == 562).values({"subLocation": 1}))
+    resp = client.post(
+        "/proposals/bi23047/sessions/100/assign-data-collection-groups",
+        json=[{"subLocation": 1, "dataCollectionGroupId": 99}],
+    )
+
+    assert resp.status_code == 409
