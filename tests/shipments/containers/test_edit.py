@@ -37,7 +37,7 @@ def test_edit_inexistent_sample(client):
 @responses.activate
 def test_update_samples_on_shipment_id_change(client):
     """Should update shipment ID for children if shipment ID of parent is updated"""
-    responses.patch(f"{Config.ispyb_api}/containers/303613", "{}")
+    responses.patch(f"{Config.ispyb_api.url}/containers/303613", "{}")
 
     resp = client.patch(
         "/containers/776",
@@ -64,7 +64,7 @@ def test_update_shipment_across_proposal(client):
 @responses.activate
 def test_push_to_ispyb(client):
     """Should push to ISPyB if container has externalId present"""
-    patch_resp = responses.patch(f"{Config.ispyb_api}/containers/10", "{}")
+    patch_resp = responses.patch(f"{Config.ispyb_api.url}/containers/10", "{}")
 
     client.patch(
         "/containers/341",

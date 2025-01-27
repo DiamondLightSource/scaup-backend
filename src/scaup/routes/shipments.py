@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Body, Depends, Response, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials
@@ -11,7 +13,7 @@ from ..crud import shipments as shipment_crud
 from ..crud import top_level_containers as tlc_crud
 from ..models.containers import ContainerIn, ContainerOut
 from ..models.pre_sessions import PreSessionIn, PreSessionOut
-from ..models.samples import SampleIn, SampleOut
+from ..models.samples import SampleIn, SampleOut, SublocationAssignment
 from ..models.shipments import (
     ShipmentChildren,
     ShipmentOut,
@@ -192,3 +194,14 @@ def update_shipment_status(
 ):
     """Update shipment status"""
     return shipment_crud.handle_callback(shipment_id=shipmentId, callback_body=parameters)
+
+
+@router.post(
+    "/{shipmentId}/assign-data-collection-groups",
+)
+def assign_dcg_in_sublocation(
+    shipmentId=Depends(auth),
+    parameters: List[SublocationAssignment] = Body(),
+):
+    """Update data collection group sample ID in ISPyB. Does not return data."""
+    return shipment_crud.assign_dcg_to_sublocation_in_shipment(shipment_id=shipmentId, parameters=parameters)

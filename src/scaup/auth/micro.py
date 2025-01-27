@@ -8,8 +8,6 @@ from lims_utils.logging import app_logger
 from lims_utils.models import parse_proposal
 from sqlalchemy import func, select
 
-from scaup.utils.auth import check_em_staff
-
 from ..auth import auth_scheme
 from ..models.inner_db.tables import (
     Container,
@@ -17,6 +15,7 @@ from ..models.inner_db.tables import (
     Shipment,
     TopLevelContainer,
 )
+from ..utils.auth import check_em_staff, decode_jwt, is_admin
 from ..utils.config import Config
 from ..utils.database import inner_db
 from .template import GenericPermissions
@@ -24,16 +23,33 @@ from .template import GenericPermissions
 T = TypeVar("T")
 
 
+def _is_cas_token(token: str):
+    return len(token) > 2 and token[:2] == "AT"
+
+
 def _get_user(token: str):
-    response = requests.get(
-        Config.auth.endpoint + "/user",
-        headers={"Authorization": f"Bearer {token}"},
-    )
+    if _is_cas_token(token):
+        response = requests.get(
+            Config.auth.endpoint + "/user",
+            headers={"Authorization": f"Bearer {token}"},
+        )
 
-    if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail=response.json().get("detail"))
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.json().get("detail"))
+        return response.json()
+    else:
+        # TODO: replace this once something more permanent becomes available
+        user = decode_jwt(token, "scaup_general")
+        app_id = user.get("sub")
 
-    return response.json()
+        return {
+            "id": app_id,
+            "givenName": app_id,
+            "title": "",
+            "fedid": app_id,
+            "familyName": "",
+            "permissions": user.get("permissions"),
+        }
 
 
 class User(GenericUser):
@@ -50,6 +66,13 @@ class User(GenericUser):
 
 
 def _check_perms(data_id: T, endpoint: str, token: str) -> T:
+    if not _is_cas_token(token):
+        user = _get_user(token)
+        if is_admin(user["permissions"]):
+            return data_id
+
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Provided JWT lacks permissions")
+
     response = requests.get(
         "".join(
             [

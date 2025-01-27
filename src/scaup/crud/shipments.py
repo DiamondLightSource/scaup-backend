@@ -1,6 +1,6 @@
 import time
 from collections import Counter
-from typing import Generator, Sequence
+from typing import Generator, List, Sequence
 
 import jwt
 from fastapi import HTTPException, status
@@ -15,13 +15,14 @@ from ..models.inner_db.tables import (
     Shipment,
     TopLevelContainer,
 )
+from ..models.samples import SublocationAssignment
 from ..models.shipments import (
     ShipmentChildren,
     ShipmentOut,
     StatusUpdate,
 )
 from ..utils.config import Config
-from ..utils.crud import assert_no_unassigned
+from ..utils.crud import assert_no_unassigned, assign_dcg_to_sublocation
 from ..utils.database import inner_db
 from ..utils.external import TYPE_TO_SHIPPING_SERVICE_TYPE, Expeye, ExternalRequest
 from ..utils.query import query_result_to_object
@@ -205,7 +206,8 @@ def build_shipment_request(shipmentId: int, token: str):
             "exp": int(time.time()) + 1.3e6,
             "aud": Config.shipping_service.callback_url,
         },
-        Config.shipping_service.secret,
+        Config.auth.jwt_private,
+        algorithm="ES256",
     )
 
     built_request_body = {
@@ -268,3 +270,15 @@ def handle_callback(shipment_id: int, callback_body: StatusUpdate):
     inner_db.session.commit()
 
     return updated_shipment
+
+
+def assign_dcg_to_sublocation_in_shipment(shipment_id: int, parameters: List[SublocationAssignment]):
+    for s_assignment in parameters:
+        ext_id = inner_db.session.scalar(
+            select(Sample.externalId).filter(
+                Sample.shipmentId == shipment_id,
+                Sample.subLocation == s_assignment.subLocation,
+            )
+        )
+
+        assign_dcg_to_sublocation(ext_id, s_assignment)

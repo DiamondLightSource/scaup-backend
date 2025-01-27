@@ -1,4 +1,12 @@
+import os
 from unittest.mock import patch
+
+# FastAPI's server has side-effects on import. This ensures the env. vars are set beforehand
+with open(os.path.join(os.path.dirname(__file__), "test_utils/jwtES256.key.test"), "r") as f:
+    os.environ["SCAUP_PRIVATE_KEY"] = f.read()
+
+with open(os.path.join(os.path.dirname(__file__), "test_utils/jwtES256.pem.test"), "r") as f:
+    os.environ["SCAUP_PUBLIC_KEY"] = f.read()
 
 import pytest
 import responses
@@ -28,13 +36,6 @@ from .test_utils.regex import (
     session_regex,
 )
 from .test_utils.users import admin
-
-
-@pytest.fixture(scope="function", autouse=True)
-def mock_config():
-    with patch("scaup.utils.config._read_config", return_value={"auth": "this"}) as _fixture:
-        yield _fixture
-
 
 engine = create_engine(
     url="postgresql+psycopg://sample_handling:sample_root@127.0.0.1:5432/sample_handling",

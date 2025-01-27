@@ -2,7 +2,8 @@
   "auth": {
     "endpoint": "http://127.0.0.1:8070/auth",
     "type": "micro",
-    "cookie_key": "__Host-sh_auth"
+    "cookie_key": "__Host-sh_auth",
+    "read_all_perms": ["super_admin"]
   },
   "shipping_service": {
     "url": "https://sample-shipping-staging.diamond.ac.uk"

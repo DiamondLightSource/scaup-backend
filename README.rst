@@ -17,6 +17,9 @@ The API supports a configuration file, that follows the example set in :code:`co
 
 - :code:`SQL_DATABASE_URL`: The URL for the database
 - :code:`CONFIG_PATH`: Path for the configuration file
+- :code:`SCAUP_PRIVATE_KEY`: Private key for encoding JWTs
+- :code:`SCAUP_PUBLIC_KEY`: Public key for decoding JWTs
+- :code:`SCAUP_EXPEYE_TOKEN`: Token for making requests to Expeye. Useful for machine users.
 
 ==========
 Deployment

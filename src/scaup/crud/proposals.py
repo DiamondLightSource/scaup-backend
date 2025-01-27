@@ -1,8 +1,14 @@
+from typing import List
+
+from fastapi import HTTPException, status
 from lims_utils.models import ProposalReference
 from sqlalchemy import case, insert, select
+from sqlalchemy.exc import MultipleResultsFound
 
-from ..models.inner_db.tables import Shipment
+from ..models.inner_db.tables import Sample, Shipment
+from ..models.samples import SublocationAssignment
 from ..models.shipments import ShipmentIn
+from ..utils.crud import assign_dcg_to_sublocation
 from ..utils.database import inner_db, paginate, unravel
 
 
@@ -35,3 +41,30 @@ def get_shipments(proposal_reference: ProposalReference, limit: int, page: int):
     )
 
     return paginate(query, limit, page, slow_count=False)
+
+
+def assign_dcg_to_sublocation_in_session(session: ProposalReference, parameters: List[SublocationAssignment]):
+    for s_assignment in parameters:
+        try:
+            ext_id = inner_db.session.execute(
+                select(Sample.externalId)
+                .join(Shipment)
+                .filter(
+                    Shipment.visitNumber == session.visit_number,
+                    Shipment.proposalCode == session.code,
+                    Shipment.proposalNumber == session.number,
+                    Sample.subLocation == s_assignment.subLocation,
+                )
+            ).scalar_one_or_none()
+        except MultipleResultsFound:
+            # If multiple sample collections exist, two separate samples might have
+            # the same cassette slot number, albeit in different sample collections.
+            # This is rare, and should theoretically never happen, but it should be
+            # accounted for.
+
+            raise HTTPException(
+                status.HTTP_409_CONFLICT,
+                "Multiple samples in cassette slot. Specify a sample collection.",
+            )
+
+        assign_dcg_to_sublocation(ext_id, s_assignment)

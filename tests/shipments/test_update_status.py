@@ -5,7 +5,7 @@ from scaup.utils.database import inner_db
 
 
 def test_post(client):
-    ("""Should get shipment details as tree of generic items""",)
+    """Should get shipment details as tree of generic items"""
     resp = client.post(
         "/shipments/118/update-status",
         params={"token": ""},

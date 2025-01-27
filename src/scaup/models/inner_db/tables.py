@@ -18,6 +18,7 @@ class BaseColumns:
     name: Mapped[str] = mapped_column(String(40))
     externalId: Mapped[int | None] = mapped_column(unique=True, comment="Item ID in ISPyB")
     comments: Mapped[str | None] = mapped_column(String(255))
+    creationDate: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class Shipment(Base, BaseColumns):
@@ -27,8 +28,6 @@ class Shipment(Base, BaseColumns):
     proposalCode: Mapped[str] = mapped_column(String(2), index=True)
     proposalNumber: Mapped[int] = mapped_column(index=True)
     visitNumber: Mapped[int] = mapped_column(index=True)
-
-    creationDate: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     children: Mapped[List["TopLevelContainer"]] = relationship(back_populates="shipment")
 
@@ -43,7 +42,6 @@ class TopLevelContainer(Base, BaseColumns):
     id: Mapped[int] = mapped_column("topLevelContainerId", primary_key=True, index=True)
     shipment: Mapped["Shipment"] = relationship(back_populates="children")
     shipmentId: Mapped[int | None] = mapped_column(ForeignKey("Shipment.shipmentId"), index=True)
-    creationDate: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     details: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     code: Mapped[str] = mapped_column(String(20))
@@ -72,7 +70,6 @@ class Container(Base, BaseColumns):
         index=True,
     )
     parentId: Mapped[int | None] = mapped_column(ForeignKey("Container.containerId", ondelete="SET NULL"))
-    creationDate: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     type: Mapped[str] = mapped_column(String(40), server_default="genericContainer")
     subType: Mapped[str | None] = mapped_column(String(40))
@@ -105,7 +102,6 @@ class Sample(Base, BaseColumns):
     id: Mapped[int] = mapped_column("sampleId", primary_key=True, index=True)
     shipmentId: Mapped[int] = mapped_column(ForeignKey("Shipment.shipmentId"), index=True)
     proteinId: Mapped[int] = mapped_column()
-    creationDate: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     type: Mapped[str] = mapped_column(String(40), server_default="sample")
     location: Mapped[int | None] = mapped_column(SmallInteger)

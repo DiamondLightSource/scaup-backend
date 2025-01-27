@@ -82,8 +82,8 @@ def test_shipment_request_callback(client):
     token = body_dict["dispatch_callback_url"].split("=")[1]
     decoded_token = jwt.decode(
         token,
-        Config.shipping_service.secret,
-        "HS256",
+        Config.auth.jwt_public,
+        "ES256",
         audience=Config.shipping_service.callback_url,
     )
 

@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Body, Depends, Query, status
 from fastapi.security import HTTPAuthorizationCredentials
 from lims_utils.models import ProposalReference, pagination
@@ -7,7 +9,7 @@ from ..crud import containers as containers_crud
 from ..crud import proposals as crud
 from ..crud import samples as samples_crud
 from ..models.containers import ContainerOut
-from ..models.samples import SampleOut
+from ..models.samples import SampleOut, SublocationAssignment
 from ..models.shipments import MixedShipment, ShipmentIn, ShipmentOut
 from ..utils.database import Paged
 from ..utils.external import ExternalRequest
@@ -79,9 +81,7 @@ def get_containers(
         description="Only display containers assigned to internal containers",
         default=False,
     ),
-    type: str = Query(
-        description="Container type to filter by", default=None, examples=["gridBox"]
-    ),
+    type: str = Query(description="Container type to filter by", default=None, examples=["gridBox"]),
 ):
     """Get containers in session"""
     return containers_crud.get_containers(
@@ -100,6 +100,15 @@ def get_shipment_data(
     """Get lab data for the proposal (lab contacts, proteins...)
 
     We can skip auth on this one since it is calling Expeye, and auth is done there"""
-    return ExternalRequest.request(
-        token=token.credentials, url=f"/proposals/{proposalReference}/data"
-    ).json()
+    return ExternalRequest.request(token=token.credentials, url=f"/proposals/{proposalReference}/data").json()
+
+
+@router.post(
+    "/{proposalReference}/sessions/{visitNumber}/assign-data-collection-groups",
+)
+def assign_dcg_in_sublocation(
+    proposalReference: ProposalReference = Depends(auth),
+    parameters: List[SublocationAssignment] = Body(),
+):
+    """Update data collection group sample ID in ISPyB. Does not return data."""
+    return crud.assign_dcg_to_sublocation_in_session(proposalReference, parameters=parameters)

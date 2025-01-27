@@ -1,6 +1,6 @@
 import json
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal
 
 
@@ -9,11 +9,20 @@ class ConfigurationError(Exception):
 
 
 @dataclass
+class IspybApi:
+    url: str
+    jwt: str | None = None
+
+
+@dataclass
 class Auth:
+    jwt_public: str
+    jwt_private: str
     endpoint: str = "https://localhost/auth"
     type: Literal["dummy", "micro"] = "micro"
     cookie_key: str = "cookie_key"
     cors: bool = False
+    read_all_perms: list[str] = field(default_factory=lambda: ["super_admin"])
 
 
 @dataclass
@@ -38,22 +47,24 @@ def _read_config():
 
 class Config:
     auth: Auth
-    ispyb_api: str
     frontend_url: str
     db: DB
     shipping_service: ShippingService
+    ispyb_api: IspybApi
 
     @staticmethod
     def set():
         try:
             conf = _read_config()
-            Config.auth = Auth(**conf["auth"])
+            Config.auth = Auth(
+                **conf["auth"],
+                jwt_public=os.environ.get("SCAUP_PUBLIC_KEY"),
+                jwt_private=os.environ.get("SCAUP_PRIVATE_KEY"),
+            )
             Config.db = DB(**conf["db"])
-            Config.ispyb_api = conf["ispyb_api"]
+            Config.ispyb_api = IspybApi(url=conf["ispyb_api"], jwt=os.environ.get("SCAUP_EXPEYE_TOKEN"))
             Config.frontend_url = conf["frontend_url"]
             Config.shipping_service = ShippingService(**conf["shipping_service"])
-
-            Config.shipping_service.secret = os.environ.get("SHIPPING_SERVICE_SECRET", "no-secret")
 
         except TypeError as exc:
             raise ConfigurationError(str(exc).replace(".__init__()", "")) from exc
