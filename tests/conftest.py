@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from unittest.mock import patch
 
 # FastAPI's server has side-effects on import. This ensures the env. vars are set beforehand
@@ -110,7 +111,9 @@ def mock_user(request):
 
 
 @pytest.fixture(scope="function", autouse=True)
-def register_responses():
+def register_responses(request):
+    if "noregister" in request.keywords:
+        return
     responses.add_callback(
         responses.GET,
         registered_dewar_regex,
@@ -144,5 +147,11 @@ def register_responses():
     responses.add(
         responses.GET,
         session_regex,
-        json={"sessionId": 1, "beamLineOperator": "John Doe", "beamLineName": "m03"},
+        json={
+            "sessionId": 1,
+            "beamLineOperator": "John Doe",
+            "beamLineName": "m03",
+            "startDate": str(datetime.now()),
+            "endDate": str(datetime.now()),
+        },
     )
