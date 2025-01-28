@@ -8,7 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
-v0.7.0 (01/01/2025)
+v0.8.0 (28/01/2025)
++++++++++
+
+**Added**
+
+- PDF generation (:code:`/shipments/{shipmentId}/pdf-report)
+- Endpoint for assigning cassette positions to data collection groups (:code:`/shipments/{shipmentId}/assign-data-collection-groups` and :code:`/proposals/{proposalReference}/sessions/{visitNumber}/assign-data-collection-groups)
+
+**Changed**
+
+- Rename "shipment" in shipping label to "sample collection"
+
++++++++++
+v0.7.0 (10/01/2025)
 +++++++++
 
 **Added**
