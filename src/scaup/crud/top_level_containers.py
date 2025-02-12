@@ -4,6 +4,7 @@ import qrcode
 from fastapi import HTTPException, status
 from fpdf import FPDF
 from fpdf.fonts import FontFace
+from lims_utils.logging import app_logger
 from sqlalchemy import Row, func, insert, select
 
 from ..assets.paths import CUT_HERE, DIAMOND_LOGO, THIS_SIDE_UP
@@ -16,6 +17,8 @@ from ..utils.session import retry_if_exists
 
 headings_style = FontFace(emphasis=None)
 bold_style = FontFace(emphasis="BOLD")
+
+DEWAR_PREFIX = "DLS-BI-"
 
 
 def _check_fields(
@@ -57,9 +60,44 @@ def _check_fields(
 
 @assert_not_booked
 @retry_if_exists
-def create_top_level_container(shipmentId: int | None, params: TopLevelContainerIn, token: str):
+def create_top_level_container(shipmentId: int | None, params: TopLevelContainerIn, token: str, autocreate=True):
     if params.code:
         _check_fields(params, token, shipmentId)
+    elif params.type == "dewar" and autocreate:
+        # Automatically register dewar if no code is provided
+        # The range is 0999 to 9900 because these are DLS-BI barcodes guaranteed to be available to our application
+        last_dewar = inner_db.session.scalar(
+            select(TopLevelContainer.code)
+            .filter(TopLevelContainer.code > DEWAR_PREFIX + "0999", TopLevelContainer.code < DEWAR_PREFIX + "9900")
+            .order_by(TopLevelContainer.code.desc())
+        )
+
+        dewar_number = int(last_dewar.split("-")[2]) if last_dewar is not None else 999
+        new_code = f"{DEWAR_PREFIX}{dewar_number + 1:04}"
+
+        proposal_reference = inner_db.session.scalar(
+            select(func.concat(Shipment.proposalCode, Shipment.proposalNumber)).filter(Shipment.id == shipmentId)
+        )
+
+        ext_resp = ExternalRequest.request(
+            token,
+            method="POST",
+            url=f"/proposals/{proposal_reference}/dewar-registry",
+            json={"facilityCode": new_code},
+        )
+
+        if ext_resp.status_code != 201:
+            app_logger.warning(
+                "Error from Expeye while creating dewar registry entry with code %s: %s",
+                new_code,
+                ext_resp.text,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_424_FAILED_DEPENDENCY,
+                detail="Invalid response while creating top level container in ISPyB",
+            )
+
+        params.code = new_code
 
     if not params.name:
         params.name = params.code
@@ -102,7 +140,10 @@ class TrackingLabelPages(FPDF):
         img = qr_img.get_image()
 
         table = (
-            ("Proposal", f"{dewar.proposalCode}{dewar.proposalNumber}-{dewar.visitNumber or "?"}"),
+            (
+                "Proposal",
+                f"{dewar.proposalCode}{dewar.proposalNumber}-{dewar.visitNumber or "?"}",
+            ),
             ("Shipment", dewar.name),
             ("Code", dewar.code),
             ("Instrument", self.location),

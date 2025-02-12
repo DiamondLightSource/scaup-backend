@@ -62,7 +62,8 @@ def create_top_level_container(
     parameters: TopLevelContainerIn = Body(),
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
-    """Create new container in shipment"""
+    """Create new container in shipment. If the top level container type is 'dewar' and the provided code is
+    empty or null, a new one is created."""
     return tlc_crud.create_top_level_container(shipmentId=shipmentId, params=parameters, token=token.credentials)
 
 

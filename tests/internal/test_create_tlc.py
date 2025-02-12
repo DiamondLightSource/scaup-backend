@@ -11,7 +11,7 @@ from ..test_utils.users import admin
 def test_create(mock_user, client):
     """Should create internal container"""
     resp = client.post(
-        "/shipments/1/topLevelContainers",
+        "/internal-containers/topLevelContainers",
         json={"type": "dewar", "code": "", "name": "valid_name"},
     )
 
