@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status
+from lims_utils.logging import app_logger
 from sqlalchemy import func, insert, select
 
 from ..models.inner_db.tables import Shipment, TopLevelContainer
@@ -7,6 +8,8 @@ from ..utils.crud import assert_not_booked, edit_item
 from ..utils.database import inner_db, paginate
 from ..utils.external import ExternalRequest
 from ..utils.session import retry_if_exists
+
+DEWAR_PREFIX = "DLS-BI-"
 
 
 def _check_fields(
