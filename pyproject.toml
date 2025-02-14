@@ -76,6 +76,9 @@ addopts = """
     """
 # https://iscinumpy.gitlab.io/post/bound-version-constraints/#watch-for-warnings
 filterwarnings = "error"
+markers = [
+    "noregister: do not register HTTP mock responses"
+]
 
 [tool.coverage.run]
 data_file = "/tmp/scaup.coverage"
