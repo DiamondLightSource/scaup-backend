@@ -1,3 +1,4 @@
+import pytest
 import responses
 from sqlalchemy import select
 
@@ -64,6 +65,12 @@ def test_create_no_code(client):
         json={"dewarRegistryId": 1},
     )
 
+    responses.get(
+        f"{Config.ispyb_api.url}/dewar-registry?search=DLS-BI-&limit=1",
+        status=200,
+        json={"items": [{"facilityCode": "DLS-BI-5671"}]},
+    )
+
     resp = client.post(
         "/shipments/1/topLevelContainers",
         json={
@@ -75,13 +82,19 @@ def test_create_no_code(client):
     assert resp.status_code == 201
 
     assert (
-        inner_db.session.scalar(select(TopLevelContainer).filter(TopLevelContainer.code == "DLS-BI-1000")) is not None
+        inner_db.session.scalar(select(TopLevelContainer).filter(TopLevelContainer.code == "DLS-BI-5672")) is not None
     )
 
 
 @responses.activate
-def test_create_no_code_increment(client):
-    """Should automatically generate code based on codes present in database"""
+def test_no_items_in_ispyb(client):
+    """Should set generated code index to 1000 if Expeye returns no dewar registry items"""
+    responses.get(
+        f"{Config.ispyb_api.url}/dewar-registry?search=DLS-BI-&limit=1",
+        status=200,
+        json={"items": []},
+    )
+
     responses.post(
         f"{Config.ispyb_api.url}/proposals/cm1/dewar-registry",
         status=201,
@@ -98,6 +111,26 @@ def test_create_no_code_increment(client):
 
     assert resp.status_code == 201
 
+    assert (
+        inner_db.session.scalar(select(TopLevelContainer).filter(TopLevelContainer.code == "DLS-BI-1000")) is not None
+    )
+
+
+@responses.activate
+def test_create_no_code_expeye_out_of_range(client):
+    """Should set generated code index to 1000 if Expeye returns a code which is out of eBIC's range"""
+    responses.get(
+        f"{Config.ispyb_api.url}/dewar-registry?search=DLS-BI-&limit=1",
+        status=200,
+        json={"items": [{"facilityCode": "DLS-BI-0008"}]},
+    )
+
+    responses.post(
+        f"{Config.ispyb_api.url}/proposals/cm1/dewar-registry",
+        status=201,
+        json={"dewarRegistryId": 1},
+    )
+
     resp = client.post(
         "/shipments/1/topLevelContainers",
         json={
@@ -109,16 +142,30 @@ def test_create_no_code_increment(client):
     assert resp.status_code == 201
 
     assert (
-        inner_db.session.scalar(select(TopLevelContainer).filter(TopLevelContainer.code == "DLS-BI-1001")) is not None
+        inner_db.session.scalar(select(TopLevelContainer).filter(TopLevelContainer.code == "DLS-BI-1000")) is not None
     )
 
 
+@pytest.mark.parametrize(
+    ["status_get", "status_post"],
+    [
+        pytest.param(200, 500, id="post_fail"),
+        pytest.param(500, 200, id="get_fail"),
+        pytest.param(500, 404, id="both_fail"),
+    ],
+)
 @responses.activate
-def test_upstream_failure(client):
+def test_upstream_failure(client, status_get, status_post):
     """Should raise exception if request fails upstream"""
+    responses.get(
+        f"{Config.ispyb_api.url}/dewar-registry?search=DLS-BI-&limit=1",
+        status=status_get,
+        json={"items": [{"facilityCode": "DLS-BI-5671"}]},
+    )
+
     responses.post(
         f"{Config.ispyb_api.url}/proposals/cm1/dewar-registry",
-        status=500,
+        status=status_post,
         json={},
     )
 
