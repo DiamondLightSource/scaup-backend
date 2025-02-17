@@ -68,7 +68,7 @@ def create_orphan_top_level_container(
     """Create orphan container"""
     new_params = parameters
     new_params.isInternal = True
-    return create_top_level_container(params=new_params, shipmentId=None, token=token)
+    return create_top_level_container(params=new_params, shipmentId=None, token=token, autocreate=False)
 
 
 @router.get(

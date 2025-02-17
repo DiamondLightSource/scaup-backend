@@ -82,6 +82,7 @@ def test_no_sublocation(client):
 
     assert resp.status_code == 404
 
+
 def test_multiple_samples_in_sublocation(client):
     """Should raise HTTP error if multiple samples in a session have the same sublocation"""
 

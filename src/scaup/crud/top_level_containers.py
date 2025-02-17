@@ -1,12 +1,16 @@
 from fastapi import HTTPException, status
+from lims_utils.logging import app_logger
 from sqlalchemy import func, insert, select
 
 from ..models.inner_db.tables import Shipment, TopLevelContainer
 from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelContainerIn
+from ..utils.config import Config
 from ..utils.crud import assert_not_booked, edit_item
 from ..utils.database import inner_db, paginate
 from ..utils.external import ExternalRequest
 from ..utils.session import retry_if_exists
+
+DEWAR_PREFIX = "DLS-BI-"
 
 
 def _check_fields(
@@ -48,9 +52,55 @@ def _check_fields(
 
 @assert_not_booked
 @retry_if_exists
-def create_top_level_container(shipmentId: int | None, params: TopLevelContainerIn, token: str):
+def create_top_level_container(shipmentId: int | None, params: TopLevelContainerIn, token: str, autocreate=True):
     if params.code:
         _check_fields(params, token, shipmentId)
+    elif params.type == "dewar" and autocreate:
+        # Automatically register dewar if no code is provided
+        # The range is 0999 to 9900 because these are DLS-BI barcodes guaranteed to be available to our application
+        ext_get = ExternalRequest.request(Config.ispyb_api.jwt, url=f"/dewar-registry?search={DEWAR_PREFIX}&limit=1")
+
+        if ext_get.status_code != 200:
+            app_logger.warning(
+                "Error from Expeye while fetching registry entries: %s",
+                ext_get.text,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_424_FAILED_DEPENDENCY,
+                detail="Invalid response while creating top level container in ISPyB",
+            )
+
+        if len(ext_get.json()["items"]) < 1:
+            dewar_number = 1000
+        else:
+            last_dewar = int(ext_get.json()["items"][0]["facilityCode"].split("-")[2])
+            dewar_number = 1000 if last_dewar < 1000 else last_dewar + 1
+
+        new_code = f"{DEWAR_PREFIX}{dewar_number:04}"
+
+        proposal_reference = inner_db.session.scalar(
+            select(func.concat(Shipment.proposalCode, Shipment.proposalNumber)).filter(Shipment.id == shipmentId)
+        )
+
+        ext_resp = ExternalRequest.request(
+            token,
+            method="POST",
+            url=f"/proposals/{proposal_reference}/dewar-registry",
+            json={"facilityCode": new_code},
+        )
+
+        if ext_resp.status_code != 201:
+            app_logger.warning(
+                "Error from Expeye while creating dewar registry entry with code %s: %s",
+                new_code,
+                ext_resp.text,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_424_FAILED_DEPENDENCY,
+                detail="Invalid response while creating top level container in ISPyB",
+            )
+
+        params.code = new_code
 
     if not params.name:
         params.name = params.code
