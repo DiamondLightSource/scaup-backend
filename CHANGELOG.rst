@@ -17,7 +17,7 @@ v0.9.0 (28/01/2025)
 
 **Fixed**
 
-- Display better error messages on internal container 
+- Fix assertion when both barcodes and names are missing in container
 
 +++++++++
 v0.8.0 (28/01/2025)
