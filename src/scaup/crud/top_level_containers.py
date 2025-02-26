@@ -83,7 +83,7 @@ def create_top_level_container(shipmentId: int | None, params: TopLevelContainer
         )
 
         ext_resp = ExternalRequest.request(
-            token,
+            Config.ispyb_api.jwt,
             method="POST",
             url=f"/proposals/{proposal_reference}/dewar-registry",
             json={"facilityCode": new_code},
