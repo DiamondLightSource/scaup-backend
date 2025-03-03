@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Sequence
 
 import qrcode
@@ -84,7 +84,9 @@ class TrackingLabelPages(FPDF):
             self.image(img, x=74, y=offset, h=60, w=60)
             self.set_y(55 + offset)
 
-            with self.table(borders_layout="HORIZONTAL_LINES", headings_style=headings_style) as pdf_table:
+            with self.table(
+                borders_layout="HORIZONTAL_LINES", headings_style=headings_style
+            ) as pdf_table:
                 for row in table:
                     pdf_row = pdf_table.row()
                     for i, datum in enumerate(row):
@@ -122,7 +124,9 @@ def get_shipping_labels(shipment_id: int, token: str):
     # Microauth should have already checked that the session exists
     assert "beamLineName" in current_session
 
-    pdf = TrackingLabelPages(current_session["beamLineName"], current_session["beamLineOperator"])
+    pdf = TrackingLabelPages(
+        current_session["beamLineName"], current_session["beamLineOperator"]
+    )
     for dewar in data:
         pdf.add_dewar(dewar)
 
@@ -130,27 +134,41 @@ def get_shipping_labels(shipment_id: int, token: str):
 
 
 class ReportPDF(FPDF):
-    def __init__(self):
+    def __init__(self, shipment: Shipment):
         super().__init__(orientation="landscape")
+        self.shipment = shipment
         self.add_font(fname=DEJAVU_SANS)
         self.add_font(fname=DEJAVU_SANS_BOLD, family="dejavusans", style="B")
         self.set_font("DejaVuSans", size=10)
 
     def header(self):
+        self.set_font("DejaVuSans", style="B", size=18)
+        self.cell(
+            text=(
+                f"{self.shipment.name} ({self.shipment.proposalCode}{self.shipment.proposalNumber}"
+                + f"-{self.shipment.visitNumber})"
+            ),
+            w=0,
+        )
         self.image(DIAMOND_LOGO, x="R", y=7, h=12)
         self.line(y1=20, y2=21, x1=5, x2=self.w - 5)
         self.ln(21)
+
+    def footer(self):
+        self.set_xy(5, -8)
+        self.cell(text=f"Printed on {datetime.now().strftime("%d/%m/%Y %H:%M")}")
 
     def add_table(
         self,
         table_contents: Sequence[tuple[str, ...]],
         width: int = 100,
         caption: str = "Table",
+        col_widths: tuple | None = None
     ):
         self.set_font("DejaVuSans", style="B", size=10)
         self.cell(w=width, text=caption, new_x="START", new_y="NEXT", h=10.5)
-        self.set_font("DejaVuSans", style="", size=10)
-        with self.table(width=width, first_row_as_headings=False, align="L") as table:
+        self.set_font("DejaVuSans", style="", size=9)
+        with self.table(width=width, first_row_as_headings=False, align="L", col_widths=col_widths) as table:
             for data_row in table_contents:
                 row = table.row()
                 for datum in data_row:
@@ -158,7 +176,9 @@ class ReportPDF(FPDF):
 
 
 def generate_report(shipment_id: int, token: str):
-    shipment = inner_db.session.scalar(select(Shipment).filter(Shipment.id == shipment_id))
+    shipment = inner_db.session.scalar(
+        select(Shipment).filter(Shipment.id == shipment_id)
+    )
 
     expeye_response = ExternalRequest.request(
         token=token,
@@ -174,10 +194,6 @@ def generate_report(shipment_id: int, token: str):
     ispyb_session = expeye_response.json()
 
     session_table = [
-        (
-            "Reference",
-            f"{shipment.proposalCode}{shipment.proposalNumber}-{shipment.visitNumber}",
-        ),
         ("Start Date", ispyb_session["startDate"]),
         ("End Date", ispyb_session["endDate"]),
         ("Local Contact", ispyb_session["beamLineOperator"]),
@@ -191,11 +207,12 @@ def generate_report(shipment_id: int, token: str):
         .join(Sample.container)
         .filter(Sample.shipmentId == shipment_id)
         .options(contains_eager(Sample.container))
+        .order_by(Sample.container, Sample.location)
     )
 
     # TODO: rethink this once we're using user-provided templates
     grids_table = [
-        ("Gridbox", "Position", "Foil", "Hole", "Autoloader Slot", "Comments"),
+        ("Gridbox", "Position", "Autoloader Slot", "Foil", "Hole", "Comments"),
         *[("",) * 6] * 12,
     ]
 
@@ -207,14 +224,16 @@ def generate_report(shipment_id: int, token: str):
         grids_table[current_row] = (
             str(grid.container.name),
             str(grid.location),
+            str(grid.subLocation),
             str(grid.details["foil"]),
             str(grid.details["hole"]),
-            str(grid.subLocation),
             str(grid.comments),
         )
         current_row += 1
 
-    pre_session = inner_db.session.scalar(select(PreSession).filter(PreSession.shipmentId == shipment_id))
+    pre_session = inner_db.session.scalar(
+        select(PreSession).filter(PreSession.shipmentId == shipment_id)
+    )
 
     if pre_session is None:
         raise HTTPException(
@@ -223,23 +242,27 @@ def generate_report(shipment_id: int, token: str):
         )
 
     # TODO: rethink this once we're using user-provided templates
-    pre_session_table = [(pascal_to_title(key), _add_unit(key, value)) for key, value in pre_session.details.items()]
+    pre_session_table = [
+        (pascal_to_title(key), _add_unit(key, value))
+        for key, value in pre_session.details.items()
+    ]
 
-    pdf = ReportPDF()
+    pdf = ReportPDF(shipment)
     pdf.add_page()
 
-    pdf.set_xy(x=5, y=25)
+    pdf.set_xy(x=5, y=20)
     pdf.add_table(session_table, width=100, caption="Session")
 
-    pdf.set_xy(x=110, y=25)
-    pdf.add_table(grids_table, width=182, caption="Grids")
+    pdf.set_xy(x=110, y=20)
+    pdf.add_table(grids_table, width=182, caption="Grids", col_widths=(2,1,2,3,1,2))
 
-    pdf.set_xy(x=5, y=90)
+    pdf.set_xy(x=5, y=70)
     pdf.add_table(pre_session_table, width=100, caption="Data Collection Parameters")
 
     headers = {
         "Content-Disposition": (
-            "inline;" + 'filename="report-{shipment.proposalCode}{shipment.proposalNumber}-{shipment.visitNumber}.pdf"'
+            "inline;"
+            + f'filename="report-{shipment.proposalCode}{shipment.proposalNumber}-{shipment.visitNumber}.pdf"'
         )
     }
     return Response(
