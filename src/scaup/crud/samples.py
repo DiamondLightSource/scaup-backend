@@ -1,6 +1,7 @@
 import re
 
 from fastapi import HTTPException, status
+from lims_utils.logging import app_logger
 from lims_utils.models import Paged, ProposalReference
 from sqlalchemy import and_, func, insert, select
 
@@ -119,13 +120,21 @@ def get_samples(
     ext_samples = ExternalRequest.request(token, method="GET", url=f"/shipments/{ext_shipment_id}/samples")
 
     if ext_samples.status_code != 200:
+        app_logger.warning("Expeye returned %i: %s", ext_samples.status_code, ext_samples.text)
         return samples
 
     for ext_sample in ext_samples.json()["items"]:
         if ext_sample["dataCollectionGroupId"]:
-            for i, sample in enumerate(samples.items):
+            try:
+                i, sample = next(
+                    (i, sample)
+                    for i, sample in enumerate(samples.items)
+                    if sample.externalId == ext_sample["blSampleId"]
+                )
                 new_sample = SampleOut.model_validate(sample, from_attributes=True)
                 new_sample.dataCollectionGroupId = ext_sample["dataCollectionGroupId"]
                 samples.items[i] = new_sample
+            except StopIteration:
+                pass
 
     return samples
