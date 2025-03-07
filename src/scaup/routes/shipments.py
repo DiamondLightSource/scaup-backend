@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Body, Depends, Response, status
+from fastapi import APIRouter, Body, Depends, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials
 from lims_utils.models import Paged, pagination
@@ -178,12 +178,7 @@ def create_pre_session(
 )
 def get_shipping_labels(shipmentId=Depends(auth), token: HTTPAuthorizationCredentials = Depends(auth_scheme)):
     """Get shipping labels for dewar"""
-    headers = {"Content-Disposition": 'inline; filename="labels.pdf"'}
-    return Response(
-        bytes(pdf_crud.get_shipping_labels(shipmentId, token.credentials)),
-        headers=headers,
-        media_type="application/pdf",
-    )
+    return pdf_crud.get_shipping_labels(shipmentId, token.credentials)
 
 
 @router.post(

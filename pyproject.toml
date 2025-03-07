@@ -20,7 +20,7 @@ dependencies = [
     "pydantic~=2.10.5",
     "uvicorn~=0.34.0", 
     "types-requests",
-    "lims_utils~=0.2.6",
+    "lims_utils~=0.4.2",
     "requests",
     "fpdf2~=2.8.2",
     "qrcode~=8.0.0",
