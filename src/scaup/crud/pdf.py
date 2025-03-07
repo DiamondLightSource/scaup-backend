@@ -1,12 +1,20 @@
 from datetime import date, datetime
-from typing import Sequence
+from typing import List, Sequence
 
 import qrcode
 from fastapi import HTTPException, Response, status
 from fpdf import FPDF
 from fpdf.fonts import FontFace
+from lims_utils.logging import app_logger
 from sqlalchemy import Row, select
 from sqlalchemy.orm import contains_eager
+
+from scaup.assets.text import (
+    LABEL_INSTRUCTIONS_STEP_1,
+    LABEL_INSTRUCTIONS_STEP_2,
+    LABEL_INSTRUCTIONS_STEP_3,
+    LABEL_INSTRUCTIONS_STEP_4,
+)
 
 from ..assets.paths import (
     CUT_HERE,
@@ -21,6 +29,7 @@ from ..models.inner_db.tables import (
     Shipment,
     TopLevelContainer,
 )
+from ..utils.config import Config
 from ..utils.database import inner_db
 from ..utils.external import ExternalRequest
 from ..utils.generic import pascal_to_title
@@ -46,12 +55,90 @@ def _add_unit(key: str, val: str | bool | int | float):
     return new_val
 
 
+class ConsigneeAddress(object):
+    """This is a class to provide a global cache for the consignee address, to prevent hitting the shipping service
+    with too many redundant requests."""
+
+    def __init__(self, consignee_cache: Sequence[str] | None = None):
+        self._consignee_cache = consignee_cache
+
+    def __call__(self, shipment_id: int, token: str):
+        """Get consignee address from shipment service using shipment ID.
+        Caching shouldn't be a problem unless the facility changes address/phone no./post code whilst the app
+        proccess is alive.
+
+        Args:
+            shipment_id: shipment ID to get consignee for
+            token: authentication token
+
+        Returns:
+            Address of consignee"""
+        if self._consignee_cache:
+            return self._consignee_cache
+
+        consignee_response = ExternalRequest.request(
+            base_url=Config.shipping_service.url,
+            token=token,
+            method="GET",
+            url=f"/api/shipments/{shipment_id}",
+        )
+
+        if consignee_response.status_code != 200:
+            app_logger.error(
+                "Failed to get consignee address for shipment %i with code %i: %s",
+                shipment_id,
+                consignee_response.status_code,
+                consignee_response.text,
+            )
+            # It should not be possible for a shipment to have a "from" address and no "to" address
+            # so for any given shipment request ID, it must return a valid consignee address
+            raise HTTPException(
+                status_code=status.HTTP_424_FAILED_DEPENDENCY,
+                detail="Failed to get consignee address from shipping service",
+            )
+
+        to_lines = [v for k, v in consignee_response.json().items() if k.startswith("consignee_") and type(v) is str]
+
+        return to_lines
+
+
+_get_consignee_address = ConsigneeAddress([])
+
+
 class TrackingLabelPages(FPDF):
-    def __init__(self, location: str, local_contact: str):
+    def __init__(
+        self,
+        location: str,
+        local_contact: str,
+        from_lines: List[str] | None = None,
+        to_lines: List[str] | None = None,
+    ):
         super().__init__()
         self.set_font("helvetica", size=14)
         self.location = location
         self.local_contact = local_contact
+        self.from_lines = from_lines
+        self.to_lines = to_lines
+
+    def add_instruction_title(self, text: str):
+        self.set_font("helvetica", size=26, style="B")
+        self.cell(
+            w=0,
+            text=text,
+            new_x="LMARGIN",
+            new_y="NEXT",
+            h=26,
+        )
+
+    def add_instruction_text(self, text: str):
+        self.set_font("helvetica", size=14)
+        self.multi_cell(
+            w=0,
+            h=8,
+            text=text,
+            new_x="LMARGIN",
+            new_y="NEXT",
+        )
 
     def add_dewar(self, dewar: Row):
         if dewar.barCode is None or dewar.externalId is None:
@@ -76,13 +163,85 @@ class TrackingLabelPages(FPDF):
         )
 
         self.add_page()
-        self.image(CUT_HERE, x="L", y=140, w=194)
 
-        for offset in [10, 155]:
+        # Label instructions
+        self.image(DIAMOND_LOGO, x="L", y=7, h=15)
+        self.set_font("helvetica", size=26, style="B")
+        self.cell(align="R", w=0, text="Instructions", h=15, new_x="LMARGIN")
+
+        self.set_y(30)
+
+        self.add_instruction_title("1. Affix to dewar")
+        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_1)
+
+        self.add_instruction_title("2. Affix to dewar case")
+        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_2)
+
+        self.add_instruction_title("3. Affix airway bill to dewar case")
+        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_3)
+
+        self.add_instruction_title("4. Request return at the end of your session")
+        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_4)
+
+        if self.from_lines is None:
+            self.add_page()
+            self.image(CUT_HERE, x="L", y=140, w=194)
+
+        # If we don't have an address, display both labels in a single page
+        offset_values = [10, 145] if self.from_lines is None else [10, 10]
+
+        # Tracking labels
+        for i, offset in enumerate(offset_values):
+            if self.from_lines is not None and self.to_lines is not None:
+                l_col_size = (self.epw) / 2
+
+                self.add_page()
+                self.set_y(135)
+
+                self.set_font("helvetica", size=14, style="B")
+
+                self.cell(
+                    w=l_col_size,
+                    text="User Laboratory",
+                    new_x="RIGHT",
+                    new_y="TOP",
+                    h=14,
+                )
+                self.cell(
+                    w=l_col_size,
+                    text="Experimental Facility",
+                    new_x="LMARGIN",
+                    new_y="NEXT",
+                    h=14,
+                )
+
+                self.set_font("helvetica", size=12)
+
+                # Address lines
+                self.multi_cell(
+                    w=l_col_size,
+                    padding=4,
+                    border="R",
+                    h=8,
+                    new_x="RIGHT",
+                    new_y="TOP",
+                    text="\n".join(self.from_lines),
+                )
+                self.multi_cell(
+                    w=l_col_size,
+                    padding=4,
+                    h=8,
+                    new_x="LEFT",
+                    new_y="NEXT",
+                    text="\n".join(self.to_lines),
+                )
+
             self.image(DIAMOND_LOGO, x="L", y=7 + offset, h=15)
             self.image(THIS_SIDE_UP, x="R", y=7 + offset, w=30)
-            self.image(img, x=74, y=offset, h=60, w=60)
-            self.set_y(55 + offset)
+            self.image(img, x=(self.w - 60) / 2, y=offset, h=60, w=60)
+            self.set_y(y=58 + offset)
+            self.cell(w=0, text=str(dewar.barCode), align="C")
+            self.set_y(65 + offset)
 
             with self.table(
                 borders_layout="HORIZONTAL_LINES", headings_style=headings_style
@@ -103,6 +262,7 @@ def get_shipping_labels(shipment_id: int, token: str):
             Shipment.proposalCode,
             Shipment.proposalNumber,
             Shipment.visitNumber,
+            Shipment.shipmentRequest,
         )
         .filter(Shipment.id == shipment_id)
         .join(TopLevelContainer)
@@ -124,13 +284,45 @@ def get_shipping_labels(shipment_id: int, token: str):
     # Microauth should have already checked that the session exists
     assert "beamLineName" in current_session
 
+    from_lines: List[str] | None = None
+    to_lines: List[str] | None = None
+
+    if data[0].shipmentRequest is not None:
+        response = ExternalRequest.request(
+            base_url=Config.shipping_service.url,
+            token=token,
+            method="GET",
+            url=f"/api/shipment_requests/{data[0].shipmentRequest}/shipments/TO_FACILITY",
+        )
+
+        if response.status_code == 200:
+            shipment_request = response.json()
+
+            from_lines = [line for line in shipment_request["contact"].values() if line is not None]
+
+            to_lines = _get_consignee_address(shipment_request["shipmentId"], token)
+
     pdf = TrackingLabelPages(
-        current_session["beamLineName"], current_session["beamLineOperator"]
+        current_session["beamLineName"],
+        current_session["beamLineOperator"],
+        from_lines,
+        to_lines,
     )
     for dewar in data:
         pdf.add_dewar(dewar)
 
-    return pdf.output()
+    headers = {
+        "Content-Disposition": (
+            "inline;"
+            + 'filename="'
+            + f'labels-{data[0].proposalCode}{data[0].proposalNumber}-{data[0].visitNumber}-{data[0].name}.pdf"'
+        )
+    }
+    return Response(
+        bytes(pdf.output()),
+        headers=headers,
+        media_type="application/pdf",
+    )
 
 
 class ReportPDF(FPDF):

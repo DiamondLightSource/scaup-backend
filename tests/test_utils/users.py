@@ -7,6 +7,7 @@ admin = GenericUser(
     familyName="bar",
     title="Mr.",
     givenName="foo",
+    email="test@diamond.ac.uk",
 )
 
 em_admin = GenericUser(
@@ -16,13 +17,9 @@ em_admin = GenericUser(
     familyName="bar",
     title="Mr.",
     givenName="foo",
+    email="test@diamond.ac.uk",
 )
 
 user = GenericUser(
-    permissions=[],
-    fedid="foo",
-    id="foo",
-    familyName="bar",
-    title="Mr.",
-    givenName="foo",
+    permissions=[], fedid="foo", id="foo", familyName="bar", title="Mr.", givenName="foo", email="test@diamond.ac.uk"
 )
