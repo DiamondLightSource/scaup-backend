@@ -49,7 +49,7 @@ def _get_user(token: str):
             "fedid": app_id,
             "familyName": "",
             "permissions": user.get("permissions"),
-            "email": ""
+            "email": "",
         }
 
 
