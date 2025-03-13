@@ -138,7 +138,7 @@ def get_samples(
                 i, sample = next(
                     (i, sample)
                     for i, sample in enumerate(samples.items)
-                    if sample.externalId == ext_sample["blSampleId"]
+                    if sample.Sample.externalId == ext_sample["blSampleId"]
                 )
                 new_sample = SampleOut.model_validate(sample, from_attributes=True)
                 new_sample.dataCollectionGroupId = ext_sample["dataCollectionGroupId"]
