@@ -1,8 +1,9 @@
 from fastapi import HTTPException, status
 from lims_utils.models import ProposalReference
 from sqlalchemy import func, insert, select, update
+from sqlalchemy.orm import aliased
 
-from ..models.containers import ContainerIn, OptionalContainer
+from ..models.containers import ContainerIn, ContainerOut, OptionalContainer
 from ..models.inner_db.tables import Container, Sample, Shipment
 from ..utils.crud import assert_not_booked, edit_item
 from ..utils.database import inner_db, paginate
@@ -25,7 +26,36 @@ def create_container(params: ContainerIn, shipmentId: int | None = None):
 
 
 def get_container(container_id: int):
-    return inner_db.session.scalar(select(Container).filter(Container.id == container_id))
+    container = inner_db.session.scalar(select(Container).filter(Container.id == container_id))
+    validated_container = ContainerOut.model_validate(container)
+
+    # Internal containers are not in storage dewars/containers, but instead in transport containers.
+    # This means that their "parent" top level sample collection is a shipment, not a storage dewar.
+    if not validated_container.isInternal:
+        return validated_container
+
+    # Anchoring to parent member, to avoid one extra recursion layer
+    anchor_member = (
+        select(Container.parentId, Container.topLevelContainerId)
+        .filter(Container.id == validated_container.parentId)
+        .cte(name="anchor_member", recursive=True)
+    )
+
+    anchor_member_alias = anchor_member.alias("anchor_member_alias")
+    container_alias = aliased(Container)
+
+    anchor_member = anchor_member.union_all(
+        select(container_alias.parentId, container_alias.topLevelContainerId)
+        .filter(container_alias.id == anchor_member_alias.c.parentId)
+        .filter(anchor_member_alias.c.topLevelContainerId.is_(None))
+    )
+
+    tlc_id = inner_db.session.scalar(
+        select(anchor_member.c.topLevelContainerId).filter(anchor_member.c.topLevelContainerId.is_not(None))
+    )
+
+    validated_container.internalStorageContainer = tlc_id
+    return validated_container
 
 
 def get_containers(
