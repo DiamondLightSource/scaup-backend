@@ -1,7 +1,7 @@
 import responses
 from sqlalchemy import select
 
-from scaup.models.inner_db.tables import Sample
+from scaup.models.inner_db.tables import Sample, SampleParentChild
 from scaup.utils.config import Config
 from scaup.utils.database import inner_db
 
@@ -137,3 +137,30 @@ def test_duplicated_prefix(client):
 
     assert resp.status_code == 201
     assert resp.json()["items"][0]["name"] == "Protein_01_test"
+
+
+@responses.activate
+def test_parent(client):
+    """Should create entry in SampleParentChild if parents are declared"""
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"containerId": 4, "subLocation": 1, "proteinId": 4407, "parents": [561]},
+    )
+
+    assert resp.status_code == 201
+    created_id = resp.json()["items"][0]["id"]
+    new_child_id = inner_db.session.scalar(select(SampleParentChild.childId).filter(SampleParentChild.parentId == 561))
+    assert new_child_id == created_id
+
+
+@responses.activate
+def test_invalid_parent(client):
+    """Should return error if invalid sample parent is provided"""
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"containerId": 4, "proteinId": 4407, "parents": [0]},
+    )
+
+    assert resp.status_code == 404

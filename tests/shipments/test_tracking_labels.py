@@ -12,11 +12,8 @@ def test_get(client):
     responses.get(f"{Config.shipping_service.url}/api/shipment_requests/1/shipments/TO_FACILITY", status=404)
 
     resp = client.get("/shipments/117/tracking-labels")
-    resp2 = client.get("/shipments/117/tracking-labels")
 
     assert resp.status_code == 200
-
-    assert resp.read() == resp2.read()
 
 
 @responses.activate

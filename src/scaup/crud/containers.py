@@ -24,6 +24,10 @@ def create_container(params: ContainerIn, shipmentId: int | None = None):
     return container
 
 
+def get_container(container_id: int):
+    return inner_db.session.scalar(select(Container).filter(Container.id == container_id))
+
+
 def get_containers(
     limit: int,
     page: int,

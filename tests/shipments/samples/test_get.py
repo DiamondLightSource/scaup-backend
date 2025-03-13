@@ -82,4 +82,30 @@ def test_get_with_parent(client):
 
     data = resp.json()
 
-    assert data["items"][0]["parent"] == "Grid_Box_01"
+    assert data["items"][0]["containerName"] == "Grid_Box_01"
+
+
+def test_get_with_parent_sample(client):
+    """Should get samples, samples should include parent samples"""
+
+    resp = client.get(
+        "/shipments/229/samples",
+    )
+
+    assert resp.status_code == 200
+
+    data = resp.json()
+    assert data["items"][0]["originSamples"][0]["id"] == 612
+
+
+def test_get_with_child_samples(client):
+    """Should get samples, samples should include child samples"""
+
+    resp = client.get(
+        "/shipments/117/samples",
+    )
+
+    assert resp.status_code == 200
+
+    data = resp.json()
+    assert data["items"][1]["derivedSamples"][0]["id"] == 1877

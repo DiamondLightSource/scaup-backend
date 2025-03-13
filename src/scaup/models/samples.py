@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Any, List, Optional
 
 from pydantic import AliasChoices, AliasPath, BaseModel, Field
@@ -5,18 +6,22 @@ from pydantic import AliasChoices, AliasPath, BaseModel, Field
 from ..utils.models import BaseExternal, BaseModelWithNameValidator
 
 
+@dataclass(slots=True)
+class InnerAlias(AliasChoices):
+    def __init__(self, column: str) -> None:
+        self.choices = [column, AliasPath("Sample", column)]
+
+
 class BaseSample(BaseModelWithNameValidator):
-    containerId: Optional[int] = None
-    location: Optional[int] = None
-    subLocation: Optional[int] = None
-    details: Optional[dict[str, Any]] = None
-    comments: Optional[str] = None
+    containerId: Optional[int] = Field(None, validation_alias=InnerAlias("containerId"))
+    location: Optional[int] = Field(None, validation_alias=InnerAlias("location"))
+    subLocation: Optional[int] = Field(None, validation_alias=InnerAlias("subLocation"))
+    details: Optional[dict[str, Any]] = Field(None, validation_alias=InnerAlias("details"))
+    comments: Optional[str] = Field(None, validation_alias=InnerAlias("comments"))
     name: Optional[str] = Field(
         default=None,
-        description=(
-            "Sample name, if not provided, the provided protein's name followed by the sample index is used"
-        ),
-        validation_alias=AliasChoices("name", AliasPath("Sample", "name"))
+        description=("Sample name, if not provided, the provided protein's name followed by the sample index is used"),
+        validation_alias=InnerAlias("name"),
     )
 
 
@@ -34,20 +39,18 @@ class OptionalSample(BaseSample):
 
 
 class SampleOut(BaseSample):
-    id: int = Field(
-        validation_alias=AliasChoices("sampleId", "id", AliasPath("Sample", "id"))
-    )
-    shipmentId: int = Field(validation_alias=AliasChoices("shipmentId", (AliasPath("Sample", "shipmentId"))))
-    proteinId: int = Field(validation_alias=AliasChoices("proteinId", AliasPath("Sample", "proteinId")))
-    parent: Optional[str] = None
-    type: str = Field(validation_alias=AliasChoices("type", AliasPath("Sample", "type")))
+    id: int = Field(validation_alias=AliasChoices("sampleId", "id", AliasPath("Sample", "id")))
+    shipmentId: int = Field(validation_alias=InnerAlias("shipmentId"))
+    proteinId: int = Field(validation_alias=InnerAlias("proteinId"))
+    containerName: Optional[str] = None
+    type: str = Field(validation_alias=InnerAlias("type"))
     dataCollectionGroupId: Optional[int] = None
     parentShipmentName: Optional[str] = None
-    parents: Optional[List["SampleOut"]] = Field(
-        default=None, validation_alias=AliasPath("Sample", "parents")
+    originSamples: Optional[List["SampleOut"]] = Field(
+        default=None, validation_alias=AliasPath("Sample", "originSamples")
     )
-    children: Optional[List["SampleOut"]] = Field(
-        default=None, validation_alias=AliasPath("Sample", "children")
+    derivedSamples: Optional[List["SampleOut"]] = Field(
+        default=None, validation_alias=AliasPath("Sample", "derivedSamples")
     )
 
 

@@ -103,13 +103,20 @@ class Container(Base, BaseColumns):
 
 class SampleParentChild(Base):
     """Determines relationships between parent samples and the samples that were derived from them"""
-    __tablename__ = "SampleParentChild"
-    __table_args__ = (
-        PrimaryKeyConstraint("parentId", "childId", name="parent_child_pk"),
-    )
 
-    parentId: Mapped[int] = mapped_column(ForeignKey("Sample.sampleId"), comment="Sample(s) from which the child(ren) was derived from", index=True)
-    childId: Mapped[int] = mapped_column(ForeignKey("Sample.sampleId"), comment="Sample(s) derived from parent(s)", index=True)
+    __tablename__ = "SampleParentChild"
+    __table_args__ = (PrimaryKeyConstraint("parentId", "childId", name="parent_child_pk"),)
+
+    parentId: Mapped[int] = mapped_column(
+        ForeignKey("Sample.sampleId"),
+        comment="Sample(s) from which the child(ren) was derived from",
+        index=True,
+    )
+    childId: Mapped[int] = mapped_column(
+        ForeignKey("Sample.sampleId"),
+        comment="Sample(s) derived from parent(s)",
+        index=True,
+    )
     creationDate: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -138,21 +145,22 @@ class Sample(Base, BaseColumns):
     )
     container: Mapped[Optional["Container"]] = relationship(back_populates="samples")
 
-    parents: Mapped[List["Sample"] | None] = relationship(
+    originSamples: Mapped[List["Sample"] | None] = relationship(
         "Sample",
         secondary=SampleParentChild.__table__,
         primaryjoin=id == SampleParentChild.childId,
         secondaryjoin=id == SampleParentChild.parentId,
-        back_populates="children"
+        back_populates="derivedSamples",
     )
 
-    children: Mapped[List["Sample"] | None] = relationship(
+    derivedSamples: Mapped[List["Sample"] | None] = relationship(
         "Sample",
         secondary=SampleParentChild.__table__,
         primaryjoin=id == SampleParentChild.parentId,
         secondaryjoin=id == SampleParentChild.childId,
-        back_populates="parents"
+        back_populates="originSamples",
     )
+
 
 class PreSession(Base):
     __tablename__ = "PreSession"
@@ -160,7 +168,6 @@ class PreSession(Base):
     id: Mapped[int] = mapped_column("preSessionId", primary_key=True, index=True)
     shipmentId: Mapped[int] = mapped_column(ForeignKey("Shipment.shipmentId"), index=True, unique=True)
     details: Mapped[dict[str, Any] | None] = mapped_column(JSON, comment="Generic additional details")
-
 
 
 AvailableTable = Sample | Container | TopLevelContainer | Shipment

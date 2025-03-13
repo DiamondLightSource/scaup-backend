@@ -1,8 +1,8 @@
 """Add sample parent/child relationship
 
-Revision ID: 93971770883b
+Revision ID: 297144dfe234
 Revises: 7325165750bc
-Create Date: 2025-03-05 15:48:15.041656
+Create Date: 2025-03-13 11:02:07.757527
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '93971770883b'
+revision: str = '297144dfe234'
 down_revision: Union[str, None] = '7325165750bc'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

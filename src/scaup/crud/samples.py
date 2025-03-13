@@ -7,17 +7,15 @@ from sqlalchemy import and_, func, insert, select
 
 from ..models.inner_db.tables import Container, Sample, SampleParentChild, Shipment
 from ..models.samples import OptionalSample, SampleIn, SampleOut
+from ..utils.config import Config
 from ..utils.crud import assert_not_booked, edit_item
 from ..utils.database import inner_db, paginate
 from ..utils.external import ExternalRequest
 from ..utils.session import retry_if_exists
-from ..utils.config import Config
 
 
 def _get_protein(proteinId: int, token):
-    upstream_compound = ExternalRequest.request(
-        token=token, url=f"/proteins/{proteinId}"
-    )
+    upstream_compound = ExternalRequest.request(token=token, url=f"/proteins/{proteinId}")
 
     if upstream_compound.status_code != 200:
         raise HTTPException(
@@ -37,9 +35,7 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
     clean_name = re.sub(r"[^a-zA-Z0-9_]", "", clean_name)
 
     if not (params.name):
-        sample_count = inner_db.session.scalar(
-            select(func.count(Sample.id)).filter(Sample.shipmentId == shipmentId)
-        )
+        sample_count = inner_db.session.scalar(select(func.count(Sample.id)).filter(Sample.shipmentId == shipmentId))
         params.name = f"{clean_name}_{(sample_count or 0) + 1}"
     else:
         # Prefix with compound name regardless
@@ -61,11 +57,7 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
     if params.parents:
         inner_db.session.execute(
             insert(SampleParentChild),
-            [
-                {"childId": child.id, "parentId": parent}
-                for child in samples
-                for parent in params.parents
-            ],
+            [{"childId": child.id, "parentId": parent} for child in samples for parent in params.parents],
         )
 
     inner_db.session.commit()
@@ -93,7 +85,7 @@ def get_samples(
     query = (
         select(
             Sample,
-            Container.name.label("parent"),
+            Container.name.label("containerName"),
             Shipment.name.label("parentShipmentName"),
         )
         .select_from(Shipment)
@@ -127,9 +119,7 @@ def get_samples(
     if ignore_external or token is None:
         return samples
 
-    ext_shipment_id = inner_db.session.scalar(
-        select(Shipment.externalId).filter(Shipment.id == shipment_id)
-    )
+    ext_shipment_id = inner_db.session.scalar(select(Shipment.externalId).filter(Shipment.id == shipment_id))
 
     if ext_shipment_id is None:
         return samples
