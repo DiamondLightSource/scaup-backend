@@ -24,7 +24,7 @@ def test_get_external(client):
     responses.get(
         f"{Config.ispyb_api.url}/shipments/256/samples",
         status=200,
-        json={"items": [{"dataCollectionGroupId": 1}]},
+        json={"items": [{"dataCollectionGroupId": 1, "blSampleId": 10}]},
     )
 
     resp = client.get(
@@ -37,6 +37,27 @@ def test_get_external(client):
 
     assert len(data["items"]) == 1
     assert data["items"][0]["dataCollectionGroupId"] == 1
+
+
+@responses.activate
+def test_get_external_id_mismatch(client):
+    """Should not assign data collection group ID to sample if sample ID is a mismatch"""
+    responses.get(
+        f"{Config.ispyb_api.url}/shipments/256/samples",
+        status=200,
+        json={"items": [{"dataCollectionGroupId": 1, "blSampleId": 99999}]},
+    )
+
+    resp = client.get(
+        "/shipments/89/samples?ignoreExternal=false",
+    )
+
+    assert resp.status_code == 200
+
+    data = resp.json()
+
+    assert len(data["items"]) == 1
+    assert data["items"][0]["dataCollectionGroupId"] is None
 
 
 @responses.activate

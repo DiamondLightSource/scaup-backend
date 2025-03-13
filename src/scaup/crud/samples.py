@@ -134,9 +134,16 @@ def get_samples(
 
     for ext_sample in ext_samples.json()["items"]:
         if ext_sample["dataCollectionGroupId"]:
-            for i, sample in enumerate(samples.items):
+            try:
+                i, sample = next(
+                    (i, sample)
+                    for i, sample in enumerate(samples.items)
+                    if sample.externalId == ext_sample["blSampleId"]
+                )
                 new_sample = SampleOut.model_validate(sample, from_attributes=True)
                 new_sample.dataCollectionGroupId = ext_sample["dataCollectionGroupId"]
                 samples.items[i] = new_sample
+            except StopIteration:
+                pass
 
     return samples
