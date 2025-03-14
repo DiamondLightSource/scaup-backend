@@ -52,6 +52,9 @@ class SampleOut(BaseSample):
     derivedSamples: Optional[List["SampleOut"]] = Field(
         default=None, validation_alias=AliasPath("Sample", "derivedSamples")
     )
+    externalId: Optional[int] = Field(
+        default=None, validation_alias=InnerAlias("externalId")
+    )
 
 
 class SampleExternal(BaseExternal):

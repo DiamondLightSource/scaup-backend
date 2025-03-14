@@ -15,7 +15,9 @@ from ..utils.session import retry_if_exists
 
 
 def _get_protein(proteinId: int, token):
-    upstream_compound = ExternalRequest.request(token=token, url=f"/proteins/{proteinId}")
+    upstream_compound = ExternalRequest.request(
+        token=token, url=f"/proteins/{proteinId}"
+    )
 
     if upstream_compound.status_code != 200:
         raise HTTPException(
@@ -35,7 +37,9 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
     clean_name = re.sub(r"[^a-zA-Z0-9_]", "", clean_name)
 
     if not (params.name):
-        sample_count = inner_db.session.scalar(select(func.count(Sample.id)).filter(Sample.shipmentId == shipmentId))
+        sample_count = inner_db.session.scalar(
+            select(func.count(Sample.id)).filter(Sample.shipmentId == shipmentId)
+        )
         params.name = f"{clean_name}_{(sample_count or 0) + 1}"
     else:
         # Prefix with compound name regardless
@@ -57,7 +61,11 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
     if params.parents:
         inner_db.session.execute(
             insert(SampleParentChild),
-            [{"childId": child.id, "parentId": parent} for child in samples for parent in params.parents],
+            [
+                {"childId": child.id, "parentId": parent}
+                for child in samples
+                for parent in params.parents
+            ],
         )
 
     inner_db.session.commit()
@@ -119,7 +127,9 @@ def get_samples(
     if ignore_external or token is None:
         return samples
 
-    ext_shipment_id = inner_db.session.scalar(select(Shipment.externalId).filter(Shipment.id == shipment_id))
+    ext_shipment_id = inner_db.session.scalar(
+        select(Shipment.externalId).filter(Shipment.id == shipment_id)
+    )
 
     if ext_shipment_id is None:
         return samples
@@ -129,21 +139,25 @@ def get_samples(
     )
 
     if ext_samples.status_code != 200:
-        app_logger.warning("Expeye returned %i: %s", ext_samples.status_code, ext_samples.text)
+        app_logger.warning(
+            "Expeye returned %i: %s", ext_samples.status_code, ext_samples.text
+        )
         return samples
+
+    validated_samples = Paged[SampleOut].model_validate(samples, from_attributes=True)
 
     for ext_sample in ext_samples.json()["items"]:
         if ext_sample["dataCollectionGroupId"]:
             try:
-                i, sample = next(
-                    (i, sample)
-                    for i, sample in enumerate(samples.items)
-                    if sample.Sample.externalId == ext_sample["blSampleId"]
+                i = next(
+                    i
+                    for i, sample in enumerate(validated_samples.items)
+                    if sample.externalId == ext_sample["blSampleId"]
                 )
-                new_sample = SampleOut.model_validate(sample, from_attributes=True)
-                new_sample.dataCollectionGroupId = ext_sample["dataCollectionGroupId"]
-                samples.items[i] = new_sample
+                validated_samples.items[i].dataCollectionGroupId = ext_sample[
+                    "dataCollectionGroupId"
+                ]
             except StopIteration:
                 pass
 
-    return samples
+    return validated_samples
