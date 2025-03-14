@@ -2,7 +2,7 @@ import re
 
 from fastapi import HTTPException, status
 from lims_utils.models import Paged, ProposalReference
-from sqlalchemy import and_, func, insert, select
+from sqlalchemy import and_, insert, select
 
 from ..models.inner_db.tables import Container, Sample, Shipment
 from ..models.samples import OptionalSample, SampleIn, SampleOut
@@ -31,14 +31,34 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
 
     clean_name = upstream_compound["name"].replace(" ", "_")
     clean_name = re.sub(r"[^a-zA-Z0-9_]", "", clean_name)
+    last_sample = inner_db.session.scalar(
+        select(Sample.name)
+        .filter(Sample.shipmentId == shipmentId, Sample.name.like(clean_name + "%"))
+        .order_by(Sample.id.desc())
+        .limit(1)
+    )
+
+    if last_sample is None:
+        sample_count = 1
+    else:
+        sample_number = last_sample.split("_")[-1]
+        if not sample_number.isdigit():
+            sample_count = 1
+        else:
+            sample_count = int(sample_number) + 1
 
     if not (params.name):
-        sample_count = inner_db.session.scalar(select(func.count(Sample.id)).filter(Sample.shipmentId == shipmentId))
-        params.name = f"{clean_name}_{(sample_count or 0) + 1}"
+        params.name = clean_name
     else:
         # Prefix with compound name regardless
         if not params.name.startswith(clean_name):
             params.name = f"{clean_name}_{params.name}"
+
+    if params.copies and params.copies > 12:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many sample copies requested",
+        )
 
     samples = inner_db.session.scalars(
         insert(Sample).returning(Sample),
@@ -46,7 +66,7 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
             {
                 "shipmentId": shipmentId,
                 **params.model_dump(exclude_unset=True, exclude={"copies"}),
-                "name": f"{params.name}{f'_{i}' if i else ''}",
+                "name": f"{params.name}_{i+sample_count}",
             }
             for i in range(params.copies)
         ],

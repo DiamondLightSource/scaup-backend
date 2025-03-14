@@ -29,7 +29,60 @@ def test_create_no_name(client):
 
     assert resp.status_code == 201
 
-    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein_01_4")) is not None
+    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein_01_1")) is not None
+
+
+@responses.activate
+def test_create_name_with_suffix(client):
+    """Should automatically increment ordinal suffix when item already exists in shipment"""
+
+    client.post(
+        "/shipments/1/samples",
+        json={"proteinId": 4407},
+    )
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"proteinId": 4407},
+    )
+
+    assert resp.status_code == 201
+
+    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein_01_2")) is not None
+
+
+@responses.activate
+def test_create_name_with_suffix_after_custom_name(client):
+    """Should automatically increment ordinal suffix if another sample of the same macromolecule
+    is already in the shipment, even with a different name"""
+
+    client.post(
+        "/shipments/1/samples",
+        json={"proteinId": 4407, "name": "T"},
+    )
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"proteinId": 4407},
+    )
+
+    assert resp.status_code == 201
+
+    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein_01_2")) is not None
+
+
+@responses.activate
+def test_create_no_suffix(client):
+    """Should apply ordinal suffix to custom names"""
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"proteinId": 4407, "name": "T"},
+    )
+
+    assert resp.status_code == 201
+
+    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein_01_T_1")) is not None
 
 
 @responses.activate
@@ -43,7 +96,7 @@ def test_create_name_but_dirty_compound_name(client):
 
     assert resp.status_code == 201
 
-    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "nvid_name_test")) is not None
+    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "nvid_name_test_1")) is not None
 
 
 @responses.activate
@@ -56,10 +109,22 @@ def test_create_multiple_copies(client):
     )
 
     assert resp.status_code == 201
-    names = inner_db.session.scalars(select(Sample.name).filter(Sample.name.like("Protein_01_4%"))).all()
+    names = inner_db.session.scalars(select(Sample.name).filter(Sample.name.like("Protein_01_%"))).all()
 
     assert len(names) == 3
-    assert names[2] == "Protein_01_4_2"
+    assert names[2] == "Protein_01_3"
+
+
+@responses.activate
+def test_create_too_many_copies(client):
+    """Should raise exception if more than 12 copies are requested"""
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"proteinId": 4407, "copies": 13},
+    )
+
+    assert resp.status_code == 429
 
 
 @responses.activate
@@ -136,4 +201,4 @@ def test_duplicated_prefix(client):
     )
 
     assert resp.status_code == 201
-    assert resp.json()["items"][0]["name"] == "Protein_01_test"
+    assert resp.json()["items"][0]["name"] == "Protein_01_test_1"
