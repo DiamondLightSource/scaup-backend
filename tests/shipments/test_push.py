@@ -2,6 +2,7 @@ import responses
 from sqlalchemy import select
 
 from scaup.models.inner_db.tables import Container, Sample
+from scaup.utils.config import Config
 from scaup.utils.database import inner_db
 
 
@@ -15,10 +16,16 @@ def test_push(client):
 
 @responses.activate
 def test_push_unassigned(client):
-    """Should fail if unassigned items are present"""
+    """Should push unassigned samples"""
+    expeye_resp = responses.post(f"{Config.ispyb_api.url}/samples", json={"blSampleId": 1})
     resp = client.post("/shipments/1/push")
 
-    assert resp.status_code == 409
+    assert resp.status_code == 200
+
+    assert (
+        expeye_resp.calls[0].request.body
+        == b'{"comments": null, "source": "eBIC-Scaup", "subLocation": null, "location": null, "name": "Sample_02"}'
+    )
 
 
 @responses.activate

@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Body, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials
 
-from scaup.utils.crud import delete_item
-
 from ..auth import Permissions, auth_scheme
 from ..crud import samples as crud
 from ..models.inner_db.tables import Sample
 from ..models.samples import OptionalSample, SampleOut
+from ..utils.crud import delete_item
 
 auth_sample = Permissions.sample
 

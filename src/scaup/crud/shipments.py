@@ -55,7 +55,6 @@ def get_shipment(shipmentId: int):
     )
 
 
-@assert_no_unassigned
 def push_shipment(shipmentId: int, token: str):
     shipment = _get_shipment_tree(shipmentId)
     session_response = ExternalRequest.request(
@@ -88,6 +87,13 @@ def push_shipment(shipmentId: int, token: str):
                     yield from create_all_items_in_shipment(item, parent.externalId)
                     # Issue itself
                     yield created_item
+
+    containerless_samples = inner_db.session.scalars(
+        select(Sample).filter(Sample.shipmentId == shipmentId, Sample.containerId.is_(None))
+    )
+
+    for sample in containerless_samples:
+        Expeye.upsert(token, sample, None, session_id)
 
     modified_items = list(create_all_items_in_shipment(shipment, f"{shipment.proposalCode}{shipment.proposalNumber}"))
 

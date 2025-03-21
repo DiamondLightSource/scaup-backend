@@ -34,7 +34,7 @@ class ExternalObject:
     external_key = ""
     url = ""
 
-    def __init__(self, item: AvailableTable, item_id: int | str, root_id: int | None = None):
+    def __init__(self, item: AvailableTable, item_id: int | str | None, root_id: int | None = None):
         match item:
             case Shipment():
                 self.url = f"/proposals/{item_id}/shipments"
@@ -58,7 +58,11 @@ class ExternalObject:
                 self.item_body = TopLevelContainerExternal.model_validate(item)
                 self.external_key = "dewarId"
             case Sample():
-                self.url = f"/containers/{item_id}/samples"
+                if item_id is None:
+                    self.url = "/samples"
+                else:
+                    self.url = f"/containers/{item_id}/samples"
+
                 self.external_link_prefix = "/samples/"
                 self.item_body = SampleExternal.model_validate(item)
                 self.external_key = "blSampleId"
@@ -92,7 +96,7 @@ class Expeye:
         cls,
         token: str,
         item: AvailableTable,
-        parent_id: int | str,
+        parent_id: int | str | None,
         root_id: int | None = None,
     ):
         """Insert existing item in ISPyB or patch it
