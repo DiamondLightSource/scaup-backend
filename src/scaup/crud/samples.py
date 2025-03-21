@@ -1,6 +1,7 @@
 import re
 
 from fastapi import HTTPException, status
+from lims_utils.logging import app_logger
 from lims_utils.models import Paged, ProposalReference
 from sqlalchemy import and_, func, insert, select
 
@@ -16,6 +17,12 @@ def _get_protein(proteinId: int, token):
     upstream_compound = ExternalRequest.request(token=token, url=f"/proteins/{proteinId}")
 
     if upstream_compound.status_code != 200:
+        app_logger.error(
+            "Error from Expeye with code %i while checking macromolecule %s: %s",
+            upstream_compound.status_code,
+            proteinId,
+            upstream_compound.text,
+        )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Invalid sample compound/protein provided",

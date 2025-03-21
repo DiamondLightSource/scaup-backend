@@ -47,8 +47,8 @@ def get_unassigned_items(shipmentId=Depends(auth)):
 
 @router.post("/{shipmentId}/push")
 def push_shipment(shipmentId=Depends(auth), token: HTTPAuthorizationCredentials = Depends(auth_scheme)):
-    """Push shipment to ISPyB. Unassigned items (such as a container with no parent top level
-    container) are ignored."""
+    """Push shipment to ISPyB. Unassigned containers (such as a container with no parent top level
+    container) are ignored. Unassigned samples are pushed to ISPyB."""
     return shipment_crud.push_shipment(shipmentId=shipmentId, token=token.credentials)
 
 
