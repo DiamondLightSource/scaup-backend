@@ -135,7 +135,7 @@ def get_samples(
         return samples
 
     ext_samples = ExternalRequest.request(
-        Config.ispyb_api.jwt, method="GET", url=f"/shipments/{ext_shipment_id}/samples"
+        Config.ispyb_api.jwt, method="GET", url=f"/shipments/{ext_shipment_id}/samples?limit=100"
     )
 
     if ext_samples.status_code != 200:
