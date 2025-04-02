@@ -353,7 +353,7 @@ class ReportPDF(FPDF):
         table_contents: Sequence[tuple[str, ...]],
         width: int = 100,
         caption: str = "Table",
-        col_widths: tuple | None = None
+        col_widths: tuple | None = None,
     ):
         self.set_font("DejaVuSans", style="B", size=10)
         self.cell(w=width, text=caption, new_x="START", new_y="NEXT", h=10.5)
@@ -437,15 +437,14 @@ def generate_report(shipment_id: int, token: str):
     pdf.add_table(session_table, width=100, caption="Session")
 
     pdf.set_xy(x=110, y=20)
-    pdf.add_table(grids_table, width=182, caption="Grids", col_widths=(2,1,2,3,1,2))
+    pdf.add_table(grids_table, width=182, caption="Grids", col_widths=(2, 1, 2, 3, 1, 2))
 
     pdf.set_xy(x=5, y=70)
     pdf.add_table(pre_session_table, width=100, caption="Data Collection Parameters")
 
     headers = {
         "Content-Disposition": (
-            "inline;"
-            + f'filename="report-{shipment.proposalCode}{shipment.proposalNumber}-{shipment.visitNumber}.pdf"'
+            "inline;" + f'filename="report-{shipment.proposalCode}{shipment.proposalNumber}-{shipment.visitNumber}.pdf"'
         )
     }
     return Response(
