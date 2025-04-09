@@ -120,6 +120,31 @@ class TrackingLabelPages(FPDF):
         self.from_lines = from_lines
         self.to_lines = to_lines
 
+        # Only display two first local contacts, to save space
+        if len(lcs := local_contact.split(",")) > 2:
+            self.local_contact = f"{', '.join(lcs[:2])} + {len(lcs) - 2}"
+
+        self.add_page()
+
+        # Label instructions
+        self.image(DIAMOND_LOGO, x="L", y=7, h=15)
+        self.set_font("helvetica", size=26, style="B")
+        self.cell(align="R", w=0, text="Instructions", h=15, new_x="LMARGIN")
+
+        self.set_y(30)
+
+        self.add_instruction_title("1. Affix to dewar")
+        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_1)
+
+        self.add_instruction_title("2. Affix to dewar case")
+        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_2)
+
+        self.add_instruction_title("3. Affix airway bill to dewar case")
+        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_3)
+
+        self.add_instruction_title("4. Request return at the end of your session")
+        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_4)
+
     def add_instruction_title(self, text: str):
         self.set_font("helvetica", size=26, style="B")
         self.cell(
@@ -161,27 +186,6 @@ class TrackingLabelPages(FPDF):
             ("Local Contact", self.local_contact),
             ("Printed", str(date.today())),
         )
-
-        self.add_page()
-
-        # Label instructions
-        self.image(DIAMOND_LOGO, x="L", y=7, h=15)
-        self.set_font("helvetica", size=26, style="B")
-        self.cell(align="R", w=0, text="Instructions", h=15, new_x="LMARGIN")
-
-        self.set_y(30)
-
-        self.add_instruction_title("1. Affix to dewar")
-        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_1)
-
-        self.add_instruction_title("2. Affix to dewar case")
-        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_2)
-
-        self.add_instruction_title("3. Affix airway bill to dewar case")
-        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_3)
-
-        self.add_instruction_title("4. Request return at the end of your session")
-        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_4)
 
         if self.from_lines is None:
             self.add_page()
