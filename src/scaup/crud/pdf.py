@@ -189,10 +189,10 @@ class TrackingLabelPages(FPDF):
 
         if self.from_lines is None:
             self.add_page()
-            self.image(CUT_HERE, x="L", y=140, w=194)
+            self.image(CUT_HERE, x="L", y=139, w=194)
 
         # If we don't have an address, display both labels in a single page
-        offset_values = [10, 145] if self.from_lines is None else [10, 10]
+        offset_values = [0, 143] if self.from_lines is None else [10, 10]
 
         # Tracking labels
         for i, offset in enumerate(offset_values):
@@ -242,10 +242,10 @@ class TrackingLabelPages(FPDF):
 
             self.image(DIAMOND_LOGO, x="L", y=7 + offset, h=15)
             self.image(THIS_SIDE_UP, x="R", y=7 + offset, w=30)
-            self.image(img, x=(self.w - 60) / 2, y=offset, h=60, w=60)
-            self.set_y(y=58 + offset)
+            self.image(img, x=(self.w - 60) / 2, y=offset, h=55, w=55)
+            self.set_y(y=54 + offset)
             self.cell(w=0, text=str(dewar.barCode), align="C")
-            self.set_y(65 + offset)
+            self.set_y(60 + offset)
 
             with self.table(
                 borders_layout="HORIZONTAL_LINES", headings_style=headings_style
