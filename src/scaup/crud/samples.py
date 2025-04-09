@@ -1,8 +1,9 @@
 import re
 
 from fastapi import HTTPException, status
+from lims_utils.logging import app_logger
 from lims_utils.models import Paged, ProposalReference
-from sqlalchemy import and_, func, insert, select
+from sqlalchemy import and_, insert, select
 
 from ..models.inner_db.tables import Container, Sample, Shipment
 from ..models.samples import OptionalSample, SampleIn, SampleOut
@@ -16,6 +17,12 @@ def _get_protein(proteinId: int, token):
     upstream_compound = ExternalRequest.request(token=token, url=f"/proteins/{proteinId}")
 
     if upstream_compound.status_code != 200:
+        app_logger.error(
+            "Error from Expeye with code %i while checking macromolecule %s: %s",
+            upstream_compound.status_code,
+            proteinId,
+            upstream_compound.text,
+        )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Invalid sample compound/protein provided",
@@ -31,14 +38,34 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
 
     clean_name = upstream_compound["name"].replace(" ", "_")
     clean_name = re.sub(r"[^a-zA-Z0-9_]", "", clean_name)
+    last_sample = inner_db.session.scalar(
+        select(Sample.name)
+        .filter(Sample.shipmentId == shipmentId, Sample.name.like(clean_name + "%"))
+        .order_by(Sample.id.desc())
+        .limit(1)
+    )
+
+    if last_sample is None:
+        sample_count = 1
+    else:
+        sample_number = last_sample.split("_")[-1]
+        if not sample_number.isdigit():
+            sample_count = 1
+        else:
+            sample_count = int(sample_number) + 1
 
     if not (params.name):
-        sample_count = inner_db.session.scalar(select(func.count(Sample.id)).filter(Sample.shipmentId == shipmentId))
-        params.name = f"{clean_name}_{(sample_count or 0) + 1}"
+        params.name = clean_name
     else:
         # Prefix with compound name regardless
         if not params.name.startswith(clean_name):
             params.name = f"{clean_name}_{params.name}"
+
+    if params.copies and params.copies > 12:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many sample copies requested",
+        )
 
     samples = inner_db.session.scalars(
         insert(Sample).returning(Sample),
@@ -46,7 +73,7 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
             {
                 "shipmentId": shipmentId,
                 **params.model_dump(exclude_unset=True, exclude={"copies"}),
-                "name": f"{params.name}{f'_{i}' if i else ''}",
+                "name": f"{params.name}_{i+sample_count}",
             }
             for i in range(params.copies)
         ],
@@ -119,13 +146,21 @@ def get_samples(
     ext_samples = ExternalRequest.request(token, method="GET", url=f"/shipments/{ext_shipment_id}/samples")
 
     if ext_samples.status_code != 200:
+        app_logger.warning("Expeye returned %i: %s", ext_samples.status_code, ext_samples.text)
         return samples
 
     for ext_sample in ext_samples.json()["items"]:
         if ext_sample["dataCollectionGroupId"]:
-            for i, sample in enumerate(samples.items):
+            try:
+                i, sample = next(
+                    (i, sample)
+                    for i, sample in enumerate(samples.items)
+                    if sample.externalId == ext_sample["blSampleId"]
+                )
                 new_sample = SampleOut.model_validate(sample, from_attributes=True)
                 new_sample.dataCollectionGroupId = ext_sample["dataCollectionGroupId"]
                 samples.items[i] = new_sample
+            except StopIteration:
+                pass
 
     return samples

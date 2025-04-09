@@ -16,7 +16,6 @@ def test_get(client):
     assert resp.status_code == 200
 
 
-
 @responses.activate
 def test_no_bar_code(client):
     """Should return 404 if bar code is not present"""
