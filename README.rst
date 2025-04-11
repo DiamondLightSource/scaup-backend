@@ -1,7 +1,7 @@
 Scaup API
 ===========================
 
-|code_ci| |coverage| |license|
+|code_ci| |license|
 
 ============== ==============================================================
 Source code    https://github.com/DiamondLightSource/scaup-backend
