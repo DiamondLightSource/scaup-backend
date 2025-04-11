@@ -4,7 +4,7 @@ Scaup API
 |code_ci| |coverage| |license|
 
 ============== ==============================================================
-Source code    https://gitlab.diamond.ac.uk/lims/ebic-scaup/backend
+Source code    https://github.com/DiamondLightSource/scaup-backend
 ============== ==============================================================
 
 Sample Consignment, Administration and User Parametrisation backend
@@ -31,7 +31,7 @@ Running development server on your machine:
 2. Set the `SQL_DATABASE_URL` environment variable according to your database's location
 3. Run :code:`uvicorn` with `uvicorn scaup.main:app --reload --port 8000`
 
-Note: Due to Postgres specific features being used, the target database must be Postgres. Schemas must be created manually. If you're unsure, you may use the `preconfigured Helm chart <https://gitlab.diamond.ac.uk/lims/pato-helm>`_, which provides a database with auto backups, and automatic Alembic migrations ran daily.
+Note: Due to Postgres specific features being used, the target database must be Postgres. An example can be found in the database folder.
 
 ============
 Testing
@@ -42,13 +42,9 @@ Testing
     - You may change the port or where the container itself runs, just remember to update `.test.env`
 - Run :code:`pytest tests`
 
-.. |code_ci| image:: https://gitlab.diamond.ac.uk/lims/ebic-scaup/backend/badges/master/pipeline.svg
-    :target: https://gitlab.diamond.ac.uk/lims/ebic-scaup/backend/-/pipelines
+.. |code_ci| image:: https://gitlab.diamond.ac.uk/lims/scaup-backend/badges/master/pipeline.svg
+    :target: https://gitlab.diamond.ac.uk/lims/scaup-backend/-/pipelines
     :alt: Code CI
-
-.. |coverage| image:: https://gitlab.diamond.ac.uk/lims/ebic-scaup/backend/badges/master/coverage.svg
-    :target: https://gitlab.diamond.ac.uk/lims/ebic-scaup/backend/-/pipelines
-    :alt: Test Coverage
 
 .. |license| image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
     :target: https://opensource.org/licenses/Apache-2.0
