@@ -13,7 +13,7 @@ jobs:
       integration-db:
         image: ghcr.io/diamondlightsource/scaup-backend-db:master
         ports:
-          - 3306:3306
+          - 5432:5432
     strategy:
       matrix:
         python-version: ["3.12", "3.13"]
