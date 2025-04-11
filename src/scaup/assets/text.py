@@ -1,4 +1,7 @@
-LABEL_INSTRUCTIONS_STEP_1 = "Print tracking labels, and affix one of them to the dewar"
+LABEL_INSTRUCTIONS_STEP_1 = (
+    "Print tracking labels, and affix one of them to the dewar. If you're sending multiple "
+    + "dewars, ensure the dewar code on the label matches the dewar code on the dewar."
+)
 
 LABEL_INSTRUCTIONS_STEP_2 = "Affix the other label to the dewar case"
 
