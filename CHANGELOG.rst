@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v0.9.2 (11/04/2025)
++++++++++
+
+**Changed**
+
+- Allow users to push unassigned samples
+- Improve logic for ordinal suffixes on samples
+- Display more information in tracking labels
+
+**Fixed**
+
+- More accurately pair up samples from Expeye with samples in SCAUP database
+
++++++++++
 v0.9.1 (26/02/2025)
 +++++++++
 
