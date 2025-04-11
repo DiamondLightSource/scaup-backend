@@ -153,7 +153,7 @@ class TrackingLabelPages(FPDF):
         table = (
             (
                 "Proposal",
-                f"{dewar.proposalCode}{dewar.proposalNumber}-{dewar.visitNumber or "?"}",
+                f"{dewar.proposalCode}{dewar.proposalNumber}-{dewar.visitNumber or '?'}",
             ),
             ("Sample Collection", dewar.name),
             ("Code", dewar.code),
@@ -346,7 +346,7 @@ class ReportPDF(FPDF):
 
     def footer(self):
         self.set_xy(5, -8)
-        self.cell(text=f"Printed on {datetime.now().strftime("%d/%m/%Y %H:%M")}")
+        self.cell(text=f"Printed on {datetime.now().strftime('%d/%m/%Y %H:%M')}")
 
     def add_table(
         self,

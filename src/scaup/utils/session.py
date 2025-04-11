@@ -70,7 +70,7 @@ def retry_if_exists(func):
                 case ForeignKeyViolation():
                     columns = _get_columns_and_values(e.__cause__.diag.message_detail)
                     raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid {", ".join(columns.keys())} provided"
+                        status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid {', '.join(columns.keys())} provided"
                     )
                 case _:
                     app_logger.warning("Integrity error whilst performing request", exc_info=e)

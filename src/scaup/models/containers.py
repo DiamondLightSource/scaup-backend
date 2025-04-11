@@ -25,8 +25,7 @@ class BaseContainer(BaseModel):
     name: Optional[str] = Field(
         default=None,
         description=(
-            "Base container name. If name is not provided, the container's type followed"
-            "by the container index is used"
+            "Base container name. If name is not provided, the container's type followedby the container index is used"
         ),
     )
     comments: Optional[str] = None

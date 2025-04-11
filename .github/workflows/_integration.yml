@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       integration-db:
-        image: ghcr.io/diamondlightsource/pato-backend-db:master
+        image: ghcr.io/diamondlightsource/scaup-backend-db:master
         ports:
           - 3306:3306
     strategy:
@@ -29,7 +29,7 @@ jobs:
           pip install .[dev]
       - name: Test with pytest
         env:
-          CONFIG_PATH: /home/runner/work/pato-backend/pato-backend/config.json
+          CONFIG_PATH: /home/runner/work/scaup-backend/scaup-backend/config.json
         run: |
           tox -e pytest
       - name: Upload coverage to Codecov
