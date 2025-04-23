@@ -193,6 +193,33 @@ COMMENT ON COLUMN public."Sample"."subLocation" IS 'Additional location, such as
 
 
 --
+-- Name: SampleParentChild; Type: TABLE; Schema: public; Owner: sample_handling
+--
+
+CREATE TABLE public."SampleParentChild" (
+    "parentId" integer NOT NULL,
+    "childId" integer NOT NULL,
+    "creationDate" timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public."SampleParentChild" OWNER TO sample_handling;
+
+--
+-- Name: COLUMN "SampleParentChild"."parentId"; Type: COMMENT; Schema: public; Owner: sample_handling
+--
+
+COMMENT ON COLUMN public."SampleParentChild"."parentId" IS 'Sample(s) from which the child(ren) was derived from';
+
+
+--
+-- Name: COLUMN "SampleParentChild"."childId"; Type: COMMENT; Schema: public; Owner: sample_handling
+--
+
+COMMENT ON COLUMN public."SampleParentChild"."childId" IS 'Sample(s) derived from parent(s)';
+
+
+--
 -- Name: Sample_sampleId_seq; Type: SEQUENCE; Schema: public; Owner: sample_handling
 --
 
@@ -389,6 +416,8 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 1307	204	\N	1336	gridBox	4	2	\N	f	\N	Grid_Box_01	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
 1335	204	\N	1336	gridBox	4	3	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
 648	97	\N	646	gridBox	4	1	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
+1904	229	\N	1901	gridBox	4	1	\N	f	\N	Grid_Box_01	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
+1901	229	720	\N	puck	4	\N	\N	f	\N	Puck_01	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
 \.
 
 
@@ -415,6 +444,16 @@ COPY public."Sample" ("sampleId", "shipmentId", "proteinId", type, location, det
 612	117	338108	grid	\N	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	788	3P_1	\N	\N	2	2025-01-10 08:54:42.073855+00
 3	1	4407	sample	1	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	4	Sample_02	6186947	\N	1	2025-01-10 08:54:42.073855+00
 561	117	338108	grid	1	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	776	3P_1	6212665	\N	1	2025-01-10 08:54:42.073855+00
+1877	229	338108	grid	1	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	1904	3P_1	\N	\N	1	2025-01-10 08:54:42.073855+00
+\.
+
+
+--
+-- Data for Name: SampleParentChild; Type: TABLE DATA; Schema: public; Owner: sample_handling
+--
+
+COPY public."SampleParentChild" ("parentId", "childId", "creationDate") FROM stdin;
+612	1877	2025-03-13 09:49:12.797986+00
 \.
 
 
@@ -449,6 +488,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 171	106	\N	DLS-4	dewar	Dewar_06	20	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
 199	117	{}	DLS-BI-0020	dewar	DLS-BI-0020	72181		f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
 221	\N	{}	DLS-BI-0020	dewar	DLS-BI-0020	\N		t	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
+720	229	{}	DLS-BI-0020	dewar	DLS-BI-0020	\N		f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
 \.
 
 
@@ -457,7 +497,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-7325165750bc
+297144dfe234
 \.
 
 
@@ -465,35 +505,35 @@ COPY public.alembic_version (version_num) FROM stdin;
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 1898, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 2039, true);
 
 
 --
 -- Name: PreSession_preSessionId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 349, true);
+SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 379, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 1876, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 2096, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 271, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 286, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 719, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 825, true);
 
 
 --
@@ -617,6 +657,14 @@ ALTER TABLE ONLY public.alembic_version
 
 
 --
+-- Name: SampleParentChild parent_child_pk; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."SampleParentChild"
+    ADD CONSTRAINT parent_child_pk PRIMARY KEY ("parentId", "childId");
+
+
+--
 -- Name: ix_Container_containerId; Type: INDEX; Schema: public; Owner: sample_handling
 --
 
@@ -649,6 +697,20 @@ CREATE INDEX "ix_PreSession_preSessionId" ON public."PreSession" USING btree ("p
 --
 
 CREATE UNIQUE INDEX "ix_PreSession_shipmentId" ON public."PreSession" USING btree ("shipmentId");
+
+
+--
+-- Name: ix_SampleParentChild_childId; Type: INDEX; Schema: public; Owner: sample_handling
+--
+
+CREATE INDEX "ix_SampleParentChild_childId" ON public."SampleParentChild" USING btree ("childId");
+
+
+--
+-- Name: ix_SampleParentChild_parentId; Type: INDEX; Schema: public; Owner: sample_handling
+--
+
+CREATE INDEX "ix_SampleParentChild_parentId" ON public."SampleParentChild" USING btree ("parentId");
 
 
 --
@@ -744,6 +806,22 @@ ALTER TABLE ONLY public."Container"
 
 ALTER TABLE ONLY public."PreSession"
     ADD CONSTRAINT "PreSession_shipmentId_fkey" FOREIGN KEY ("shipmentId") REFERENCES public."Shipment"("shipmentId");
+
+
+--
+-- Name: SampleParentChild SampleParentChild_childId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."SampleParentChild"
+    ADD CONSTRAINT "SampleParentChild_childId_fkey" FOREIGN KEY ("childId") REFERENCES public."Sample"("sampleId");
+
+
+--
+-- Name: SampleParentChild SampleParentChild_parentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."SampleParentChild"
+    ADD CONSTRAINT "SampleParentChild_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES public."Sample"("sampleId");
 
 
 --

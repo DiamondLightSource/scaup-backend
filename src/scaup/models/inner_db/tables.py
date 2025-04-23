@@ -2,7 +2,16 @@ import uuid
 from datetime import datetime
 from typing import Any, List, Literal, Optional
 
-from sqlalchemy import JSON, UUID, DateTime, ForeignKey, SmallInteger, String, func
+from sqlalchemy import (
+    JSON,
+    UUID,
+    DateTime,
+    ForeignKey,
+    PrimaryKeyConstraint,
+    SmallInteger,
+    String,
+    func,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.schema import UniqueConstraint
 
@@ -92,6 +101,25 @@ class Container(Base, BaseColumns):
     samples: Mapped[List["Sample"] | None] = relationship(back_populates="container")
 
 
+class SampleParentChild(Base):
+    """Determines relationships between parent samples and the samples that were derived from them"""
+
+    __tablename__ = "SampleParentChild"
+    __table_args__ = (PrimaryKeyConstraint("parentId", "childId", name="parent_child_pk"),)
+
+    parentId: Mapped[int] = mapped_column(
+        ForeignKey("Sample.sampleId"),
+        comment="Sample(s) from which the child(ren) was derived from",
+        index=True,
+    )
+    childId: Mapped[int] = mapped_column(
+        ForeignKey("Sample.sampleId"),
+        comment="Sample(s) derived from parent(s)",
+        index=True,
+    )
+    creationDate: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class Sample(Base, BaseColumns):
     __tablename__ = "Sample"
     __table_args__ = (
@@ -116,6 +144,22 @@ class Sample(Base, BaseColumns):
         ForeignKey("Container.containerId", ondelete="SET NULL"), index=True
     )
     container: Mapped[Optional["Container"]] = relationship(back_populates="samples")
+
+    originSamples: Mapped[List["Sample"] | None] = relationship(
+        "Sample",
+        secondary=SampleParentChild.__table__,
+        primaryjoin=id == SampleParentChild.childId,
+        secondaryjoin=id == SampleParentChild.parentId,
+        back_populates="derivedSamples",
+    )
+
+    derivedSamples: Mapped[List["Sample"] | None] = relationship(
+        "Sample",
+        secondary=SampleParentChild.__table__,
+        primaryjoin=id == SampleParentChild.parentId,
+        secondaryjoin=id == SampleParentChild.childId,
+        back_populates="originSamples",
+    )
 
 
 class PreSession(Base):

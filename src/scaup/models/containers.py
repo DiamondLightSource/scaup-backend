@@ -64,12 +64,21 @@ class ContainerIn(BaseContainer):
 class OptionalContainer(BaseContainer):
     type: Optional[str] = None
     shipmentId: Optional[int] = None
+    isInternal: Optional[bool] = None
 
 
 class ContainerOut(BaseContainer):
+    shipmentId: int
     id: int = Field(validation_alias=AliasChoices("containerId", "id"))
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
     type: str
+    isInternal: bool
+    internalStorageContainer: Optional[int] = Field(
+        default=None,
+        description=(
+            "Internal storage container this container is currently in." + "Only set if this is stored in the facility"
+        ),
+    )
 
 
 class ContainerExternal(BaseExternal):
