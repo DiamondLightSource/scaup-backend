@@ -15,9 +15,7 @@ from ..utils.session import retry_if_exists
 
 
 def _get_protein(proteinId: int, token):
-    upstream_compound = ExternalRequest.request(
-        token=token, url=f"/proteins/{proteinId}"
-    )
+    upstream_compound = ExternalRequest.request(token=token, url=f"/proteins/{proteinId}")
 
     if upstream_compound.status_code != 200:
         app_logger.error(
@@ -85,11 +83,7 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
     if params.parents:
         inner_db.session.execute(
             insert(SampleParentChild),
-            [
-                {"childId": child.id, "parentId": parent}
-                for child in samples
-                for parent in params.parents
-            ],
+            [{"childId": child.id, "parentId": parent} for child in samples for parent in params.parents],
         )
 
     inner_db.session.commit()
@@ -151,9 +145,7 @@ def get_samples(
     if ignore_external or token is None:
         return samples
 
-    ext_shipment_id = inner_db.session.scalar(
-        select(Shipment.externalId).filter(Shipment.id == shipment_id)
-    )
+    ext_shipment_id = inner_db.session.scalar(select(Shipment.externalId).filter(Shipment.id == shipment_id))
 
     if ext_shipment_id is None:
         return samples
@@ -163,9 +155,7 @@ def get_samples(
     )
 
     if ext_samples.status_code != 200:
-        app_logger.warning(
-            "Expeye returned %i: %s", ext_samples.status_code, ext_samples.text
-        )
+        app_logger.warning("Expeye returned %i: %s", ext_samples.status_code, ext_samples.text)
         return samples
 
     validated_samples = Paged[SampleOut].model_validate(samples, from_attributes=True)
@@ -178,9 +168,7 @@ def get_samples(
                     for i, sample in enumerate(validated_samples.items)
                     if sample.externalId == ext_sample["blSampleId"]
                 )
-                validated_samples.items[i].dataCollectionGroupId = ext_sample[
-                    "dataCollectionGroupId"
-                ]
+                validated_samples.items[i].dataCollectionGroupId = ext_sample["dataCollectionGroupId"]
             except StopIteration:
                 pass
 
