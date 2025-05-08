@@ -120,6 +120,31 @@ class TrackingLabelPages(FPDF):
         self.from_lines = from_lines
         self.to_lines = to_lines
 
+        # Only display two first local contacts, to save space
+        if len(lcs := local_contact.split(",")) > 2:
+            self.local_contact = f"{', '.join(lcs[:2])} + {len(lcs) - 2}"
+
+        self.add_page()
+
+        # Label instructions
+        self.image(DIAMOND_LOGO, x="L", y=7, h=15)
+        self.set_font("helvetica", size=26, style="B")
+        self.cell(align="R", w=0, text="Instructions", h=15, new_x="LMARGIN")
+
+        self.set_y(30)
+
+        self.add_instruction_title("1. Affix to dewar")
+        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_1)
+
+        self.add_instruction_title("2. Affix to dewar case")
+        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_2)
+
+        self.add_instruction_title("3. Affix airway bill to dewar case")
+        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_3)
+
+        self.add_instruction_title("4. Request return at the end of your session")
+        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_4)
+
     def add_instruction_title(self, text: str):
         self.set_font("helvetica", size=26, style="B")
         self.cell(
@@ -162,33 +187,12 @@ class TrackingLabelPages(FPDF):
             ("Printed", str(date.today())),
         )
 
-        self.add_page()
-
-        # Label instructions
-        self.image(DIAMOND_LOGO, x="L", y=7, h=15)
-        self.set_font("helvetica", size=26, style="B")
-        self.cell(align="R", w=0, text="Instructions", h=15, new_x="LMARGIN")
-
-        self.set_y(30)
-
-        self.add_instruction_title("1. Affix to dewar")
-        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_1)
-
-        self.add_instruction_title("2. Affix to dewar case")
-        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_2)
-
-        self.add_instruction_title("3. Affix airway bill to dewar case")
-        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_3)
-
-        self.add_instruction_title("4. Request return at the end of your session")
-        self.add_instruction_text(LABEL_INSTRUCTIONS_STEP_4)
-
         if self.from_lines is None:
             self.add_page()
-            self.image(CUT_HERE, x="L", y=140, w=194)
+            self.image(CUT_HERE, x="L", y=139, w=194)
 
         # If we don't have an address, display both labels in a single page
-        offset_values = [10, 145] if self.from_lines is None else [10, 10]
+        offset_values = [0, 143] if self.from_lines is None else [10, 10]
 
         # Tracking labels
         for i, offset in enumerate(offset_values):
@@ -238,10 +242,10 @@ class TrackingLabelPages(FPDF):
 
             self.image(DIAMOND_LOGO, x="L", y=7 + offset, h=15)
             self.image(THIS_SIDE_UP, x="R", y=7 + offset, w=30)
-            self.image(img, x=(self.w - 60) / 2, y=offset, h=60, w=60)
-            self.set_y(y=58 + offset)
+            self.image(img, x=(self.w - 60) / 2, y=offset, h=55, w=55)
+            self.set_y(y=54 + offset)
             self.cell(w=0, text=str(dewar.barCode), align="C")
-            self.set_y(65 + offset)
+            self.set_y(60 + offset)
 
             with self.table(borders_layout="HORIZONTAL_LINES", headings_style=headings_style) as pdf_table:
                 for row in table:
