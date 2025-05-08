@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v0.10.1 (08/05/2025)
++++++++++
+
+**Changed**
+
+- Only display instructions once per set of tracking labels
+- Only display first two lab contacts in tracking labels
+
++++++++++
 v0.10.0 (25/04/2025)
 +++++++++
 
