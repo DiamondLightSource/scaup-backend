@@ -42,8 +42,8 @@ Testing
     - You may change the port or where the container itself runs, just remember to update `.test.env`
 - Run :code:`pytest tests`
 
-.. |code_ci| image:: https://gitlab.diamond.ac.uk/lims/scaup-backend/badges/master/pipeline.svg
-    :target: https://gitlab.diamond.ac.uk/lims/scaup-backend/-/pipelines
+.. |code_ci| image:: https://github.com/DiamondLightSource/scaup-backend/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/DiamondLightSource/scaup-backend/actions/workflows/ci.yml
     :alt: Code CI
 
 .. |license| image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
