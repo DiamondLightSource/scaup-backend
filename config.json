@@ -6,7 +6,8 @@
     "read_all_perms": ["super_admin"]
   },
   "shipping_service": {
-    "url": "https://sample-shipping-staging.diamond.ac.uk"
+    "backend_url": "https://sample-shipping-staging.diamond.ac.uk",
+    "frontend_url": "https://sample-shipping-staging.diamond.ac.uk"
   },
   "db": { "pool": 3, "overflow": 6 },
   "ispyb_api": "http://127.0.0.1:8060/api",

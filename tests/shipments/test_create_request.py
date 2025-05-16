@@ -17,7 +17,7 @@ from scaup.utils.database import inner_db
 def test_create_shipment_request(client):
     """Should create shipment request in external application"""
     responses.post(
-        f"{Config.shipping_service.url}/api/shipment_requests/",
+        f"{Config.shipping_service.backend_url}/api/shipment_requests/",
         status=201,
         json={"shipmentRequestId": 50},
     )
@@ -38,7 +38,7 @@ def test_create_shipment_request(client):
 def test_shipment_request_body(client):
     """Should send well formed body to upstream service"""
     resp_post = responses.post(
-        f"{Config.shipping_service.url}/api/shipment_requests/",
+        f"{Config.shipping_service.backend_url}/api/shipment_requests/",
         status=201,
         json={"shipmentRequestId": 50},
     )
@@ -65,7 +65,7 @@ def test_shipment_request_body(client):
 def test_shipment_request_callback(client):
     """Should send callback URL to shipping service"""
     resp_post = responses.post(
-        f"{Config.shipping_service.url}/api/shipment_requests/",
+        f"{Config.shipping_service.backend_url}/api/shipment_requests/",
         status=201,
         json={"shipmentRequestId": 50},
     )
@@ -94,7 +94,7 @@ def test_shipment_request_callback(client):
 def test_shipment_request_item_not_registered(client):
     """Should use long definition for items if item type is not registered"""
     resp_post = responses.post(
-        f"{Config.shipping_service.url}/api/shipment_requests/",
+        f"{Config.shipping_service.backend_url}/api/shipment_requests/",
         status=201,
         json={"shipmentRequestId": 50},
     )
@@ -123,7 +123,7 @@ def test_shipment_request_item_not_registered(client):
 def test_shipment_request_tlc_not_registered(client):
     """Should use placeholder dimensions if top level container type is not registered"""
     resp_post = responses.post(
-        f"{Config.shipping_service.url}/api/shipment_requests/",
+        f"{Config.shipping_service.backend_url}/api/shipment_requests/",
         status=201,
         json={"shipmentRequestId": 50},
     )
@@ -177,7 +177,7 @@ def test_unassigned(client):
 def test_request_fail(client):
     """Should not create shipment request if upstream application returns error"""
     responses.post(
-        f"{Config.shipping_service.url}/api/shipment_requests/",
+        f"{Config.shipping_service.backend_url}/api/shipment_requests/",
         status=404,
     )
 
