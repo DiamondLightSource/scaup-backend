@@ -77,7 +77,7 @@ class ConsigneeAddress(object):
             return self._consignee_cache
 
         consignee_response = ExternalRequest.request(
-            base_url=Config.shipping_service.url,
+            base_url=Config.shipping_service.backend_url,
             token=token,
             method="GET",
             url=f"/api/shipments/{shipment_id}",
@@ -291,7 +291,7 @@ def get_shipping_labels(shipment_id: int, token: str):
 
     if data[0].shipmentRequest is not None:
         response = ExternalRequest.request(
-            base_url=Config.shipping_service.url,
+            base_url=Config.shipping_service.backend_url,
             token=token,
             method="GET",
             url=f"/api/shipment_requests/{data[0].shipmentRequest}/shipments/TO_FACILITY",

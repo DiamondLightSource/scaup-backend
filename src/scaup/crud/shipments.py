@@ -228,7 +228,7 @@ def build_shipment_request(shipmentId: int, token: str):
     }
 
     response = ExternalRequest.request(
-        base_url=Config.shipping_service.url,
+        base_url=Config.shipping_service.backend_url,
         token=token,
         method="POST",
         url="/api/shipment_requests/",
@@ -265,7 +265,7 @@ def get_shipment_request(shipmentId: int):
             "Shipment does not have a request assigned to it",
         )
 
-    return f"{Config.shipping_service.url}/shipment-requests/{request_id}/incoming"
+    return f"{Config.shipping_service.frontend_url}/shipment-requests/{request_id}/incoming"
 
 
 def handle_callback(shipment_id: int, callback_body: StatusUpdate):

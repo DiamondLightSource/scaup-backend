@@ -33,7 +33,8 @@ class DB:
 
 @dataclass
 class ShippingService:
-    url: str = "https://localtest.diamond.ac.uk/"
+    frontend_url: str = "https://localtest.diamond.ac.uk/"
+    backend_url: str = "https://localtest.diamond.ac.uk/"
     secret: str = "no-secret"
     callback_url: str = "https://localhost/api"
 
