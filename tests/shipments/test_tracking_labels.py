@@ -36,7 +36,8 @@ def test_no_top_level_containers(client):
 def test_user_address(client):
     """Should return include to/from address if these are available"""
     responses.get(
-        f"{Config.shipping_service.backend_url}/api/shipment_requests/1/shipments/TO_FACILITY", json=SHIPMENT_REQUEST_CONTENTS
+        f"{Config.shipping_service.backend_url}/api/shipment_requests/1/shipments/TO_FACILITY",
+        json=SHIPMENT_REQUEST_CONTENTS,
     )
 
     responses.get(f"{Config.shipping_service.backend_url}/api/shipments/1", json=SHIPMENT_CONTENTS, status=200)
@@ -50,7 +51,8 @@ def test_user_address(client):
 def test_user_address_no_consignee(client):
     """Should raise exception if shipment service returns 'from' address but no 'to' address"""
     responses.get(
-        f"{Config.shipping_service.backend_url}/api/shipment_requests/1/shipments/TO_FACILITY", json=SHIPMENT_REQUEST_CONTENTS
+        f"{Config.shipping_service.backend_url}/api/shipment_requests/1/shipments/TO_FACILITY",
+        json=SHIPMENT_REQUEST_CONTENTS,
     )
 
     responses.get(f"{Config.shipping_service.backend_url}/api/shipments/1", status=404)
