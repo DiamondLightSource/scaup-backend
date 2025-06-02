@@ -39,12 +39,17 @@ RUN pip install --upgrade pip && \
 
 FROM docker.io/library/python:3.13.1-slim-bookworm as runtime
 
+RUN adduser --system --no-create-home --uid 1001 nonroot
+
 # copy the virtual environment from the build stage and put it in PATH
 COPY --from=build /venv/ /venv/
 ENV PATH=/venv/bin:$PATH
 
 COPY alembic.ini /alembic/
 COPY alembic/ /alembic/alembic
+
+# Must be number to pass non-root check
+USER 1001
 
 # change this entrypoint if it is not the same as the repo
 ENTRYPOINT ["uvicorn"]
