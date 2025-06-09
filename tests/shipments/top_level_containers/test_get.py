@@ -20,13 +20,13 @@ def test_get_history(client):
         {
             "dewarStatus": "opened",
             "storageLocation": "location",
-            "dewarId": 72181,
+            "dewarId": 80365,
             "arrivalDate": "2025-06-09T08:36:50.527000Z",
         }
     ]
 
     responses.get(
-        f"{Config.ispyb_api.url}/dewars/72181/history",
+        f"{Config.ispyb_api.url}/dewars/80365/history",
         status=200,
         json={"items": history},
     )
@@ -43,7 +43,7 @@ def test_get_history(client):
 def test_get_history_upstream_failure(client, caplog):
     """Should not propagate failure if getting history from upstream fails"""
     responses.get(
-        f"{Config.ispyb_api.url}/dewars/72181/history",
+        f"{Config.ispyb_api.url}/dewars/80365/history",
         status=404,
         json={"detail": "error"},
     )
@@ -56,5 +56,5 @@ def test_get_history_upstream_failure(client, caplog):
     assert dewars[0]["history"] is None
 
     assert caplog.records[0].message == (
-        'Failed to get history from ISPyB for dewar 199 (external ID: 72181): {"detail": "error"}'
+        'Failed to get history from ISPyB for dewar 199 (external ID: 80365): {"detail": "error"}'
     )

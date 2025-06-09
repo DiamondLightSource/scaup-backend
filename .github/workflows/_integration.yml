@@ -28,6 +28,7 @@ jobs:
             fi
   test:
     runs-on: ubuntu-latest
+    needs: get-db-image
     services:
       integration-db:
         image: ghcr.io/diamondlightsource/scaup-backend-db:${{ needs.get-db-image.outputs.branch }}
