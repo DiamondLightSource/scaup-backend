@@ -1,12 +1,18 @@
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
+from lims_utils.models import Paged
 from sqlalchemy import func, insert, select
 
 from ..models.inner_db.tables import Shipment, TopLevelContainer
-from ..models.top_level_containers import OptionalTopLevelContainer, TopLevelContainerIn
+from ..models.top_level_containers import (
+    OptionalTopLevelContainer,
+    TopLevelContainerHistory,
+    TopLevelContainerIn,
+    TopLevelContainerOut,
+)
 from ..utils.config import Config
 from ..utils.crud import assert_not_booked, edit_item
-from ..utils.database import inner_db, paginate
+from ..utils.database import inner_db
 from ..utils.external import ExternalRequest
 from ..utils.session import retry_if_exists
 
@@ -119,7 +125,31 @@ def edit_top_level_container(topLevelContainerId: int, params: OptionalTopLevelC
     return edit_item(TopLevelContainer, params, topLevelContainerId, token)
 
 
-def get_top_level_containers(shipmentId: int, limit: int, page: int):
+def get_top_level_containers(shipmentId: int, token: str, limit: int, page: int):
     query = select(TopLevelContainer).filter(TopLevelContainer.shipmentId == shipmentId).join(Shipment)
 
-    return paginate(query, limit, page, slow_count=False, scalar=False)
+    top_level_containers: Paged[TopLevelContainer | TopLevelContainerOut] = inner_db.paginate(
+        query, limit, page, slow_count=False, scalar=False
+    )
+
+    for i, tlc in enumerate(top_level_containers.items):
+        if tlc.externalId is not None:
+            response = ExternalRequest.request(token=token, url=f"/dewars/{tlc.externalId}/history")
+
+            if response.status_code == 200:
+                # More than 25 items could be returned, but it is statistically unlikely
+                # (less than 2.2% of dewars have 25 history items or more, and most of these
+                # are commissioning proposals), so we'll disregard that for now
+                new_tlc = TopLevelContainerOut.model_validate(tlc, from_attributes=True)
+                new_tlc.history = [TopLevelContainerHistory.model_validate(item) for item in response.json()["items"]]
+
+                top_level_containers.items[i] = new_tlc
+            else:
+                app_logger.warning(
+                    "Failed to get history from ISPyB for dewar %i (external ID: %i): %s",
+                    tlc.id,
+                    tlc.externalId,
+                    response.text,
+                )
+
+    return top_level_containers

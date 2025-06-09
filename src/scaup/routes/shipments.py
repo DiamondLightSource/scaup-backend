@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Body, Depends, status
+from fastapi import APIRouter, Body, Depends, Query, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials
 from lims_utils.models import Paged, pagination
@@ -34,9 +34,13 @@ router = APIRouter(
 
 
 @router.get("/{shipmentId}", response_model=ShipmentChildren)
-def get_shipment(shipmentId=Depends(auth)):
+def get_shipment(
+    shipmentId=Depends(auth),
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+    getChildren: bool = Query(default=True, description="Whether to get children as part of the request"),
+):
     """Get shipment data"""
-    return shipment_crud.get_shipment(shipmentId=shipmentId)
+    return shipment_crud.get_shipment(shipmentId=shipmentId, get_children=getChildren, token=token.credentials)
 
 
 @router.get("/{shipmentId}/unassigned", response_model=UnassignedItems)
@@ -124,9 +128,10 @@ def get_samples(
 def get_top_level_containers(
     shipmentId=Depends(auth),
     page: dict[str, int] = Depends(pagination),
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
     """Get top level containers in shipment"""
-    return tlc_crud.get_top_level_containers(shipmentId=shipmentId, **page)
+    return tlc_crud.get_top_level_containers(shipmentId=shipmentId, token=token.credentials, **page)
 
 
 @router.post(

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Literal, Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -34,13 +34,8 @@ class ShipmentOut(BaseModel):
     creationDate: Optional[datetime]
     status: Optional[str] = None
     shipmentRequest: Optional[int] = None
-
-
-class MixedShipment(ShipmentOut):
-    id: int = Field(validation_alias="shipmentId")
-    creationStatus: Literal["draft", "submitted"] = "draft"
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    lastStatusUpdate: datetime
+    externalId: int | None = None
 
 
 class GenericItemData(BaseModel):

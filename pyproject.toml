@@ -41,6 +41,7 @@ dev = [
     "pytest",
     "pytest-cov",
     "ruff",
+    "freezegun~=1.5.2",
     "sphinx-autobuild",
     "sphinx-copybutton",
     "sphinx-design",
