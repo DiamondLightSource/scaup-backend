@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.2
--- Dumped by pg_dump version 17.2
+-- Dumped from database version 17.4
+-- Dumped by pg_dump version 17.4
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -255,7 +255,8 @@ CREATE TABLE public."Shipment" (
     comments character varying(255),
     "proposalCode" character varying(2) NOT NULL,
     "proposalNumber" integer NOT NULL,
-    "visitNumber" integer NOT NULL
+    "visitNumber" integer NOT NULL,
+    "lastStatusUpdate" timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -461,17 +462,17 @@ COPY public."SampleParentChild" ("parentId", "childId", "creationDate") FROM std
 -- Data for Name: Shipment; Type: TABLE DATA; Schema: public; Owner: sample_handling
 --
 
-COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status, name, "externalId", comments, "proposalCode", "proposalNumber", "visitNumber") FROM stdin;
-1	2024-05-02 13:12:36.528788+00	\N	\N	Shipment_01	\N	\N	cm	1	1
-2	2024-05-02 13:12:36.528788+00	\N	\N	Shipment_02	123	\N	cm	2	1
-89	2024-05-02 13:12:36.528788+00	\N	Booked	Shipment_03	256	\N	cm	2	1
-97	2024-06-26 12:55:39.211687+00	\N	\N	Shipment_04	\N	\N	cm	3	1
-106	2024-06-26 12:55:39.211687+00	\N	\N	Shipment_05	789	\N	cm	3	1
-117	2024-06-26 13:36:53.632782+00	1	Booked	1	63975	\N	bi	23047	100
-118	2024-06-26 13:40:32.191664+00	\N	\N	2	\N	\N	bi	23047	100
-126	2024-07-15 15:35:32.472987+00	\N	\N	1	\N	\N	bi	23047	99
-204	2024-07-15 15:35:32.472987+00	\N	Created	3	\N	\N	bi	23047	99
-229	2025-01-10 08:54:23.171217+00	\N	Created	100	\N	\N	bi	23047	102
+COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status, name, "externalId", comments, "proposalCode", "proposalNumber", "visitNumber", "lastStatusUpdate") FROM stdin;
+1	2024-05-02 13:12:36.528788+00	\N	\N	Shipment_01	\N	\N	cm	1	1	2025-06-09 08:29:07.995804+00
+2	2024-05-02 13:12:36.528788+00	\N	\N	Shipment_02	123	\N	cm	2	1	2025-06-09 08:29:07.995804+00
+89	2024-05-02 13:12:36.528788+00	\N	Booked	Shipment_03	256	\N	cm	2	1	2025-06-09 08:29:07.995804+00
+97	2024-06-26 12:55:39.211687+00	\N	\N	Shipment_04	\N	\N	cm	3	1	2025-06-09 08:29:07.995804+00
+106	2024-06-26 12:55:39.211687+00	\N	\N	Shipment_05	789	\N	cm	3	1	2025-06-09 08:29:07.995804+00
+118	2024-06-26 13:40:32.191664+00	\N	\N	2	\N	\N	bi	23047	100	2025-06-09 08:29:07.995804+00
+126	2024-07-15 15:35:32.472987+00	\N	\N	1	\N	\N	bi	23047	99	2025-06-09 08:29:07.995804+00
+204	2024-07-15 15:35:32.472987+00	\N	Created	3	\N	\N	bi	23047	99	2025-06-09 08:29:07.995804+00
+229	2025-01-10 08:54:23.171217+00	\N	Created	100	\N	\N	bi	23047	102	2025-06-09 08:29:07.995804+00
+117	2025-06-05 14:15:42.285+00	1	at facility	1	63975	\N	bi	23047	100	2025-06-05 14:15:42.285+00
 \.
 
 
@@ -486,9 +487,9 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 1	1	\N	DLS-1	dewar	DLS-EM-0000	\N	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
 152	97	\N	DLS-4	dewar	Dewar_05	\N	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
 171	106	\N	DLS-4	dewar	Dewar_06	20	\N	f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
-199	117	{}	DLS-BI-0020	dewar	DLS-BI-0020	72181		f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
 221	\N	{}	DLS-BI-0020	dewar	DLS-BI-0020	\N		t	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
 720	229	{}	DLS-BI-0020	dewar	DLS-BI-0020	\N		f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
+199	117	{}	DLS-BI-0020	dewar	DLS-BI-0020	80365		f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
 \.
 
 
@@ -497,7 +498,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-297144dfe234
+dea9c772d734
 \.
 
 
@@ -505,35 +506,35 @@ COPY public.alembic_version (version_num) FROM stdin;
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 2039, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 2238, true);
 
 
 --
 -- Name: PreSession_preSessionId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 379, true);
+SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 423, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 2096, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 2558, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 286, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 307, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 825, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 980, true);
 
 
 --

@@ -1,28 +1,24 @@
 import responses
 
+from scaup.utils.config import Config
+
 
 @responses.activate
-def test_get_draft(client):
-    """Should get draft shipments in proposal"""
+def test_get(client):
+    """Should get shipments in proposal"""
+    responses.get(
+        f"{Config.ispyb_api.url}/shipments/63975",
+        status=200,
+        json={"shippingStatus": "opened"},
+    )
+
     resp = client.get("/proposals/cm00001/sessions/1/shipments")
 
     assert resp.status_code == 200
 
     data = resp.json()
 
-    assert data["items"][0]["creationStatus"] == "draft"
-
-
-@responses.activate
-def test_get_submitted(client):
-    """Should get submitted shipments in proposal"""
-    resp = client.get("/proposals/cm00002/sessions/1/shipments")
-
-    assert resp.status_code == 200
-
-    data = resp.json()
-
-    assert data["items"][0]["creationStatus"] == "submitted"
+    assert data["items"][0]["name"] == "Shipment_01"
 
 
 @responses.activate

@@ -1,6 +1,10 @@
+from datetime import datetime
+from typing import List
+
 import requests
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
+from sqlalchemy import update
 
 from ..models.containers import ContainerExternal
 from ..models.inner_db.tables import (
@@ -11,8 +15,9 @@ from ..models.inner_db.tables import (
     TopLevelContainer,
 )
 from ..models.samples import SampleExternal
-from ..models.shipments import ShipmentExternal
+from ..models.shipments import ShipmentExternal, ShipmentOut
 from ..models.top_level_containers import TopLevelContainerExternal
+from ..utils.database import inner_db
 from ..utils.models import OrmBaseModel
 from .config import Config
 
@@ -34,7 +39,12 @@ class ExternalObject:
     external_key = ""
     url = ""
 
-    def __init__(self, item: AvailableTable, item_id: int | str | None, root_id: int | None = None):
+    def __init__(
+        self,
+        item: AvailableTable,
+        item_id: int | str | None,
+        root_id: int | None = None,
+    ):
         match item:
             case Shipment():
                 self.url = f"/proposals/{item_id}/shipments"
@@ -146,3 +156,58 @@ class Expeye:
             "externalId": external_id,
             "link": "".join([Config.ispyb_api.url, ext_obj.external_link_prefix, str(external_id)]),
         }
+
+
+def update_shipment_statuses(shipments: List[ShipmentOut], token: str):
+    """Update shipment statuses in place by fetching updates from ISPyB, and return updated
+    shipment list
+
+    Args:
+        shipments: Shipments to update statuses for
+        token: User token
+
+    Returns:
+        Updated shipments"""
+    for i, shipment in enumerate(shipments):
+        update_delta = datetime.now(tz=shipment.lastStatusUpdate.tzinfo) - shipment.lastStatusUpdate
+
+        age_delta = (
+            datetime.now(tz=shipment.lastStatusUpdate.tzinfo) - shipment.creationDate if shipment.creationDate else None
+        )
+
+        if (
+            shipment.externalId
+            # Check if last updated was more than 10 minutes ago
+            and update_delta.total_seconds() > 600
+            # Check if older than 3 months
+            and age_delta
+            and age_delta.total_seconds() < 7776000
+        ):
+            validated_shipment = ShipmentOut.model_validate(shipment, from_attributes=True)
+            response = ExternalRequest.request(token=token, url=f"/shipments/{shipment.externalId}")
+            if response.status_code == 200:
+                external_shipment = response.json()
+                new_shipment = inner_db.session.execute(
+                    update(Shipment)
+                    .returning(Shipment)
+                    .filter(Shipment.id == validated_shipment.id)
+                    .values(
+                        {
+                            "status": external_shipment["shippingStatus"],
+                            "lastStatusUpdate": datetime.now(tz=shipment.lastStatusUpdate.tzinfo),
+                        }
+                    )
+                ).scalar_one()
+
+                shipments[i] = new_shipment
+            else:
+                app_logger.warning(
+                    "Failed to get status from ISPyB for shipment %i (external ID: %i): %s",
+                    validated_shipment.id,
+                    validated_shipment.externalId,
+                    response.text,
+                )
+
+    inner_db.session.commit()
+
+    return shipments

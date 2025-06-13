@@ -10,7 +10,7 @@ from ..crud import proposals as crud
 from ..crud import samples as samples_crud
 from ..models.containers import ContainerOut
 from ..models.samples import SampleOut, SublocationAssignment
-from ..models.shipments import MixedShipment, ShipmentIn, ShipmentOut
+from ..models.shipments import ShipmentIn, ShipmentOut
 from ..utils.database import Paged
 from ..utils.external import ExternalRequest
 
@@ -37,14 +37,15 @@ def create_shipment(
 
 @router.get(
     "/{proposalReference}/sessions/{visitNumber}/shipments",
-    response_model=Paged[MixedShipment],
+    response_model=Paged[ShipmentOut],
 )
 def get_shipments(
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     proposalReference: ProposalReference = Depends(auth),
     page: dict[str, int] = Depends(pagination),
 ):
     """Get shipments in session"""
-    return crud.get_shipments(proposalReference, **page)
+    return crud.get_shipments(token=token.credentials, proposal_reference=proposalReference, **page)
 
 
 @router.get(

@@ -42,6 +42,7 @@ class Shipment(Base, BaseColumns):
 
     shipmentRequest: Mapped[int | None] = mapped_column()
     status: Mapped[str | None] = mapped_column(String(25), server_default="Created")
+    lastStatusUpdate: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class TopLevelContainer(Base, BaseColumns):

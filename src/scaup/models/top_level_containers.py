@@ -1,10 +1,25 @@
 import json
 import uuid
-from typing import Any, Optional
+from datetime import datetime
+from typing import Any, List, Optional
 
-from pydantic import AliasChoices, BaseModel, ConfigDict, Field, computed_field, field_validator
+from pydantic import (
+    AliasChoices,
+    BaseModel,
+    ConfigDict,
+    Field,
+    computed_field,
+    field_validator,
+)
 
 from ..utils.models import BaseExternal
+
+
+class TopLevelContainerHistory(BaseModel):
+    storageLocation: str | None = None
+    dewarId: int
+    dewarStatus: str
+    arrivalDate: datetime | None = None
 
 
 class BaseTopLevelContainer(BaseModel):
@@ -36,6 +51,8 @@ class TopLevelContainerOut(BaseTopLevelContainer):
     type: str
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
     externalId: int | None = None
+    barCode: uuid.UUID
+    history: List[TopLevelContainerHistory] | None = None
 
 
 class TopLevelContainerExternal(BaseExternal):
