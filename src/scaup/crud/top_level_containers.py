@@ -16,7 +16,7 @@ from ..utils.database import inner_db
 from ..utils.external import ExternalRequest
 from ..utils.session import retry_if_exists
 
-DEWAR_PREFIX = "DLS-BI-"
+DEWAR_PREFIX = "DLS-BI-1"
 
 
 def _check_fields(
@@ -82,7 +82,7 @@ def create_top_level_container(shipmentId: int | None, params: TopLevelContainer
             last_dewar = int(ext_get.json()["items"][0]["facilityCode"].split("-")[2])
             dewar_number = 1000 if last_dewar < 1000 else last_dewar + 1
 
-        new_code = f"{DEWAR_PREFIX}{dewar_number:04}"
+        new_code = f"DLS-BI-{dewar_number:04}"
 
         proposal_reference = inner_db.session.scalar(
             select(func.concat(Shipment.proposalCode, Shipment.proposalNumber)).filter(Shipment.id == shipmentId)

@@ -66,7 +66,7 @@ def test_create_no_code(client):
     )
 
     responses.get(
-        f"{Config.ispyb_api.url}/dewar-registry?search=DLS-BI-&limit=1",
+        f"{Config.ispyb_api.url}/dewar-registry?search=DLS-BI-1&limit=1",
         status=200,
         json={"items": [{"facilityCode": "DLS-BI-5671"}]},
     )
@@ -90,7 +90,7 @@ def test_create_no_code(client):
 def test_no_items_in_ispyb(client):
     """Should set generated code index to 1000 if Expeye returns no dewar registry items"""
     responses.get(
-        f"{Config.ispyb_api.url}/dewar-registry?search=DLS-BI-&limit=1",
+        f"{Config.ispyb_api.url}/dewar-registry?search=DLS-BI-1&limit=1",
         status=200,
         json={"items": []},
     )
@@ -120,7 +120,7 @@ def test_no_items_in_ispyb(client):
 def test_create_no_code_expeye_out_of_range(client):
     """Should set generated code index to 1000 if Expeye returns a code which is out of eBIC's range"""
     responses.get(
-        f"{Config.ispyb_api.url}/dewar-registry?search=DLS-BI-&limit=1",
+        f"{Config.ispyb_api.url}/dewar-registry?search=DLS-BI-1&limit=1",
         status=200,
         json={"items": [{"facilityCode": "DLS-BI-0008"}]},
     )
@@ -158,7 +158,7 @@ def test_create_no_code_expeye_out_of_range(client):
 def test_upstream_failure(client, status_get, status_post):
     """Should raise exception if request fails upstream"""
     responses.get(
-        f"{Config.ispyb_api.url}/dewar-registry?search=DLS-BI-&limit=1",
+        f"{Config.ispyb_api.url}/dewar-registry?search=DLS-BI-1&limit=1",
         status=status_get,
         json={"items": [{"facilityCode": "DLS-BI-5671"}]},
     )
