@@ -158,6 +158,65 @@ class Expeye:
         }
 
 
+def update_shipment_status(shipment: ShipmentOut, token: str, commit: bool = True):
+    """Update shipment status by fetching updates from ISPyB, and return updated
+    shipment
+
+    Args:
+        shipments: Shipment to update status for
+        token: User token
+
+    Returns:
+        Updated shipment"""
+    update_delta = datetime.now(tz=shipment.lastStatusUpdate.tzinfo) - shipment.lastStatusUpdate
+
+    age_delta = (
+        datetime.now(tz=shipment.lastStatusUpdate.tzinfo) - shipment.creationDate if shipment.creationDate else None
+    )
+
+    validated_shipment = ShipmentOut.model_validate(shipment, from_attributes=True)
+
+    if (
+        not shipment.externalId
+        # Check if last updated was more than 10 minutes ago
+        or update_delta.total_seconds() < 600
+        # Check if older than 3 months
+        or not age_delta
+        or age_delta.total_seconds() > 7776000
+    ):
+        return validated_shipment
+
+    response = ExternalRequest.request(token=token, url=f"/shipments/{shipment.externalId}")
+
+    if response.status_code != 200:
+        app_logger.warning(
+            "Failed to get status from ISPyB for shipment %i (external ID: %i): %s",
+            validated_shipment.id,
+            validated_shipment.externalId,
+            response.text,
+        )
+
+        return validated_shipment
+
+    external_shipment = response.json()
+    new_shipment = inner_db.session.execute(
+        update(Shipment)
+        .returning(Shipment)
+        .filter(Shipment.id == validated_shipment.id)
+        .values(
+            {
+                "status": external_shipment["shippingStatus"],
+                "lastStatusUpdate": datetime.now(tz=shipment.lastStatusUpdate.tzinfo),
+            }
+        )
+    ).scalar_one()
+
+    if not commit:
+        inner_db.session.commit()
+
+    return ShipmentOut.model_validate(new_shipment, from_attributes=True)
+
+
 def update_shipment_statuses(shipments: List[ShipmentOut], token: str):
     """Update shipment statuses in place by fetching updates from ISPyB, and return updated
     shipment list
@@ -169,44 +228,7 @@ def update_shipment_statuses(shipments: List[ShipmentOut], token: str):
     Returns:
         Updated shipments"""
     for i, shipment in enumerate(shipments):
-        update_delta = datetime.now(tz=shipment.lastStatusUpdate.tzinfo) - shipment.lastStatusUpdate
-
-        age_delta = (
-            datetime.now(tz=shipment.lastStatusUpdate.tzinfo) - shipment.creationDate if shipment.creationDate else None
-        )
-
-        if (
-            shipment.externalId
-            # Check if last updated was more than 10 minutes ago
-            and update_delta.total_seconds() > 600
-            # Check if older than 3 months
-            and age_delta
-            and age_delta.total_seconds() < 7776000
-        ):
-            validated_shipment = ShipmentOut.model_validate(shipment, from_attributes=True)
-            response = ExternalRequest.request(token=token, url=f"/shipments/{shipment.externalId}")
-            if response.status_code == 200:
-                external_shipment = response.json()
-                new_shipment = inner_db.session.execute(
-                    update(Shipment)
-                    .returning(Shipment)
-                    .filter(Shipment.id == validated_shipment.id)
-                    .values(
-                        {
-                            "status": external_shipment["shippingStatus"],
-                            "lastStatusUpdate": datetime.now(tz=shipment.lastStatusUpdate.tzinfo),
-                        }
-                    )
-                ).scalar_one()
-
-                shipments[i] = new_shipment
-            else:
-                app_logger.warning(
-                    "Failed to get status from ISPyB for shipment %i (external ID: %i): %s",
-                    validated_shipment.id,
-                    validated_shipment.externalId,
-                    response.text,
-                )
+        shipments[i] = update_shipment_status(shipment, token, commit=False)
 
     inner_db.session.commit()
 

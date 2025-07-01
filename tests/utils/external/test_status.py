@@ -7,7 +7,7 @@ from sqlalchemy import select
 from scaup.models.inner_db.tables import Shipment
 from scaup.utils.config import Config
 from scaup.utils.database import inner_db
-from scaup.utils.external import update_shipment_statuses
+from scaup.utils.external import update_shipment_status, update_shipment_statuses
 
 
 @freeze_time("2025-06-05 15:28:42.285 +0100")
@@ -20,9 +20,9 @@ def test_get(client):
         json={"shippingStatus": "opened"},
     )
 
-    shipments = inner_db.session.scalar(select(Shipment).filter(Shipment.externalId == 63975))
+    shipment = inner_db.session.execute(select(Shipment).filter(Shipment.externalId == 63975)).scalar_one()
 
-    update_shipment_statuses([shipments], "token-here")
+    update_shipment_status(shipment, "token-here")
 
     new_status = inner_db.session.scalar(select(Shipment.status).filter(Shipment.externalId == 63975))
     assert new_status == "opened"
@@ -38,9 +38,9 @@ def test_cached(client):
         json={"shippingStatus": "opened"},
     )
 
-    shipments = inner_db.session.scalar(select(Shipment).filter(Shipment.externalId == 63975))
+    shipment = inner_db.session.execute(select(Shipment).filter(Shipment.externalId == 63975)).scalar_one()
 
-    update_shipment_statuses([shipments], "token-here")
+    update_shipment_status(shipment, "token-here")
 
     assert external_request.call_count == 0
 
@@ -55,9 +55,9 @@ def test_old_shipment(client):
         json={"shippingStatus": "opened"},
     )
 
-    shipments = inner_db.session.scalar(select(Shipment).filter(Shipment.externalId == 63975))
+    shipment = inner_db.session.execute(select(Shipment).filter(Shipment.externalId == 63975)).scalar_one()
 
-    update_shipment_statuses([shipments], "token-here")
+    update_shipment_status(shipment, "token-here")
 
     assert external_request.call_count == 0
 
@@ -72,10 +72,10 @@ def test_upstream_failure(client, caplog):
         json={"details": "error"},
     )
 
-    shipments = inner_db.session.scalar(select(Shipment).filter(Shipment.externalId == 63975))
+    shipment = inner_db.session.execute(select(Shipment).filter(Shipment.externalId == 63975)).scalar_one()
 
     with caplog.at_level(logging.WARNING):
-        update_shipment_statuses([shipments], "token-here")
+        update_shipment_status(shipment, "token-here")
 
     assert external_request.call_count == 1
 
@@ -85,3 +85,20 @@ def test_upstream_failure(client, caplog):
     assert caplog.records[0].message == (
         'Failed to get status from ISPyB for shipment 117 (external ID: 63975): {"details": "error"}'
     )
+
+
+@responses.activate
+def test_multiple_shipments(client):
+    """Should update statuses for multiple shipments"""
+    responses.get(
+        f"{Config.ispyb_api.url}/shipments/63975",
+        status=200,
+        json={"shippingStatus": "opened"},
+    )
+
+    shipment = inner_db.session.execute(select(Shipment).filter(Shipment.externalId == 63975)).scalar_one()
+
+    update_shipment_statuses([shipment], "token-here")
+
+    new_status = inner_db.session.scalar(select(Shipment.status).filter(Shipment.externalId == 63975))
+    assert new_status == "opened"
