@@ -24,7 +24,12 @@ from ..models.shipments import (
 from ..utils.config import Config
 from ..utils.crud import assert_no_unassigned, assign_dcg_to_sublocation
 from ..utils.database import inner_db
-from ..utils.external import TYPE_TO_SHIPPING_SERVICE_TYPE, Expeye, ExternalRequest, update_shipment_statuses
+from ..utils.external import (
+    TYPE_TO_SHIPPING_SERVICE_TYPE,
+    Expeye,
+    ExternalRequest,
+    update_shipment_status,
+)
 from ..utils.query import query_result_to_object
 
 
@@ -48,7 +53,7 @@ def get_shipment(token: str, shipmentId: int, get_children: bool = False):
     if not get_children:
         shipment = inner_db.session.execute(select(Shipment).filter(Shipment.id == shipmentId)).scalar_one()
 
-        shipment = update_shipment_statuses(shipments=[shipment], token=token)[0]
+        shipment = update_shipment_status(shipment, token=token)
 
         return ShipmentChildren(
             id=shipmentId,
@@ -59,11 +64,13 @@ def get_shipment(token: str, shipmentId: int, get_children: bool = False):
 
     raw_shipment_data = _get_shipment_tree(shipmentId)
 
+    shipment_metadata = update_shipment_status(raw_shipment_data, token)
+
     return ShipmentChildren(
         id=shipmentId,
         name=raw_shipment_data.name,
         children=query_result_to_object(raw_shipment_data.children),
-        data=ShipmentOut.model_validate(raw_shipment_data, from_attributes=True).model_dump(mode="json"),
+        data=ShipmentOut.model_validate(shipment_metadata, from_attributes=True).model_dump(mode="json"),
     )
 
 
