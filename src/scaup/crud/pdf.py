@@ -14,6 +14,7 @@ from scaup.assets.text import (
     LABEL_INSTRUCTIONS_STEP_2,
     LABEL_INSTRUCTIONS_STEP_3,
     LABEL_INSTRUCTIONS_STEP_4,
+    TEMPORARY_DEWAR_TEXT,
 )
 
 from ..assets.paths import (
@@ -165,6 +166,25 @@ class TrackingLabelPages(FPDF):
             new_y="NEXT",
         )
 
+    def add_barcodes(self, dewars: List[Row]):
+        for i, dewar in enumerate(dewars):
+            if i % 4 == 0:
+                y_pos = 10
+                self.add_page()
+
+            self.code39("*" + dewar.code + "*", x=35, y=y_pos, w=2, h=25)
+
+            self.set_y(y_pos + 26)
+            self.set_font("helvetica", size=26, style="B")
+            self.cell(w=0, text=dewar.code, align="C", new_y="NEXT", new_x="LMARGIN")
+
+            self.set_font("helvetica", size=16, style="B")
+            self.multi_cell(w=0, text=TEMPORARY_DEWAR_TEXT, align="C")
+
+            self.image(CUT_HERE, x="L", y=y_pos + 55, w=194)
+
+            y_pos += 70
+
     def add_dewar(self, dewar: Row):
         if dewar.barCode is None or dewar.externalId is None:
             raise HTTPException(
@@ -312,6 +332,8 @@ def get_shipping_labels(shipment_id: int, token: str):
     )
     for dewar in data:
         pdf.add_dewar(dewar)
+
+    pdf.add_barcodes(data)
 
     headers = {
         "Content-Disposition": (
