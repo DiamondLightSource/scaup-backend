@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 class BasePreSession(BaseModel):
     details: Optional[dict[str, Any]] = None
-    isLocked: bool = False
 
 
 class PreSessionIn(BasePreSession):
@@ -17,4 +16,4 @@ class PreSessionOptional(BasePreSession):
 
 
 class PreSessionOut(BasePreSession):
-    pass
+    isLocked: bool = False
