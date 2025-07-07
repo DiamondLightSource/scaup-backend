@@ -29,7 +29,7 @@ def test_get(client):
 
 
 @pytest.mark.noregister
-@responses.activate()
+@responses.activate
 def test_no_session(client):
     """Should return 404 if session is not found upstream"""
     responses.get(f"{Config.ispyb_api.url}/proposals/cm1/sessions/1", status=404)
