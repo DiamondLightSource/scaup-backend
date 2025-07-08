@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v0.12.0 (08/07/2025)
++++++++++
+
+**Added**
+
+- Render temporary barcodes for dewars
+
+**Changed**
+
+- Always update shipment statuses, even when getting a whole shipment tree
+
++++++++++
 v0.11.1 (01/07/2025)
 +++++++++
 
