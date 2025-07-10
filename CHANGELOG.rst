@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v0.13.0 (10/07/2025)
++++++++++
+
+**Added**
+
+- Lock sessions 24 hours before they start (for users)
+
+**Changed**
+
+- Users can access proposal resources if they're in the session (not just the proposal)
+
++++++++++
 v0.12.0 (08/07/2025)
 +++++++++
 
