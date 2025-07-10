@@ -81,7 +81,7 @@ def _check_perms(data_id: T, endpoint: str, token: str) -> T:
                 "/permission/",
                 endpoint,
                 "/",
-                str(data_id),
+                str(data_id) if endpoint != "proposal" else str(data_id) + "/inSessions",
             ]
         ),
         headers={"Authorization": f"Bearer {token}"},
