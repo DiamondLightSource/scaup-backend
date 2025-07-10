@@ -3,9 +3,12 @@ from typing import List
 from fastapi import APIRouter, Body, Depends, Query, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials
+from lims_utils.auth import GenericUser
 from lims_utils.models import Paged, pagination
 
-from ..auth import Permissions, auth_scheme
+from scaup.utils.session import session_unlocked
+
+from ..auth import Permissions, User, auth_scheme
 from ..crud import containers as container_crud
 from ..crud import pdf as pdf_crud
 from ..crud import pre_sessions as ps_crud
@@ -159,9 +162,11 @@ def get_shipment_request(shipmentId=Depends(auth)):
 )
 def get_pre_session(
     shipmentId=Depends(auth),
+    user: GenericUser = Depends(User),
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
     """Create new pre session information"""
-    return ps_crud.get_pre_session_info(shipmentId)
+    return ps_crud.get_pre_session_info(shipmentId, user, token)
 
 
 @router.put(
@@ -170,7 +175,7 @@ def get_pre_session(
     status_code=status.HTTP_201_CREATED,
 )
 def create_pre_session(
-    shipmentId=Depends(auth),
+    shipmentId=Depends(session_unlocked),
     parameters: PreSessionIn = Body(),
 ):
     """Upsert new pre session information"""

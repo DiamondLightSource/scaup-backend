@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 from unittest.mock import patch
 
 # FastAPI's server has side-effects on import. This ensures the env. vars are set beforehand
@@ -151,7 +150,7 @@ def register_responses(request):
             "sessionId": 1,
             "beamLineOperator": "John Doe",
             "beamLineName": "m03",
-            "startDate": str(datetime.now()),
-            "endDate": str(datetime.now()),
+            "startDate": "2025-07-21T01:00:00",
+            "endDate": "2025-07-24T01:00:00",
         },
     )

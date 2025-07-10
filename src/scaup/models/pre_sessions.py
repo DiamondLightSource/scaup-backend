@@ -16,4 +16,4 @@ class PreSessionOptional(BasePreSession):
 
 
 class PreSessionOut(BasePreSession):
-    pass
+    isLocked: bool = False
