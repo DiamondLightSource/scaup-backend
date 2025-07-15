@@ -1,15 +1,22 @@
+import pytest
 import responses
 
 from scaup.utils.config import Config
 
 SHIPMENT_REQUEST_CONTENTS = {"shipmentId": 1, "contact": {"a": "b", "c": "d"}}
-SHIPMENT_CONTENTS = {"consignee_address_line_1": "test", "consignee_email": "test@diamond.ac.uk"}
+SHIPMENT_CONTENTS = {
+    "consignee_address_line_1": "test",
+    "consignee_email": "test@diamond.ac.uk",
+}
 
 
 @responses.activate
 def test_get(client):
     """Should get tracking labels as a PDF"""
-    responses.get(f"{Config.shipping_service.backend_url}/api/shipment_requests/1/shipments/TO_FACILITY", status=404)
+    responses.get(
+        f"{Config.shipping_service.backend_url}/api/shipment_requests/1/shipments/TO_FACILITY",
+        status=404,
+    )
 
     resp = client.get("/shipments/117/tracking-labels")
 
@@ -32,6 +39,19 @@ def test_no_top_level_containers(client):
     assert resp.status_code == 404
 
 
+@pytest.mark.noregister
+@responses.activate
+def test_no_beamline_operator(client):
+    """Should return 200 even if beamline operator is missing"""
+    responses.get(
+        f"{Config.ispyb_api.url}/proposals/cm1/sessions/1",
+        json={"items": [{"beamLineName": "m01", "beamLineOperator": None}]},
+    )
+    resp = client.get("/shipments/118/tracking-labels")
+
+    assert resp.status_code == 404
+
+
 @responses.activate
 def test_user_address(client):
     """Should return include to/from address if these are available"""
@@ -40,7 +60,11 @@ def test_user_address(client):
         json=SHIPMENT_REQUEST_CONTENTS,
     )
 
-    responses.get(f"{Config.shipping_service.backend_url}/api/shipments/1", json=SHIPMENT_CONTENTS, status=200)
+    responses.get(
+        f"{Config.shipping_service.backend_url}/api/shipments/1",
+        json=SHIPMENT_CONTENTS,
+        status=200,
+    )
 
     resp = client.get("/shipments/117/tracking-labels")
 

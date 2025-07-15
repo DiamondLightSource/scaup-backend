@@ -110,20 +110,24 @@ class TrackingLabelPages(FPDF):
     def __init__(
         self,
         location: str,
-        local_contact: str,
+        local_contact: str | None,
         from_lines: List[str] | None = None,
         to_lines: List[str] | None = None,
     ):
         super().__init__()
         self.set_font("helvetica", size=14)
         self.location = location
-        self.local_contact = local_contact
         self.from_lines = from_lines
         self.to_lines = to_lines
 
-        # Only display two first local contacts, to save space
-        if len(lcs := local_contact.split(",")) > 2:
-            self.local_contact = f"{', '.join(lcs[:2])} + {len(lcs) - 2}"
+        if not local_contact:
+            self.local_contact = "Unknown"
+        else:
+            # Only display two first local contacts, to save space
+            if len(lcs := local_contact.split(",")) > 2:
+                self.local_contact = f"{', '.join(lcs[:2])} + {len(lcs) - 2}"
+            else:
+                self.local_contact = local_contact
 
         self.add_page()
 
