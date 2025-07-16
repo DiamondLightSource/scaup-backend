@@ -29,6 +29,7 @@ def test_new_top_level_container(client):
     assert dewar.item_body.firstExperimentId == 1
     assert dewar.item_body.dewarRegistryId == 456
 
+
 @responses.activate
 def test_update_top_level_container(client):
     """Should not get session ID if item has already been pushed to ISPyB"""
@@ -39,12 +40,11 @@ def test_update_top_level_container(client):
     assert dewar.item_body.firstExperimentId is None
     assert dewar.to_exclude == {"firstExperimentId"}
 
+
 @responses.activate
 def test_upstream_request_fail():
     """Should raise exception if Expeye returns invalid response"""
-    responses.get(
-        f"{Config.ispyb_api.url}/foo", status=404
-    )
+    responses.get(f"{Config.ispyb_api.url}/foo", status=404)
 
     with pytest.raises(HTTPException, match="Received invalid response from upstream service"):
         _get_resource_from_ispyb("token", "/foo")
