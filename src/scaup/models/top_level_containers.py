@@ -3,14 +3,7 @@ import uuid
 from datetime import datetime
 from typing import Any, List, Optional
 
-from pydantic import (
-    AliasChoices,
-    BaseModel,
-    ConfigDict,
-    Field,
-    computed_field,
-    field_validator,
-)
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, computed_field, field_validator
 
 from ..utils.models import BaseExternal
 
@@ -59,6 +52,9 @@ class TopLevelContainerExternal(BaseExternal):
     comments: str
     code: str
     barCode: uuid.UUID
+    firstExperimentId: int | None = None
+    weight: float = 18
+    dewarRegistryId: int | None = None
 
     @computed_field
     def facilityCode(self) -> str:

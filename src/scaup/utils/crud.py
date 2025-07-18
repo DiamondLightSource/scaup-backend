@@ -56,13 +56,13 @@ def edit_item(
     inner_db.session.commit()
 
     if updated_item and updated_item.externalId is not None:
-        ext_obj = ExternalObject(updated_item, item_id)
+        ext_obj = ExternalObject(token, updated_item, item_id)
 
         ExternalRequest.request(
             token,
             method="PATCH",
             url=f"{ext_obj.external_link_prefix}{updated_item.externalId}",
-            json=ext_obj.item_body.model_dump(mode="json"),
+            json=ext_obj.item_body.model_dump(mode="json", exclude=ext_obj.to_exclude),
         )
 
     return updated_item

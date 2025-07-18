@@ -4,7 +4,7 @@ from typing import List
 import requests
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
-from sqlalchemy import update
+from sqlalchemy import func, select, update
 
 from ..models.containers import ContainerExternal
 from ..models.inner_db.tables import (
@@ -31,6 +31,45 @@ TYPE_TO_SHIPPING_SERVICE_TYPE = {
 }
 
 
+# TODO: possibly replace this with middleware, or httpx client instances
+class ExternalRequest:
+    @staticmethod
+    def request(
+        token,
+        base_url=Config.ispyb_api.url,
+        *args,
+        **kwargs,
+    ):
+        """Wrapper for request object. Since the URL is validated before any
+        auth actions happen, we cannot wrap this in a custom auth implementation,
+        we must do all the preparation work before the actual request."""
+
+        kwargs["url"] = f"{base_url}{kwargs['url']}"
+        kwargs["method"] = kwargs.get("method", "GET")
+        kwargs["headers"] = {"Authorization": f"Bearer {token}"}
+
+        return requests.request(**kwargs)
+
+
+def _get_resource_from_ispyb(token: str, url: str):
+    response = ExternalRequest.request(token, url=url)
+
+    if response.status_code != 200:
+        app_logger.error(
+            (
+                f"Failed getting session information from ISPyB at URL {url}, service returned "
+                f"{response.status_code}: {response.text}"
+            )
+        )
+
+        raise HTTPException(
+            status_code=status.HTTP_424_FAILED_DEPENDENCY,
+            detail="Received invalid response from upstream service",
+        )
+
+    return response.json()
+
+
 class ExternalObject:
     """Object representing a link to the ISPyB instance of the object"""
 
@@ -38,9 +77,11 @@ class ExternalObject:
     external_link_prefix = ""
     external_key = ""
     url = ""
+    to_exclude: set[str] = set()
 
     def __init__(
         self,
+        token: str,
         item: AvailableTable,
         item_id: int | str | None,
         root_id: int | None = None,
@@ -66,6 +107,36 @@ class ExternalObject:
                 self.url = f"/shipments/{item_id}/dewars"
                 self.external_link_prefix = "/dewars/"
                 self.item_body = TopLevelContainerExternal.model_validate(item)
+
+                shipment = inner_db.session.execute(
+                    select(
+                        func.concat(Shipment.proposalCode, Shipment.proposalNumber).label("proposal"),
+                        Shipment.visitNumber,
+                    ).filter(Shipment.id == item.shipmentId)
+                ).one()
+
+                # When creating the dewar in ISPyB, since ISPyB has no concept of shipments belonging to sessions,
+                # dewars have to be assigned to sessions instead, and this is done through the firstExperimentId
+                # column, which despite the cryptic name, points to the BLSession table.
+                if item.externalId is None:
+                    session = _get_resource_from_ispyb(
+                        token,
+                        f"/proposals/{shipment.proposal}/sessions/{shipment.visitNumber}",
+                    )
+                    self.item_body.firstExperimentId = session["sessionId"]
+                else:
+                    self.to_exclude = {"firstExperimentId"}
+
+                # We store the dewar's facility code, but not the numeric dewar registry ID that ISPyB also expects.
+                # Even though the alphanumeric code is a primary key in the DewarRegistry table, the dewar table still
+                # expects a numeric dewarRegistryId which is used in some systems.
+                # Since the facility code can be changed by the user, we need to update this even if it was already
+                # pushed to ISPyB
+                dewar_reg = _get_resource_from_ispyb(
+                    token, f"/proposals/{shipment.proposal}/dewar-registry/{item.code}"
+                )
+
+                self.item_body.dewarRegistryId = dewar_reg["dewarRegistryId"]
                 self.external_key = "dewarId"
             case Sample():
                 if item_id is None:
@@ -78,26 +149,6 @@ class ExternalObject:
                 self.external_key = "blSampleId"
             case _:
                 raise NotImplementedError()
-
-
-# TODO: possibly replace this with middleware, or httpx client instances
-class ExternalRequest:
-    @staticmethod
-    def request(
-        token,
-        base_url=Config.ispyb_api.url,
-        *args,
-        **kwargs,
-    ):
-        """Wrapper for request object. Since the URL is validated before any
-        auth actions happen, we cannot wrap this in a custom auth implementation,
-        we must do all the preparation work before the actual request."""
-
-        kwargs["url"] = f"{base_url}{kwargs['url']}"
-        kwargs["method"] = kwargs.get("method", "GET")
-        kwargs["headers"] = {"Authorization": f"Bearer {token}"}
-
-        return requests.request(**kwargs)
 
 
 class Expeye:
@@ -119,7 +170,7 @@ class Expeye:
         Returns:
             External link and external ID"""
 
-        ext_obj = ExternalObject(item, parent_id, root_id)
+        ext_obj = ExternalObject(token, item, parent_id, root_id)
         method = "POST"
 
         if item.externalId:
@@ -130,7 +181,7 @@ class Expeye:
             token,
             method=method,
             url=ext_obj.url,
-            json=ext_obj.item_body.model_dump(mode="json"),
+            json=ext_obj.item_body.model_dump(mode="json", exclude=ext_obj.to_exclude),
         )
 
         if response.status_code not in [201, 200]:
