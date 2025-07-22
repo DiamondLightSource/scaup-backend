@@ -41,6 +41,26 @@ def test_create_no_name(client):
 
 
 @responses.activate
+def test_create_auto_barcode(client):
+    """Should automatically generate barcode if not provided in request"""
+
+    resp = client.post(
+        "/shipments/1/topLevelContainers",
+        json={
+            "type": "dewar",
+            "code": "DLS-EM-0001",
+        },
+    )
+
+    assert resp.status_code == 201
+
+    new_tlc = resp.json()["id"]
+    assert "cm1-1-" in inner_db.session.scalar(
+        select(TopLevelContainer.barCode).filter(TopLevelContainer.id == new_tlc)
+    )
+
+
+@responses.activate
 def test_create_duplicate_name(client):
     """Should not allow creation if name is already present in shipment"""
 

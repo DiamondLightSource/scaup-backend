@@ -1,5 +1,4 @@
 import json
-import uuid
 from datetime import datetime
 from typing import Any, List, Optional
 
@@ -44,14 +43,14 @@ class TopLevelContainerOut(BaseTopLevelContainer):
     type: str
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
     externalId: int | None = None
-    barCode: uuid.UUID
+    barCode: str | None = None
     history: List[TopLevelContainerHistory] | None = None
 
 
 class TopLevelContainerExternal(BaseExternal):
     comments: str
     code: str
-    barCode: uuid.UUID
+    barCode: str | None = None
     firstExperimentId: int | None = None
     weight: float = 18
     dewarRegistryId: int | None = None

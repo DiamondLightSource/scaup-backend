@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
 from lims_utils.models import Paged
-from sqlalchemy import func, insert, select
+from sqlalchemy import func, insert, select, update
 
 from ..models.inner_db.tables import Shipment, TopLevelContainer
 from ..models.top_level_containers import (
@@ -59,6 +59,17 @@ def _check_fields(
 @assert_not_booked
 @retry_if_exists
 def create_top_level_container(shipmentId: int | None, params: TopLevelContainerIn, token: str, autocreate=True):
+    proposal = (
+        None
+        if shipmentId is None
+        else inner_db.session.execute(
+            select(
+                func.concat(Shipment.proposalCode, Shipment.proposalNumber).label("reference"),
+                Shipment.visitNumber,
+            ).filter(Shipment.id == shipmentId)
+        ).one()
+    )
+
     if params.code:
         _check_fields(params, token, shipmentId)
     elif params.type == "dewar" and autocreate:
@@ -84,27 +95,24 @@ def create_top_level_container(shipmentId: int | None, params: TopLevelContainer
 
         new_code = f"DLS-BI-{dewar_number:04}"
 
-        proposal_reference = inner_db.session.scalar(
-            select(func.concat(Shipment.proposalCode, Shipment.proposalNumber)).filter(Shipment.id == shipmentId)
-        )
-
-        ext_resp = ExternalRequest.request(
-            Config.ispyb_api.jwt,
-            method="POST",
-            url=f"/proposals/{proposal_reference}/dewar-registry",
-            json={"facilityCode": new_code},
-        )
-
-        if ext_resp.status_code != 201:
-            app_logger.warning(
-                "Error from Expeye while creating dewar registry entry with code %s: %s",
-                new_code,
-                ext_resp.text,
+        if proposal:
+            ext_resp = ExternalRequest.request(
+                Config.ispyb_api.jwt,
+                method="POST",
+                url=f"/proposals/{proposal.reference}/dewar-registry",
+                json={"facilityCode": new_code},
             )
-            raise HTTPException(
-                status_code=status.HTTP_424_FAILED_DEPENDENCY,
-                detail="Invalid response while creating top level container in ISPyB",
-            )
+
+            if ext_resp.status_code != 201:
+                app_logger.warning(
+                    "Error from Expeye while creating dewar registry entry with code %s: %s",
+                    new_code,
+                    ext_resp.text,
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_424_FAILED_DEPENDENCY,
+                    detail="Invalid response while creating top level container in ISPyB",
+                )
 
         params.code = new_code
 
@@ -115,6 +123,17 @@ def create_top_level_container(shipmentId: int | None, params: TopLevelContainer
         insert(TopLevelContainer).returning(TopLevelContainer),
         {"shipmentId": shipmentId, **params.model_dump(exclude_unset=True)},
     )
+
+    if proposal:
+        bar_code = f"{proposal.reference}-{proposal.visitNumber}-{container.id:07}"
+
+        # This is because some users expect a sequential numeric ID to make tracking how old a dewar is easier,
+        # and because of historical reasons, some users are used to seeing the proposal/session number on there
+        # as well, so I have to create barcodes this way.
+        container = inner_db.session.scalar(
+            update(TopLevelContainer).returning(TopLevelContainer).filter(TopLevelContainer.id == container.id),
+            {"barCode": bar_code},
+        )
 
     inner_db.session.commit()
     return container
