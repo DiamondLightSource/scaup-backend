@@ -1,6 +1,5 @@
 import copy
 from datetime import datetime
-from uuid import UUID
 
 import pytest
 import responses
@@ -16,7 +15,7 @@ base_dewar = TopLevelContainer(
     shipmentId=1,
     type="dewar",
     name="Test_Dewar",
-    barCode=UUID(bytes=b"ffffffffffffffff"),
+    barCode="barCode",
     creationDate=datetime.now(),
 )
 
