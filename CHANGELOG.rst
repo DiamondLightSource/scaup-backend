@@ -8,6 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v0.14.0 (25/07/2025)
++++++++++
+
+**Added**
+
+- Populate firstExperimentId and dewarRegistryId in dewars
+
+**Changed**
+
+- Generate barcodes using old ISPyB standard
+
+**Fixed**
+
+- Display tracking labels even if lab contact is missing
+
++++++++++
 v0.13.0 (10/07/2025)
 +++++++++
 
