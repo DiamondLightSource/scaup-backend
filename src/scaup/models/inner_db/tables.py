@@ -1,10 +1,8 @@
-import uuid
 from datetime import datetime
 from typing import Any, List, Literal, Optional
 
 from sqlalchemy import (
     JSON,
-    UUID,
     DateTime,
     ForeignKey,
     PrimaryKeyConstraint,
@@ -55,7 +53,7 @@ class TopLevelContainer(Base, BaseColumns):
 
     details: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     code: Mapped[str] = mapped_column(String(20))
-    barCode: Mapped[UUID | None] = mapped_column(UUID(as_uuid=True), default=uuid.uuid4)
+    barCode: Mapped[str | None] = mapped_column(String(40))
     type: Mapped[str] = mapped_column(String(40), server_default="dewar")
     isInternal: Mapped[bool] = mapped_column(
         default=False,

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.4
+-- Dumped from database version 17.5
 -- Dumped by pg_dump version 17.4
 
 SET statement_timeout = 0;
@@ -305,7 +305,7 @@ CREATE TABLE public."TopLevelContainer" (
     "externalId" integer,
     comments character varying(255),
     "isInternal" boolean NOT NULL,
-    "barCode" uuid,
+    "barCode" character varying(40),
     "creationDate" timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -498,7 +498,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-dea9c772d734
+730f6f07da68
 \.
 
 
@@ -506,35 +506,35 @@ dea9c772d734
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 2238, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 2247, true);
 
 
 --
 -- Name: PreSession_preSessionId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 423, true);
+SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 427, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 2558, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 2579, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 307, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 308, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 980, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 987, true);
 
 
 --
