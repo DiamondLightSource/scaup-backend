@@ -425,12 +425,12 @@ def generate_report(shipment_id: int, token: str):
         .join(Sample.container)
         .filter(Sample.shipmentId == shipment_id)
         .options(contains_eager(Sample.container))
-        .order_by(Sample.subLocation.desc(), Sample.containerId, Sample.location)
+        .order_by(Sample.subLocation.desc(), Sample.container, Sample.location)
     )
 
     # TODO: rethink this once we're using user-provided templates
     grids_table = [
-        ("Gridbox", "Position", "Autoloader Slot", "Foil", "Hole", "Comments"),
+        ("Gridbox", "Position", "Cassette Slot", "Foil", "Hole", "Comments"),
         *[("",) * 6] * 12,
     ]
 
