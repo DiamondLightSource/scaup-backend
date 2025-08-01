@@ -425,7 +425,7 @@ def generate_report(shipment_id: int, token: str):
         .join(Sample.container)
         .filter(Sample.shipmentId == shipment_id)
         .options(contains_eager(Sample.container))
-        .order_by(Sample.container, Sample.location)
+        .order_by(Sample.subLocation.desc(), Sample.containerId, Sample.location)
     )
 
     # TODO: rethink this once we're using user-provided templates
