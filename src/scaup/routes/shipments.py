@@ -162,11 +162,10 @@ def get_shipment_request(shipmentId=Depends(auth)):
 )
 def get_pre_session(
     shipmentId=Depends(auth),
-    user: GenericUser = Depends(User),
-    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+    user: GenericUser = Depends(User)
 ):
     """Create new pre session information"""
-    return ps_crud.get_pre_session_info(shipmentId, user, token)
+    return ps_crud.get_pre_session_info(shipmentId, user)
 
 
 @router.put(

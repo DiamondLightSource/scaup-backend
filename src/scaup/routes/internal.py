@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials
-from lims_utils.models import pagination
+from lims_utils.models import Paged, pagination
 
 from ..auth import User, auth_scheme
 from ..crud import internal as crud
@@ -10,7 +10,6 @@ from ..models.containers import ContainerIn, ContainerOut
 from ..models.shipments import GenericItem, ShipmentChildren
 from ..models.top_level_containers import TopLevelContainerIn, TopLevelContainerOut
 from ..utils.auth import check_em_staff
-from ..utils.database import Paged
 
 
 def _internal_check_em_staff(user=Depends(User)):
