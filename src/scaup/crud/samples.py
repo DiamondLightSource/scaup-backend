@@ -1,9 +1,10 @@
 import re
+from typing import List
 
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
 from lims_utils.models import Paged, ProposalReference
-from sqlalchemy import and_, insert, select
+from sqlalchemy import and_, insert, select, update
 
 from ..models.inner_db.tables import Container, Sample, SampleParentChild, Shipment
 from ..models.samples import OptionalSample, SampleIn, SampleOut
@@ -80,8 +81,18 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
         ],
     ).all()
 
+    full_samples: List[Sample] = []
+
     for sample in samples:
-        Expeye.upsert(token, sample, None)
+        expeye_sample = Expeye.upsert(token, sample, None)
+
+        full_sample = inner_db.session.scalar(
+            update(Sample)
+            .returning(Sample)
+            .filter(Sample.id == sample.id)
+            .values({"externalId": expeye_sample["externalId"]})
+        )
+        full_samples.append(full_sample)
 
     if params.parents:
         inner_db.session.execute(
@@ -90,7 +101,7 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
         )
 
     inner_db.session.commit()
-    return Paged(items=samples, total=params.copies, page=0, limit=params.copies)
+    return Paged(items=full_samples, total=params.copies, page=0, limit=params.copies)
 
 
 def edit_sample(sampleId: int, params: OptionalSample, token: str):

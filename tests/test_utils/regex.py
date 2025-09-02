@@ -3,7 +3,7 @@ import re
 from scaup.utils.config import Config
 
 session_regex = re.compile(f"{Config.ispyb_api.url}/proposals/(.*)/sessions/(.*)")
-
+samples_regex = f"{Config.ispyb_api.url}/samples"
 protein_regex = re.compile(f"{Config.ispyb_api.url}/proteins/([0-9].*)")
 lab_contact_regex = re.compile(f"{Config.ispyb_api.url}/contacts/([0-9].*)")
 registered_dewar_regex = re.compile(f"{Config.ispyb_api.url}/proposals/(.*)/dewar-registry/(.*)")
