@@ -1,16 +1,17 @@
 import re
+from typing import List
 
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
 from lims_utils.models import Paged, ProposalReference
-from sqlalchemy import and_, insert, select
+from sqlalchemy import and_, insert, select, update
 
 from ..models.inner_db.tables import Container, Sample, SampleParentChild, Shipment
 from ..models.samples import OptionalSample, SampleIn, SampleOut
 from ..utils.config import Config
 from ..utils.crud import assert_not_booked, edit_item
-from ..utils.database import inner_db, paginate
-from ..utils.external import ExternalRequest
+from ..utils.database import inner_db
+from ..utils.external import Expeye, ExternalRequest
 from ..utils.session import retry_if_exists
 
 
@@ -80,6 +81,19 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
         ],
     ).all()
 
+    full_samples: List[Sample] = []
+
+    for sample in samples:
+        expeye_sample = Expeye.upsert(token, sample, None)
+
+        full_sample = inner_db.session.scalar(
+            update(Sample)
+            .returning(Sample)
+            .filter(Sample.id == sample.id)
+            .values({"externalId": expeye_sample["externalId"]})
+        )
+        full_samples.append(full_sample)
+
     if params.parents:
         inner_db.session.execute(
             insert(SampleParentChild),
@@ -87,7 +101,7 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
         )
 
     inner_db.session.commit()
-    return Paged(items=samples, total=params.copies, page=0, limit=params.copies)
+    return Paged(items=full_samples, total=params.copies, page=0, limit=params.copies)
 
 
 def edit_sample(sampleId: int, params: OptionalSample, token: str):
@@ -140,7 +154,7 @@ def get_samples(
         query = query.filter(Container.isInternal.is_not(True))
 
     query = query.order_by(Container.name, Container.location, Sample.location)
-    samples = paginate(query, limit, page, slow_count=True, scalar=True)
+    samples = inner_db.paginate(query, limit, page, slow_count=True, scalar=True)
 
     if ignore_external or token is None:
         return samples

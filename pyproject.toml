@@ -15,6 +15,7 @@ description = "Scaup's backend"
 
 dependencies = [
     "SQLAlchemy~=2.0.36",
+    "APScheduler~=3.11.0",
     "fastapi~=0.115.6",
     "psycopg[binary,pool]~=3.2.3",
     "pydantic~=2.10.5",
@@ -78,7 +79,8 @@ addopts = """
 # https://iscinumpy.gitlab.io/post/bound-version-constraints/#watch-for-warnings
 filterwarnings = "error"
 markers = [
-    "noregister: do not register HTTP mock responses"
+    "noregister: do not register HTTP mock responses",
+    "no_sample_response: do not register sample creation HTTP mock responses"
 ]
 
 [tool.coverage.run]

@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi import APIRouter, Body, Depends, Query, status
 from fastapi.security import HTTPAuthorizationCredentials
-from lims_utils.models import ProposalReference, pagination
+from lims_utils.models import Paged, ProposalReference, pagination
 
 from ..auth import Permissions, auth_scheme
 from ..crud import containers as containers_crud
@@ -11,7 +11,6 @@ from ..crud import samples as samples_crud
 from ..models.containers import ContainerOut
 from ..models.samples import SampleOut, SublocationAssignment
 from ..models.shipments import ShipmentIn, ShipmentOut
-from ..utils.database import Paged
 from ..utils.external import ExternalRequest
 
 auth = Permissions.session
@@ -32,7 +31,7 @@ def create_shipment(
     parameters: ShipmentIn = Body(),
 ):
     """Create new shipment in session"""
-    return crud.create_shipment(proposalReference, params=parameters)
+    return crud.create_shipment(proposal_reference=proposalReference, params=parameters)
 
 
 @router.get(
