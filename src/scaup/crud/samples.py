@@ -10,7 +10,7 @@ from ..models.samples import OptionalSample, SampleIn, SampleOut
 from ..utils.config import Config
 from ..utils.crud import assert_not_booked, edit_item
 from ..utils.database import inner_db
-from ..utils.external import Expeye, ExternalRequest
+from ..utils.external import ExternalRequest
 from ..utils.session import retry_if_exists
 
 
@@ -79,9 +79,6 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
             for i in range(params.copies)
         ],
     ).all()
-
-    for sample in samples:
-        Expeye.upsert(token, sample, None)
 
     if params.parents:
         inner_db.session.execute(

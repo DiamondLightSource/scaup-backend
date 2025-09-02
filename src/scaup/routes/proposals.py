@@ -27,12 +27,11 @@ router = APIRouter(
     response_model=ShipmentOut,
 )
 def create_shipment(
-    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     proposalReference: ProposalReference = Depends(auth),
     parameters: ShipmentIn = Body(),
 ):
     """Create new shipment in session"""
-    return crud.create_shipment(token=token.credentials, proposal_reference=proposalReference, params=parameters)
+    return crud.create_shipment(proposal_reference=proposalReference, params=parameters)
 
 
 @router.get(
