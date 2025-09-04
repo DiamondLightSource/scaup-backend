@@ -1,5 +1,7 @@
 # ruff: noqa: E501
 
+from string import Template
+
 EMAIL_HEADER = """
 <html>
 <body>
@@ -13,3 +15,18 @@ EMAIL_HEADER = """
 EMAIL_FOOTER = """
     <p style="border-top: 1px solid #001d55; background-color: #1040A1; padding: 10px; color: white;">© 2025, Diamond Light Source</p></div>
 """
+
+ALERT_BODY = Template("""
+<p>Dear $local_contact,</p>
+
+<p>The user(s) have submitted important information regarding the grids and pre-session data collection parameters for session $proposal-$session in SCAUP.</p>
+
+<p>To view this information, please <a href="$frontend_url/proposals/$proposal/session/$session">go to the Session Samples Dashboard page for the session</a>, select a shipment, and select “Print contents as table” under the Actions section</p>
+
+<p>Before starting an EPU session, please ensure that grids are added to the Cassette positions in the Sample Collection Summary page. This step allows results from the auto-processing pipeline in PATo to be correctly linked to sample conditions in SCAUP.</p>
+
+<p>Note: If you are not the designated Local Contact for this session, kindly forward this email to the appropriate person.</p>
+
+<p>Many thanks,</p>
+<p>SCAUP team</p>
+""")

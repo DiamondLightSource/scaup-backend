@@ -16,6 +16,7 @@ from scaup.utils.external import ExternalRequest
 
 from ..assets.paths import COMPANY_LOGO_LIGHT
 from ..models.alerts import (
+    ALERT_BODY,
     EMAIL_FOOTER,
     EMAIL_HEADER,
 )
@@ -119,13 +120,18 @@ def alert_session_lcs():
         )
 
     for session in upcoming_sessions:
-        msg = create_email(
-            "This is a placeholder email body",
-            f"Session {session.reference} starting in 24 hours",
-        )
-
         for local_contact in session.local_contacts:
             if local_contact in Config.alerts.local_contacts:
+                msg = create_email(
+                    ALERT_BODY.safe_substitute(
+                        local_contact=local_contact,
+                        proposal=f"{session.reference.code}{session.reference.number}",
+                        session=session.reference.visit_number,
+                        frontend_url=Config.frontend_url,
+                    ),
+                    f"Session {session.reference} - Grids and Pre-Session Data Collection Parameters in SCAUP ",
+                )
+
                 recipient = Config.alerts.local_contacts[local_contact]
                 try:
                     with SMTP(Config.alerts.smtp_server, Config.alerts.smtp_port, timeout=10) as smtp:
@@ -136,6 +142,10 @@ def alert_session_lcs():
 
                         smtp.sendmail(Config.alerts.contact_email, recipient, msg.as_string())
 
-                        app_logger.info("%s received email for session %s", recipient, session.reference)
+                        app_logger.info(
+                            "%s received email for session %s",
+                            recipient,
+                            session.reference,
+                        )
                 except Exception as e:
                     app_logger.error("Error while sending alert email to %s: %s", recipient, e)
