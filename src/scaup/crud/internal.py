@@ -4,7 +4,7 @@ from sqlalchemy.orm import joinedload
 from ..models.inner_db.tables import Container, TopLevelContainer
 from ..models.shipments import ShipmentChildren
 from ..models.top_level_containers import TopLevelContainerOut
-from ..utils.database import inner_db, paginate
+from ..utils.database import inner_db
 from ..utils.query import query_result_to_object
 
 
@@ -15,7 +15,7 @@ def get_unassigned(limit: int, page: int):
         Container.parentId.is_(None),
     )
 
-    paged_result = paginate(query, limit, page, slow_count=False, scalar=False)
+    paged_result = inner_db.paginate(query, limit, page, slow_count=False, scalar=False)
     paged_result.items = query_result_to_object(paged_result.items)
     return paged_result
 
@@ -42,4 +42,4 @@ def get_internal_container_tree(top_level_container_id: int):
 def get_internal_containers(limit: int, page: int):
     query = select(TopLevelContainer).filter(TopLevelContainer.isInternal.is_(True))
 
-    return paginate(query, limit, page, slow_count=False, scalar=False)
+    return inner_db.paginate(query, limit, page, slow_count=False, scalar=False)

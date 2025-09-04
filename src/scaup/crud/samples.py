@@ -9,7 +9,7 @@ from ..models.inner_db.tables import Container, Sample, SampleParentChild, Shipm
 from ..models.samples import OptionalSample, SampleIn, SampleOut
 from ..utils.config import Config
 from ..utils.crud import assert_not_booked, edit_item
-from ..utils.database import inner_db, paginate
+from ..utils.database import inner_db
 from ..utils.external import ExternalRequest
 from ..utils.session import retry_if_exists
 
@@ -140,7 +140,7 @@ def get_samples(
         query = query.filter(Container.isInternal.is_not(True))
 
     query = query.order_by(Container.name, Container.location, Sample.location)
-    samples = paginate(query, limit, page, slow_count=True, scalar=True)
+    samples = inner_db.paginate(query, limit, page, slow_count=True, scalar=True)
 
     if ignore_external or token is None:
         return samples
