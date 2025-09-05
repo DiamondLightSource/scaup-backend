@@ -6,7 +6,7 @@ from sqlalchemy.orm import aliased
 from ..models.containers import ContainerIn, ContainerOut, OptionalContainer
 from ..models.inner_db.tables import Container, Sample, Shipment
 from ..utils.crud import assert_not_booked, edit_item
-from ..utils.database import inner_db, paginate
+from ..utils.database import inner_db
 from ..utils.session import retry_if_exists
 
 
@@ -81,7 +81,7 @@ def get_containers(
     if container_type:
         query = query.filter(Container.type == container_type)
 
-    return paginate(query, limit, page, slow_count=True, scalar=False)
+    return inner_db.paginate(query, limit, page, slow_count=True, scalar=False)
 
 
 def update_container(
