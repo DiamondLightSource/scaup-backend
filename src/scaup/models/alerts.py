@@ -21,7 +21,7 @@ ALERT_BODY = Template("""
 
 <p>The user(s) have submitted important information regarding the grids and pre-session data collection parameters for session $proposal-$session in SCAUP.</p>
 
-<p>To view this information, please <a href="$frontend_url/proposals/$proposal/session/$session">go to the Session Samples Dashboard page for the session</a>, select a shipment, and select “Print contents as table” under the Actions section</p>
+<p>To view this information, please <a href="$frontend_url/proposals/$proposal/sessions/$session">go to the Session Samples Dashboard page for the session</a>, select a shipment, and select “Print contents as table” under the Actions section</p>
 
 <p>Before starting an EPU session, please ensure that grids are added to the Cassette positions in the Sample Collection Summary page. This step allows results from the auto-processing pipeline in PATo to be correctly linked to sample conditions in SCAUP.</p>
 
