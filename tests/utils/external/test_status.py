@@ -87,6 +87,7 @@ def test_upstream_failure(client, caplog):
     )
 
 
+@freeze_time("2025-06-05 15:28:42.285 +0100")
 @responses.activate
 def test_multiple_shipments(client):
     """Should update statuses for multiple shipments"""
