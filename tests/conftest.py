@@ -153,7 +153,7 @@ def register_responses(request):
         session_regex,
         json={
             "sessionId": 1,
-            "beamLineOperator": "John Doe",
+            "beamLineOperator": ["John Doe"],
             "beamLineName": "m03",
             "startDate": "2025-07-21T01:00:00",
             "endDate": "2025-07-24T01:00:00",
