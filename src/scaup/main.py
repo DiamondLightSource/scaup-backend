@@ -23,9 +23,12 @@ from .utils.database import inner_session
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     register_loggers()
-    session_alerts_scheduler.start()
-    yield
-    session_alerts_scheduler.shutdown()
+    if Config.alerts.contact_email:
+        session_alerts_scheduler.start()
+        yield
+        session_alerts_scheduler.shutdown()
+    else:
+        yield
 
 
 app = FastAPI(version=__version__, title="Scaup API", lifespan=lifespan)

@@ -41,10 +41,10 @@ class ShippingService:
 
 @dataclass
 class Alerts:
-    contact_email: str
     smtp_server: str
     smtp_port: str
     local_contacts: dict[str, str]
+    contact_email: str | None = None
 
 
 def _read_config():

@@ -81,19 +81,6 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
         ],
     ).all()
 
-    full_samples: List[Sample] = []
-
-    for sample in samples:
-        expeye_sample = Expeye.upsert(token, sample, None)
-
-        full_sample = inner_db.session.scalar(
-            update(Sample)
-            .returning(Sample)
-            .filter(Sample.id == sample.id)
-            .values({"externalId": expeye_sample["externalId"]})
-        )
-        full_samples.append(full_sample)
-
     if params.parents:
         inner_db.session.execute(
             insert(SampleParentChild),
@@ -101,7 +88,7 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
         )
 
     inner_db.session.commit()
-    return Paged(items=full_samples, total=params.copies, page=0, limit=params.copies)
+    return Paged(items=samples, total=params.copies, page=0, limit=params.copies)
 
 
 def edit_sample(sampleId: int, params: OptionalSample, token: str):
