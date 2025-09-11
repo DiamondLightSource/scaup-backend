@@ -1,3 +1,4 @@
+import pytest
 import responses
 from sqlalchemy import select
 
@@ -14,6 +15,7 @@ def test_push(client):
     assert resp.status_code == 200
 
 
+@pytest.mark.no_sample_response
 @responses.activate
 def test_push_unassigned(client):
     """Should push unassigned samples"""
