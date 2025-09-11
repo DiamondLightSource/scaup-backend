@@ -44,6 +44,9 @@ def create_email(msg_body: str, subject: str):
     """
     # Normally, a single multipart email would work, but Microsoft Outlook won't display images properly unless
     # they are encased in a 'related' multipart wrapper
+    if not Config.alerts.contact_email:
+        raise RuntimeError("Contact email not set")
+
     msg_root = MIMEMultipart("related")
     msg_root["Subject"] = subject
     msg_root["From"] = Config.alerts.contact_email

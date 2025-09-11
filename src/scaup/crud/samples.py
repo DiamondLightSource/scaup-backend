@@ -1,17 +1,16 @@
 import re
-from typing import List
 
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
 from lims_utils.models import Paged, ProposalReference
-from sqlalchemy import and_, insert, select, update
+from sqlalchemy import and_, insert, select
 
 from ..models.inner_db.tables import Container, Sample, SampleParentChild, Shipment
 from ..models.samples import OptionalSample, SampleIn, SampleOut
 from ..utils.config import Config
 from ..utils.crud import assert_not_booked, edit_item
 from ..utils.database import inner_db
-from ..utils.external import Expeye, ExternalRequest
+from ..utils.external import ExternalRequest
 from ..utils.session import retry_if_exists
 
 
