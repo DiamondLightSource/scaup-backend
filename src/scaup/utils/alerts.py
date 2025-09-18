@@ -120,11 +120,11 @@ def alert_session_lcs():
         ).all()
 
         for session in upcoming_sessions:
-            session_shipments = filter(
-                lambda s: s.proposalNumber == session.reference.number
-                and s.visitNumber == session.reference.visit_number,
-                shipments,
-            )
+            session_shipments = [
+                s
+                for s in shipments
+                if s.proposalNumber == session.reference.number and s.visitNumber == session.reference.visit_number
+            ]
 
             if session_shipments:
                 session.shipments = session_shipments
