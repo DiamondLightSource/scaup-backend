@@ -3,7 +3,7 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import SMTP
-from typing import Set
+from typing import List, Set
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from lims_utils.database import get_session
@@ -12,6 +12,7 @@ from lims_utils.models import ProposalReference, parse_proposal
 from pydantic import BaseModel
 from sqlalchemy import select
 
+from scaup.models.shipments import ShipmentOut
 from scaup.utils.external import ExternalRequest
 
 from ..assets.paths import COMPANY_LOGO_LIGHT
@@ -19,6 +20,7 @@ from ..models.alerts import (
     ALERT_BODY,
     EMAIL_FOOTER,
     EMAIL_HEADER,
+    SAMPLE_COLLECTION_LINK,
 )
 from ..models.inner_db.tables import Shipment
 from .config import Config
@@ -30,6 +32,7 @@ session_alerts_scheduler = AsyncIOScheduler()
 class UpcomingSession(BaseModel):
     reference: ProposalReference
     local_contacts: Set[str]
+    shipments: List[ShipmentOut] = []
 
 
 def create_email(msg_body: str, subject: str):
@@ -105,32 +108,51 @@ def alert_session_lcs():
         if s["beamLineOperator"]
     ]
 
+    upcoming_scaup_sessions: List[UpcomingSession] = []
+
     with get_session(inner_session) as db_session:
         # Filter out all sessions with are not registered with SCAUP
-        em_sessions = db_session.scalars(
+        shipments = db_session.scalars(
             select(Shipment).filter(
                 Shipment.proposalNumber.in_([s.reference.number for s in upcoming_sessions]),
                 Shipment.visitNumber.in_([s.reference.visit_number for s in upcoming_sessions]),
             )
         ).all()
 
-        upcoming_sessions = filter(
-            lambda s: any(
-                (s.reference.number == em_s.proposalNumber and s.reference.visit_number == em_s.visitNumber)
-                for em_s in em_sessions
-            ),
-            upcoming_sessions,
-        )
+        for session in upcoming_sessions:
+            session_shipments = filter(
+                lambda s: s.proposalNumber == session.reference.number
+                and s.visitNumber == session.reference.visit_number,
+                shipments,
+            )
 
-    for session in upcoming_sessions:
+            if session_shipments:
+                session.shipments = session_shipments
+                upcoming_scaup_sessions.append(session)
+
+    for session in upcoming_scaup_sessions:
         for local_contact in session.local_contacts:
             if local_contact in Config.alerts.local_contacts:
+                sample_collection_links = "".join(
+                    [
+                        SAMPLE_COLLECTION_LINK.safe_substitute(
+                            proposal=f"{session.reference.code}{session.reference.number}",
+                            session=session.reference.visit_number,
+                            frontend_url=Config.frontend_url,
+                            shipment=s.id,
+                            shipment_name=s.name,
+                        )
+                        for s in session.shipments
+                    ]
+                )
+
                 msg = create_email(
                     ALERT_BODY.safe_substitute(
                         local_contact=local_contact,
                         proposal=f"{session.reference.code}{session.reference.number}",
                         session=session.reference.visit_number,
                         frontend_url=Config.frontend_url,
+                        sample_collection_links=sample_collection_links,
                     ),
                     f"Session {session.reference} - Grids and Pre-Session Data Collection Parameters in SCAUP ",
                 )
