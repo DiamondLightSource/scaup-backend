@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v0.15.0 (06/10/2025)
++++++++++
+
+**Added**
+
+- Alert LCs 24 hours before session
+
++++++++++
 v0.14.2 (05/09/2025)
 +++++++++
 
