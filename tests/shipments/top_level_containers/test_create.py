@@ -41,8 +41,8 @@ def test_create_no_name(client):
 
 
 @responses.activate
-def test_create_auto_barcode(client):
-    """Should automatically generate barcode if not provided in request"""
+def test_create_auto_barcode_no_instrument(client):
+    """Should automatically generate barcode if not provided in request, and instrument isn't returned from ISPyB"""
 
     resp = client.post(
         "/shipments/1/topLevelContainers",
@@ -58,6 +58,60 @@ def test_create_auto_barcode(client):
     assert "cm1-1-" in inner_db.session.scalar(
         select(TopLevelContainer.barCode).filter(TopLevelContainer.id == new_tlc)
     )
+
+
+@pytest.mark.noregister
+@responses.activate
+def test_create_auto_barcode_with_instrument(client):
+    """Should automatically generate barcode if not provided in request"""
+    responses.get(
+        f"{Config.ispyb_api.url}/proposals/cm1/sessions/1",
+        status=200,
+        json={"beamLineName": "m02"},
+    )
+
+    responses.get(
+        f"{Config.ispyb_api.url}/proposals/cm1/dewar-registry/DLS-EM-0001",
+        status=200,
+        json={},
+    )
+
+    resp = client.post(
+        "/shipments/1/topLevelContainers",
+        json={
+            "type": "dewar",
+            "code": "DLS-EM-0001",
+        },
+    )
+
+    assert resp.status_code == 201
+    new_tlc = resp.json()["id"]
+    assert "cm1-1-m02-" in inner_db.session.scalar(
+        select(TopLevelContainer.barCode).filter(TopLevelContainer.id == new_tlc)
+    )
+
+
+@pytest.mark.noregister
+@responses.activate
+def test_create_auto_barcode_upstream_fail(client):
+    """Should raise exception if request fails upstream when generating barcode"""
+    responses.get(f"{Config.ispyb_api.url}/proposals/cm1/sessions/1", status=500)
+
+    responses.get(
+        f"{Config.ispyb_api.url}/proposals/cm1/dewar-registry/DLS-EM-0001",
+        status=200,
+        json={},
+    )
+
+    resp = client.post(
+        "/shipments/1/topLevelContainers",
+        json={
+            "type": "dewar",
+            "code": "DLS-EM-0001",
+        },
+    )
+
+    assert resp.status_code == 424
 
 
 @responses.activate

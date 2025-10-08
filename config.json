@@ -11,5 +11,13 @@
   },
   "db": { "pool": 3, "overflow": 6 },
   "ispyb_api": "http://127.0.0.1:8060/api",
-  "frontend_url": "http://localtest.diamond.ac.uk:9000"
+  "frontend_url": "http://localtest.diamond.ac.uk:9000",
+  "alerts": {
+    "contact_email": "pato@diamond.ac.uk",
+    "smtp_port": 8025,
+    "smtp_server": "mail.smtpbucket.com",
+    "local_contacts": {
+      "Mr Matt Spink": "bar@diamond.ac.uk"
+    }
+  }
 }
