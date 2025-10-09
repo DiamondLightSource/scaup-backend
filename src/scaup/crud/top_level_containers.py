@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
 from lims_utils.models import Paged
@@ -125,7 +127,29 @@ def create_top_level_container(shipmentId: int | None, params: TopLevelContainer
     )
 
     if proposal:
-        bar_code = f"{proposal.reference}-{proposal.visitNumber}-{container.id:07}"
+        # This is required because the dewar logistics server expects an instrument in the barcode in order to match
+        # a dewar to the correct instrument
+        ext_resp = ExternalRequest.request(
+            token=token,
+            url=f"/proposals/{proposal.reference}/sessions/{proposal.visitNumber}",
+        )
+
+        if ext_resp.status_code != 200:
+            app_logger.warning(
+                "Error from Expeye while getting session %s-%i: %s",
+                proposal.reference,
+                proposal.visitNumber,
+                ext_resp.text,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_424_FAILED_DEPENDENCY,
+                detail="Invalid response while creating top level container in ISPyB",
+            )
+
+        session_json: dict[str, Any] = ext_resp.json()
+        instrument = "-" if (i := session_json.get("beamLineName")) is None else f"-{i}-"
+
+        bar_code = f"{proposal.reference}-{proposal.visitNumber}{instrument}{container.id:07}"
 
         # This is because some users expect a sequential numeric ID to make tracking how old a dewar is easier,
         # and because of historical reasons, some users are used to seeing the proposal/session number on there
