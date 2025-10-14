@@ -11,7 +11,7 @@ class ConfigurationError(Exception):
 @dataclass
 class IspybApi:
     url: str
-    jwt: str | None = None
+    jwt: str
 
 
 @dataclass

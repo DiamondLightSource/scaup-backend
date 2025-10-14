@@ -87,7 +87,6 @@ def create_sample(
         for i, sample_json in enumerate(samples_json):
             sample = Sample(**sample_json)
 
-            assert Config.ispyb_api.jwt is not None
             ext_sample = Expeye.upsert(Config.ispyb_api.jwt, sample, None)
             samples_json[i]["externalId"] = ext_sample["externalId"]
 
