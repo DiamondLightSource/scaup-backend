@@ -96,9 +96,19 @@ def create_sample(
     shipmentId=Depends(auth),
     parameters: SampleIn = Body(),
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+    pushToExternalDb: bool = Query(
+        False, description="Push sample to external DB. May create orphan samples (samples without a container)"
+    ),
+    includeSuffix: bool = Query(True, description="Include ordinal suffix in sample's name"),
 ):
     """Create new sample in shipment"""
-    return sample_crud.create_sample(shipmentId=shipmentId, params=parameters, token=token.credentials)
+    return sample_crud.create_sample(
+        shipmentId=shipmentId,
+        params=parameters,
+        token=token.credentials,
+        push_to_external_db=pushToExternalDb,
+        include_suffix=includeSuffix,
+    )
 
 
 @router.get(
