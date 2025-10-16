@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v0.16.0 (16/10/2025)
++++++++++
+
+**Added**
+
+- Add option to always push samples to ISPyB
+- Add option to not add suffix when creating samples
+
+**Changed**
+
+- Expeye JWT is now required in config
+
++++++++++
 v0.15.1 (09/10/2025)
 +++++++++
 
