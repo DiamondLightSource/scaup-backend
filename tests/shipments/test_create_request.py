@@ -1,6 +1,7 @@
 import json
 
 import jwt
+import pytest
 import responses
 from sqlalchemy import select, update
 
@@ -54,10 +55,7 @@ def test_shipment_request_body(client):
 
     assert body_dict["packages"][0]["line_items"] == [
         {"shippable_item_type": "UNI_PUCK", "quantity": 1},
-        {
-            "quantity": 1,
-            "shippable_item_type": "CRYOGENIC_DRY_SHIPPER",
-        },
+        {"quantity": 1, "shippable_item_type": "CRYOGENIC_DRY_SHIPPER", "serial_number": "serial123"},
     ]
 
 
@@ -112,10 +110,7 @@ def test_shipment_request_item_not_registered(client):
 
     assert body_dict["packages"][0]["line_items"] == [
         {"description": "foobar", "gross_weight": 0, "net_weight": 0, "quantity": 1},
-        {
-            "quantity": 1,
-            "shippable_item_type": "CRYOGENIC_DRY_SHIPPER",
-        },
+        {"quantity": 1, "shippable_item_type": "CRYOGENIC_DRY_SHIPPER", "serial_number": "serial123"},
     ]
 
 
@@ -179,6 +174,23 @@ def test_request_fail(client):
     responses.post(
         f"{Config.shipping_service.backend_url}/api/shipment_requests/",
         status=404,
+    )
+
+    resp = client.post(
+        "/shipments/106/request",
+    )
+
+    assert resp.status_code == 424
+
+
+@responses.activate
+@pytest.mark.noregister
+def test_invalid_dewar_response_from_ispyb(client):
+    """Should throw error if ISPyB returns error when getting dewar from dewar registry"""
+    responses.get(
+        f"{Config.ispyb_api.url}/proposals/cm000003/dewar-registry/DLS-4",
+        status=404,
+        json={},
     )
 
     resp = client.post(
