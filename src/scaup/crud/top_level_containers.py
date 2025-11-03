@@ -29,7 +29,7 @@ def _check_if_dls_code(code: str | None):
 
     Returns:
         True if it is a DLS code, False otherwise"""
-    return code is None or code[:3] == "DLS"
+    return code is not None and code[:3] == "DLS"
 
 
 def _check_fields(
@@ -46,10 +46,9 @@ def _check_fields(
         # Used on creation, when we don't have a top level container ID to join against yet
         query = query.filter(Shipment.id == item_id)
     else:
-        if _check_if_dls_code(params.code):
+        if params.code is None:
             # Perform no facility code check if code is not present
             return
-
         query = query.select_from(TopLevelContainer).filter(TopLevelContainer.id == item_id).join(Shipment)
 
     proposal_reference = inner_db.session.scalar(query)
@@ -115,7 +114,7 @@ def create_top_level_container(shipmentId: int | None, params: TopLevelContainer
                 url=f"/proposals/{proposal.reference}/dewar-registry",
                 json={
                     "facilityCode": new_code,
-                    "manufacturerSerialNumber": (None if params.code == "N/A" else params.code),
+                    "manufacturerSerialNumber": (None if params.code.lower().strip() == "n/a" else params.code),
                 },
             )
 
