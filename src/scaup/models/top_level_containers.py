@@ -28,7 +28,7 @@ class BaseTopLevelContainer(BaseModel):
 
 class TopLevelContainerIn(BaseTopLevelContainer):
     type: str
-    code: str | None = None
+    code: str = "n/a"
     isInternal: bool = False
 
 
