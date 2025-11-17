@@ -1,8 +1,9 @@
-from typing import TypeVar
+from typing import List, TypeVar
 
 import requests
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials
+from jwt import InvalidAlgorithmError, InvalidAudienceError
 from lims_utils.auth import GenericUser
 from lims_utils.logging import app_logger
 from lims_utils.models import parse_proposal
@@ -23,21 +24,8 @@ from .template import GenericPermissions
 T = TypeVar("T")
 
 
-def _is_cas_token(token: str):
-    return len(token) > 2 and token[:2] == "AT"
-
-
 def _get_user(token: str):
-    if _is_cas_token(token):
-        response = requests.get(
-            Config.auth.endpoint + "/user",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-
-        if response.status_code != 200:
-            raise HTTPException(status_code=response.status_code, detail=response.json().get("detail"))
-        return response.json()
-    else:
+    try:
         # TODO: replace this once something more permanent becomes available
         user = decode_jwt(token, "scaup_general")
         app_id = user.get("sub")
@@ -51,6 +39,15 @@ def _get_user(token: str):
             "permissions": user.get("permissions"),
             "email": "",
         }
+    except (InvalidAudienceError, InvalidAlgorithmError):
+        response = requests.get(
+            Config.auth.endpoint + "/user",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.json().get("detail"))
+        return response.json()
 
 
 class User(GenericUser):
@@ -67,33 +64,33 @@ class User(GenericUser):
 
 
 def _check_perms(data_id: T, endpoint: str, token: str) -> T:
-    if not _is_cas_token(token):
-        user = _get_user(token)
-        if is_admin(user["permissions"]):
+    try:
+        permissions: List[str] = decode_jwt(token, "scaup_general").get("permissions", [])
+        if is_admin(permissions):
             return data_id
 
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Provided JWT lacks permissions")
+    except (InvalidAudienceError, InvalidAlgorithmError):
+        response = requests.get(
+            "".join(
+                [
+                    Config.auth.endpoint,
+                    "/permission/",
+                    endpoint,
+                    "/",
+                    str(data_id) if endpoint != "proposal" else str(data_id) + "/inSessions",
+                ]
+            ),
+            headers={"Authorization": f"Bearer {token}"},
+        )
 
-    response = requests.get(
-        "".join(
-            [
-                Config.auth.endpoint,
-                "/permission/",
-                endpoint,
-                "/",
-                str(data_id) if endpoint != "proposal" else str(data_id) + "/inSessions",
-            ]
-        ),
-        headers={"Authorization": f"Bearer {token}"},
-    )
+        if response.status_code != 200:
+            detail = response.json().get("detail")
+            app_logger.error(f"Microauth returned {response.status_code}: {detail}")
 
-    if response.status_code != 200:
-        detail = response.json().get("detail")
-        app_logger.error(f"Microauth returned {response.status_code}: {detail}")
+            raise HTTPException(status_code=response.status_code, detail=detail)
 
-        raise HTTPException(status_code=response.status_code, detail=detail)
-
-    return data_id
+        return data_id
 
 
 def _generic_table_check(
