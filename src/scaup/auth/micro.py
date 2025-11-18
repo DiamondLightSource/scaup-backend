@@ -1,3 +1,4 @@
+from json import JSONDecodeError
 from typing import List, TypeVar
 
 import requests
@@ -46,7 +47,11 @@ def _get_user(token: str):
         )
 
         if response.status_code != 200:
-            raise HTTPException(status_code=response.status_code, detail=response.json().get("detail"))
+            try:
+                raise HTTPException(status_code=response.status_code, detail=response.json().get("detail"))
+            except JSONDecodeError:
+                app_logger.error(f"Microauth returned {response.status_code}: {response.text}")
+                raise HTTPException(status_code=response.status_code, detail="Failed to fetch user info from Microauth")
         return response.json()
 
 
