@@ -3,7 +3,7 @@
 # The devcontainer should use the build target and run as root with podman
 # or docker with user namespaces.
 #
-FROM docker.io/library/python:3.13.1-slim-bookworm as build
+FROM docker.io/library/python:3.13.9-slim-trixie as build
 
 # Add any system dependencies for the developer/build environment here
 RUN apt-get update && apt-get upgrade -y && \
@@ -19,7 +19,7 @@ WORKDIR /project
 
 # make the wheel outside of the venv so 'build' does not dirty requirements.txt
 RUN pip install --upgrade pip build && \
-    export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) && \
+    #export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) && \
     python -m build && \
     touch requirements.txt
 
@@ -37,7 +37,7 @@ RUN pip install --upgrade pip && \
     # and replace with a comment to avoid a zero length asset upload later
     sed -i '/file:/s/^/# Requirements for /' lockfiles/requirements.txt
 
-FROM docker.io/library/python:3.13.1-slim-bookworm as runtime
+FROM docker.io/library/python:3.13.9-slim-trixie as runtime
 
 RUN adduser --system --no-create-home --uid 1001 nonroot
 

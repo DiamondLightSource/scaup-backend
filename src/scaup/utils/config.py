@@ -11,7 +11,7 @@ class ConfigurationError(Exception):
 @dataclass
 class IspybApi:
     url: str
-    jwt: str | None = None
+    jwt: str
 
 
 @dataclass
@@ -39,6 +39,14 @@ class ShippingService:
     callback_url: str = "https://localhost/api"
 
 
+@dataclass
+class Alerts:
+    smtp_server: str
+    smtp_port: str
+    local_contacts: dict[str, str]
+    contact_email: str | None = None
+
+
 def _read_config():
     with open(os.environ.get("CONFIG_PATH") or "config.json", "r") as fp:
         conf = json.load(fp)
@@ -52,6 +60,7 @@ class Config:
     db: DB
     shipping_service: ShippingService
     ispyb_api: IspybApi
+    alerts: Alerts
 
     @staticmethod
     def set():
@@ -66,6 +75,7 @@ class Config:
             Config.ispyb_api = IspybApi(url=conf["ispyb_api"], jwt=os.environ.get("SCAUP_EXPEYE_TOKEN"))
             Config.frontend_url = conf["frontend_url"]
             Config.shipping_service = ShippingService(**conf["shipping_service"])
+            Config.alerts = Alerts(**conf["alerts"])
 
         except TypeError as exc:
             raise ConfigurationError(str(exc).replace(".__init__()", "")) from exc

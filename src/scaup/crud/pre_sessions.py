@@ -28,7 +28,7 @@ def get_pre_session_info(shipment_id: int, user: GenericUser, token: HTTPAuthori
 
     validated_model = PreSessionOut(
         details=None if pre_session_info is None else pre_session_info.details,
-        isLocked=check_session_locked(shipment_id, user, token),
+        isLocked=check_session_locked(shipment_id, user, token=token),
     )
 
     return validated_model

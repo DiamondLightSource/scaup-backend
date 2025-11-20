@@ -9,8 +9,8 @@ from ..models.inner_db.tables import Container, Sample, SampleParentChild, Shipm
 from ..models.samples import OptionalSample, SampleIn, SampleOut
 from ..utils.config import Config
 from ..utils.crud import assert_not_booked, edit_item
-from ..utils.database import inner_db, paginate
-from ..utils.external import ExternalRequest
+from ..utils.database import inner_db
+from ..utils.external import Expeye, ExternalRequest
 from ..utils.session import retry_if_exists
 
 
@@ -34,7 +34,13 @@ def _get_protein(proteinId: int, token):
 
 @assert_not_booked
 @retry_if_exists
-def create_sample(shipmentId: int, params: SampleIn, token: str):
+def create_sample(
+    shipmentId: int,
+    params: SampleIn,
+    token: str,
+    push_to_external_db: bool = False,
+    include_suffix: bool = True,
+):
     upstream_compound = _get_protein(params.proteinId, token)
 
     clean_name = upstream_compound["name"].replace(" ", "_")
@@ -68,16 +74,24 @@ def create_sample(shipmentId: int, params: SampleIn, token: str):
             detail="Too many sample copies requested",
         )
 
+    samples_json = [
+        {
+            "shipmentId": shipmentId,
+            **params.model_dump(exclude_unset=True, exclude={"copies", "parents"}),
+            "name": (f"{params.name}_{i + sample_count}" if include_suffix else params.name),
+        }
+        for i in range(params.copies)
+    ]
+
+    if push_to_external_db:
+        for i, sample_json in enumerate(samples_json):
+            sample = Sample(**sample_json)
+
+            ext_sample = Expeye.upsert(Config.ispyb_api.jwt, sample, None)
+            samples_json[i]["externalId"] = ext_sample["externalId"]
+
     samples = inner_db.session.scalars(
-        insert(Sample).returning(Sample),
-        [
-            {
-                "shipmentId": shipmentId,
-                **params.model_dump(exclude_unset=True, exclude={"copies"}),
-                "name": f"{params.name}_{i + sample_count}",
-            }
-            for i in range(params.copies)
-        ],
+        insert(Sample).returning(Sample).values(samples_json),
     ).all()
 
     if params.parents:
@@ -140,7 +154,7 @@ def get_samples(
         query = query.filter(Container.isInternal.is_not(True))
 
     query = query.order_by(Container.name, Container.location, Sample.location)
-    samples = paginate(query, limit, page, slow_count=True, scalar=True)
+    samples = inner_db.paginate(query, limit, page, slow_count=True, scalar=True)
 
     if ignore_external or token is None:
         return samples
@@ -151,7 +165,9 @@ def get_samples(
         return samples
 
     ext_samples = ExternalRequest.request(
-        Config.ispyb_api.jwt, method="GET", url=f"/shipments/{ext_shipment_id}/samples?limit=100"
+        Config.ispyb_api.jwt,
+        method="GET",
+        url=f"/shipments/{ext_shipment_id}/samples?limit=100",
     )
 
     if ext_samples.status_code != 200:

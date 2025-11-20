@@ -1,17 +1,38 @@
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from lims_utils.database import get_session
 from lims_utils.logging import app_logger, log_exception_handler, register_loggers
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from . import __version__
-from .routes import containers, internal, proposals, samples, sessions, shipments, top_level_containers
+from .routes import (
+    containers,
+    internal,
+    proposals,
+    samples,
+    sessions,
+    shipments,
+    top_level_containers,
+)
+from .utils.alerts import session_alerts_scheduler
 from .utils.config import Config
+from .utils.database import inner_session
 
-app = FastAPI(version=__version__, title="Scaup API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    register_loggers()
+    if Config.alerts.contact_email:
+        session_alerts_scheduler.start()
+        yield
+        session_alerts_scheduler.shutdown()
+    else:
+        yield
+
+
+app = FastAPI(version=__version__, title="Scaup API", lifespan=lifespan)
 
 api = FastAPI()
 
@@ -23,24 +44,6 @@ if Config.auth.cors:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-
-inner_engine = create_engine(
-    url=os.environ.get(
-        "SQL_DATABASE_URL",
-        "postgresql+psycopg://sample_handling:sample_root@127.0.0.1:5432/sample_handling",
-    ),
-    pool_pre_ping=True,
-    pool_recycle=3600,
-    pool_size=Config.db.pool,
-    max_overflow=Config.db.overflow,
-)
-
-
-inner_session = sessionmaker(autocommit=False, autoflush=False, bind=inner_engine)
-
-
-register_loggers()
 
 
 @app.middleware("http")

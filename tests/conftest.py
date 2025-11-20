@@ -21,7 +21,7 @@ from scaup.main import api, app
 from scaup.utils.auth import check_jwt
 from scaup.utils.database import inner_db
 from tests.shipments.responses import generic_creation_callback
-from tests.shipments.samples.responses import protein_callback
+from tests.shipments.samples.responses import protein_callback, sample_callback
 from tests.shipments.top_level_containers.responses import (
     lab_contact_callback,
     registered_dewar_callback,
@@ -33,6 +33,7 @@ from .test_utils.regex import (
     proposal_regex,
     protein_regex,
     registered_dewar_regex,
+    samples_regex,
     session_regex,
 )
 from .test_utils.users import admin
@@ -113,6 +114,7 @@ def mock_user(request):
 def register_responses(request):
     if "noregister" in request.keywords:
         return
+
     responses.add_callback(
         responses.GET,
         registered_dewar_regex,
@@ -143,12 +145,15 @@ def register_responses(request):
         callback=proposal_callback,
     )
 
+    if "no_sample_response" not in request.keywords:
+        responses.add_callback(responses.POST, samples_regex, callback=sample_callback)
+
     responses.add(
         responses.GET,
         session_regex,
         json={
             "sessionId": 1,
-            "beamLineOperator": "John Doe",
+            "beamLineOperator": ["John Doe"],
             "beamLineName": "m03",
             "startDate": "2025-07-21T01:00:00",
             "endDate": "2025-07-24T01:00:00",

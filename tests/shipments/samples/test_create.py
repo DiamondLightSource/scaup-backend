@@ -1,3 +1,6 @@
+import json
+
+import pytest
 import responses
 from sqlalchemy import select
 
@@ -30,6 +33,47 @@ def test_create_no_name(client):
     assert resp.status_code == 201
 
     assert inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein_01_1")) is not None
+
+
+@pytest.mark.noregister
+@responses.activate
+def test_create_push_to_external_db(client):
+    """Should create samples and push to external DB"""
+    resp_post = responses.post(f"{Config.ispyb_api.url}/samples", status=201, json={"blSampleId": 1})
+
+    responses.get(f"{Config.ispyb_api.url}/proteins/4407", status=200, json={"name": "Protein_01"})
+
+    resp = client.post(
+        "/shipments/1/samples?pushToExternalDb=true",
+        json={"proteinId": 4407},
+    )
+
+    assert resp.status_code == 201
+
+    new_sample = inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein_01_1"))
+
+    assert new_sample.externalId == 1
+    assert json.loads(resp_post.calls[0].request.body.decode()) == {
+        "comments": None,
+        "source": "eBIC-Scaup",
+        "subLocation": None,
+        "location": None,
+        "name": "Protein_01_1",
+    }
+
+
+@responses.activate
+def test_create_no_suffix(client):
+    """Should not append suffix if search param is passed"""
+
+    resp = client.post(
+        "/shipments/1/samples?includeSuffix=false",
+        json={"proteinId": 4407},
+    )
+
+    assert resp.status_code == 201
+
+    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "Protein_01")) is not None
 
 
 @responses.activate
@@ -72,7 +116,7 @@ def test_create_name_with_suffix_after_custom_name(client):
 
 
 @responses.activate
-def test_create_no_suffix(client):
+def test_create_custom_name_suffix(client):
     """Should apply ordinal suffix to custom names"""
 
     resp = client.post(

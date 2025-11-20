@@ -110,7 +110,7 @@ class TrackingLabelPages(FPDF):
     def __init__(
         self,
         location: str,
-        local_contact: str | None,
+        local_contact: List[str] | None,
         from_lines: List[str] | None = None,
         to_lines: List[str] | None = None,
     ):
@@ -124,10 +124,10 @@ class TrackingLabelPages(FPDF):
             self.local_contact = "Unknown"
         else:
             # Only display two first local contacts, to save space
-            if len(lcs := local_contact.split(",")) > 2:
-                self.local_contact = f"{', '.join(lcs[:2])} + {len(lcs) - 2}"
+            if len(local_contact) > 2:
+                self.local_contact = f"{', '.join(local_contact[:2])} + {len(local_contact) - 2}"
             else:
-                self.local_contact = local_contact
+                self.local_contact = ", ".join(local_contact)
 
         self.add_page()
 
@@ -411,10 +411,14 @@ def generate_report(shipment_id: int, token: str):
 
     ispyb_session = expeye_response.json()
 
+    local_contacts = (
+        "Unknown" if not ispyb_session["beamLineOperator"] else ", ".join(ispyb_session["beamLineOperator"])
+    )
+
     session_table = [
         ("Start Date", ispyb_session["startDate"]),
         ("End Date", ispyb_session["endDate"]),
-        ("Local Contact", ispyb_session["beamLineOperator"]),
+        ("Local Contact", local_contacts),
         ("TEM", ispyb_session["beamLineName"]),
         ("Camera", ""),
         ("Software", ""),
@@ -425,7 +429,7 @@ def generate_report(shipment_id: int, token: str):
         .join(Sample.container)
         .filter(Sample.shipmentId == shipment_id)
         .options(contains_eager(Sample.container))
-        .order_by(Sample.subLocation.desc(), Sample.container, Sample.location)
+        .order_by(Sample.subLocation.desc(), Sample.containerId, Sample.location)
     )
 
     # TODO: rethink this once we're using user-provided templates

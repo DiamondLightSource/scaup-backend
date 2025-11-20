@@ -10,7 +10,7 @@ def registered_dewar_callback(request: PreparedRequest):
     dewar_id = get_match(registered_dewar_regex, request.url, 2)
 
     if dewar_id in ["DLS-EM-0000", "DLS-EM-0001", "DLS-4", "DLS-1"]:
-        return (200, {}, json.dumps({"dewarRegistryId": 456}))
+        return (200, {}, json.dumps({"dewarRegistryId": 456, "manufacturerSerialNumber": "serial123"}))
 
     return (404, {}, "")
 

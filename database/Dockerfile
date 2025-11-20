@@ -1,12 +1,12 @@
-FROM bitnami/postgresql:17-debian-12
+FROM postgres:17.6
 
 WORKDIR /docker-entrypoint-initdb.d
 
 # Dummy data
 ADD data.sql /docker-entrypoint-initdb.d/data.sql
 
-ENV POSTGRESQL_PASSWORD sample_root
-ENV POSTGRESQL_DATABASE sample_handling
-ENV POSTGRESQL_USERNAME sample_handling
+ENV POSTGRES_PASSWORD sample_root
+ENV POSTGRES_DB sample_handling
+ENV POSTGRES_USER sample_handling
 
 EXPOSE 5432

@@ -5,32 +5,34 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "scaup"
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 3 - Beta",
     "License :: OSI Approved :: Apache Software License",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12"
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13"
 ]
 description = "Scaup's backend"
 
 dependencies = [
+    "APScheduler~=3.11.0",
     "SQLAlchemy~=2.0.36",
-    "fastapi~=0.115.6",
-    "psycopg[binary,pool]~=3.2.3",
-    "pydantic~=2.10.5",
-    "uvicorn~=0.34.0", 
+    "fastapi~=0.116.1",
+    "psycopg[binary,pool]~=3.2.9",
+    "pydantic~=2.11.7",
+    "uvicorn~=0.35.0",
     "types-requests",
     "lims_utils~=0.4.2",
     "requests",
-    "fpdf2~=2.8.2",
-    "qrcode~=8.0.0",
+    "fpdf2~=2.8.4",
+    "qrcode~=8.2.0",
     "pyjwt[crypto]~=2.10.1",
+    "pillow==11.3.0",
     "alembic"
 ]
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.rst"
-requires-python = ">=3.10"    
+requires-python = ">=3.11"    
 
 [project.optional-dependencies]
 dev = [
@@ -38,10 +40,10 @@ dev = [
     "mypy",
     "pipdeptree",
     "pre-commit",
-    "pytest~=8.3.5",
+    "pytest~=8.4.2",
     "pytest-cov",
     "ruff",
-    "freezegun~=1.5.2",
+    "freezegun~=1.5.5",
     "sphinx-autobuild",
     "sphinx-copybutton",
     "sphinx-design",
@@ -49,8 +51,7 @@ dev = [
     "types-mock",
     "pytest-asyncio",
     "responses",
-    # https://github.com/encode/httpx/blob/master/CHANGELOG.md#0270-21st-february-2024
-    "httpx~=0.26.0"
+    "httpx~=0.28.1"
 ]
 
 [project.scripts]
@@ -65,7 +66,7 @@ name = "Guilherme de Freitas"
 
 [tool.setuptools_scm]
 write_to = "src/scaup/_version.py"
-fallback_version = "0.6.0"
+fallback_version = "0.15.0"
 
 [tool.mypy]
 ignore_missing_imports = true # Ignore missing stubs in imported modules
@@ -78,7 +79,8 @@ addopts = """
 # https://iscinumpy.gitlab.io/post/bound-version-constraints/#watch-for-warnings
 filterwarnings = "error"
 markers = [
-    "noregister: do not register HTTP mock responses"
+    "noregister: do not register HTTP mock responses",
+    "no_sample_response: do not register sample creation HTTP mock responses"
 ]
 
 [tool.coverage.run]

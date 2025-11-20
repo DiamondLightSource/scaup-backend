@@ -8,6 +8,60 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v0.17.0 (05/11/2025)
++++++++++
+
+**Added**
+
+- Push manufacturer serial number to ISPyB
+- Include more information when pushing shipment to shipping service
+
++++++++++
+v0.16.1 (17/10/2025)
++++++++++
+
+**Fixed**
+
+- Pin Pillow version to prevent image rendering issues in FPDF2
+
++++++++++
+v0.16.0 (16/10/2025)
++++++++++
+
+**Added**
+
+- Add option to always push samples to ISPyB
+- Add option to not add suffix when creating samples
+
+**Changed**
+
+- Expeye JWT is now required in config
+
++++++++++
+v0.15.1 (09/10/2025)
++++++++++
+
+**Changed**
+
+- Include instruments in barcode
+
++++++++++
+v0.15.0 (06/10/2025)
++++++++++
+
+**Added**
+
+- Alert LCs 24 hours before session
+
++++++++++
+v0.14.2 (05/09/2025)
++++++++++
+
+**Changed**
+
+- Update dependencies
+
++++++++++
 v0.14.1 (01/08/2025)
 +++++++++
 
