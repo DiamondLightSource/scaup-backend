@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.security import HTTPAuthorizationCredentials
 from lims_utils.logging import app_logger
@@ -19,18 +17,21 @@ router = APIRouter(
 def get_sessions(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     page: dict[str, int] = Depends(pagination),
-    minEndDate: datetime | None = Query("Minimum session end date")
+    minEndDate: str | None = Query(default=None, description="Minimum session end date"),
 ):
     """Get sessions a user can view (wrapper for Expeye endpoint)"""
+    # TODO: replace search once Expeye supports filtering by beamline name
+    url = f"/sessions?limit={page['limit']}&page={page['page']}&search=m"
+    if minEndDate is not None:
+        url += f"&minEndDate={minEndDate}"
+
     expeye_response = ExternalRequest.request(
-        token=token,
-        url=f"/sessions?minEndDate={minEndDate}&limit={page['limit']}&page={page['page']}",
+        token=token.credentials,
+        url=url,
     )
 
     if expeye_response.status_code != 200:
-        app_logger.warning(
-            f"Failed to fetch proposals from Expeye: {expeye_response.text}"
-        )
+        app_logger.warning(f"Failed to fetch proposals from Expeye: {expeye_response.text}")
         raise HTTPException(
             status_code=expeye_response.status_code,
             detail="Failed to fetch proposals",

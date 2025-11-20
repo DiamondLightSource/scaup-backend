@@ -8,15 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from . import __version__
-from .routes import (
-    containers,
-    internal,
-    proposals,
-    samples,
-    shipments,
-    top_level_containers,
-    sessions
-)
+from .routes import containers, internal, proposals, samples, sessions, shipments, top_level_containers
 from .utils.config import Config
 
 app = FastAPI(version=__version__, title="Scaup API")
