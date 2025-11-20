@@ -33,6 +33,7 @@ def test_get(client):
 
     assert resp.json()["total"] == 99
 
+
 @responses.activate
 def test_min_end_date(client):
     """Should include search params in expeye request"""
@@ -60,8 +61,8 @@ def test_min_end_date(client):
     resp = client.get("/sessions?minEndDate=2025-01-01T00:00:00Z")
 
     assert resp.status_code == 200
-    assert resp_get.calls[0].request.url.endswith(
-        "/sessions?limit=25&page=0&search=m&minEndDate=2025-01-01T00:00:00Z")
+    assert resp_get.calls[0].request.url.endswith("/sessions?limit=25&page=0&search=m&minEndDate=2025-01-01T00:00:00Z")
+
 
 @responses.activate
 def test_invalid_response(client):
