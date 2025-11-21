@@ -103,6 +103,16 @@ def get_shipment_data(
     return ExternalRequest.request(token=token.credentials, url=f"/proposals/{proposalReference}/data").json()
 
 
+@router.get("/{proposalReference}/shipments")
+def get_proposal_shipments(
+    proposalReference: ProposalReference = Depends(Permissions.proposal),
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+    page: dict[str, int] = Depends(pagination),
+):
+    """Get shipments in proposal"""
+    return crud.get_shipments(token=token.credentials, proposal_reference=proposalReference, **page)
+
+
 @router.post(
     "/{proposalReference}/sessions/{visitNumber}/assign-data-collection-groups",
 )
