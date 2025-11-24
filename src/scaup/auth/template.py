@@ -7,7 +7,7 @@ from lims_utils.models import parse_proposal
 class GenericPermissions(Protocol):
     @staticmethod
     def proposal(proposalReference: str):
-        return proposalReference
+        return parse_proposal(proposal_reference=proposalReference)
 
     @staticmethod
     def session(proposalReference: str, visitNumber: int):

@@ -1,3 +1,5 @@
+import json
+
 import pytest
 import responses
 from sqlalchemy import select
@@ -14,7 +16,7 @@ def test_create_invalid_code(client):
         "/shipments/1/topLevelContainers",
         json={
             "type": "dewar",
-            "code": "DOESNOTEXIST",
+            "code": "DLS-DOES-NOT-EXIST",
         },
     )
 
@@ -158,6 +160,41 @@ def test_create_no_code(client):
     assert (
         inner_db.session.scalar(select(TopLevelContainer).filter(TopLevelContainer.code == "DLS-BI-5672")) is not None
     )
+
+
+@responses.activate
+def test_create_with_serial(client):
+    """Should automatically generate code if serial code is provided"""
+    creation_response = responses.post(
+        f"{Config.ispyb_api.url}/proposals/cm1/dewar-registry",
+        status=201,
+        json={"dewarRegistryId": 1},
+    )
+
+    responses.get(
+        f"{Config.ispyb_api.url}/dewar-registry?search=DLS-BI-1&limit=1",
+        status=200,
+        json={"items": [{"facilityCode": "DLS-BI-5671"}]},
+    )
+
+    resp = client.post(
+        "/shipments/1/topLevelContainers",
+        json={
+            "type": "dewar",
+            "code": "test123",
+        },
+    )
+
+    assert resp.status_code == 201
+
+    assert (
+        inner_db.session.scalar(select(TopLevelContainer).filter(TopLevelContainer.code == "DLS-BI-5672")) is not None
+    )
+
+    assert json.loads(creation_response.calls[0].request.body.decode()) == {
+        "facilityCode": "DLS-BI-5672",
+        "manufacturerSerialNumber": "test123",
+    }
 
 
 @responses.activate

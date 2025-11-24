@@ -35,8 +35,12 @@ def get_shipments(token: str, proposal_reference: ProposalReference, limit: int,
     query = select(Shipment).filter(
         Shipment.proposalCode == proposal_reference.code,
         Shipment.proposalNumber == proposal_reference.number,
-        Shipment.visitNumber == proposal_reference.visit_number,
     )
+
+    if proposal_reference.visit_number:
+        query = query.filter(Shipment.visitNumber == proposal_reference.visit_number)
+    else:
+        query = query.order_by(Shipment.visitNumber.desc(), Shipment.creationDate.desc())
 
     shipments: Paged[Shipment] = inner_db.paginate(query, limit, page, slow_count=False, scalar=False)
     shipments.items = update_shipment_statuses(shipments.items, token)

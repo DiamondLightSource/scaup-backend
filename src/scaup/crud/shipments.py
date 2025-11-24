@@ -167,6 +167,7 @@ def _get_children(
 @assert_no_unassigned
 def build_shipment_request(shipmentId: int, token: str):
     shipment = _get_shipment_tree(shipmentId)
+    proposal_reference = f"{shipment.proposalCode}{shipment.proposalNumber:06}"
 
     packages: list[dict] = []
     for tlc in shipment.children:
@@ -192,16 +193,28 @@ def build_shipment_request(shipmentId: int, token: str):
 
         # Dewar cases do NOT include the dewar, this merely adds them to the outermost package
         if tlc.type == "dewar":
+            dewar_response = ExternalRequest.request(
+                token=token,
+                url=f"/proposals/{proposal_reference}/dewar-registry/{tlc.code}",
+            )
+
+            if dewar_response.status_code != 200:
+                app_logger.error(f"Error while getting dewar {tlc.code} from upstream: {dewar_response.text}")
+                raise HTTPException(
+                    status_code=status.HTTP_424_FAILED_DEPENDENCY,
+                    detail="Invalid facility code provided",
+                )
+
+            serial_number = dewar_response.json()["manufacturerSerialNumber"]
+
             line_items.append(
-                {
-                    "shippable_item_type": "CRYOGENIC_DRY_SHIPPER",
-                    "quantity": 1,
-                }
+                {"shippable_item_type": "CRYOGENIC_DRY_SHIPPER", "quantity": 1, "serial_number": serial_number}
             )
 
         if tlc.type in TYPE_TO_SHIPPING_SERVICE_TYPE:
             packages.append(
                 {
+                    "container_name": tlc.name,
                     "line_items": line_items,
                     "external_id": tlc.externalId,
                     "shippable_item_type": TYPE_TO_SHIPPING_SERVICE_TYPE[tlc.type],
@@ -237,7 +250,8 @@ def build_shipment_request(shipmentId: int, token: str):
 
     built_request_body = {
         # TODO: remove padding once shipping service removes regex check
-        "proposal": f"{shipment.proposalCode}{shipment.proposalNumber:06}",
+        "session_number": shipment.visitNumber,
+        "proposal": proposal_reference,
         "external_id": shipment.externalId,
         "origin_url": f"{Config.frontend_url}/proposals/{shipment.proposalCode}{shipment.proposalNumber}/sessions/"
         + f"{shipment.visitNumber}/shipments/{shipment.id}",

@@ -137,7 +137,9 @@ class Permissions(GenericPermissions):
         proposalReference: str,
         token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     ):
-        return _check_perms(proposalReference, "proposal", token.credentials)
+        proposal_reference = parse_proposal(proposal_reference=proposalReference)
+        _check_perms(proposalReference, "proposal", token.credentials)
+        return proposal_reference
 
     @staticmethod
     def session(
