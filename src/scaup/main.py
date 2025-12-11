@@ -12,6 +12,7 @@ from .routes import (
     internal,
     proposals,
     samples,
+    sessions,
     shipments,
     top_level_containers,
 )
@@ -72,5 +73,6 @@ api.include_router(samples.router)
 api.include_router(containers.router)
 api.include_router(top_level_containers.router)
 api.include_router(internal.router)
+api.include_router(sessions.router)
 
 app.mount(os.getenv("MOUNT_POINT", "/api"), api)

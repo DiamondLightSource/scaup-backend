@@ -21,6 +21,17 @@ from ..utils.session import retry_if_exists
 DEWAR_PREFIX = "DLS-BI-1"
 
 
+def _check_if_dls_code(code: str | None):
+    """Check if code is DLS barcode, or user provided serial number
+
+    Args:
+        code: User-provided code
+
+    Returns:
+        True if it is a DLS code, False otherwise"""
+    return code is not None and code[:3] == "DLS"
+
+
 def _check_fields(
     params: TopLevelContainerIn | OptionalTopLevelContainer,
     token: str,
@@ -38,7 +49,6 @@ def _check_fields(
         if params.code is None:
             # Perform no facility code check if code is not present
             return
-
         query = query.select_from(TopLevelContainer).filter(TopLevelContainer.id == item_id).join(Shipment)
 
     proposal_reference = inner_db.session.scalar(query)
@@ -72,7 +82,7 @@ def create_top_level_container(shipmentId: int | None, params: TopLevelContainer
         ).one()
     )
 
-    if params.code:
+    if _check_if_dls_code(params.code):
         _check_fields(params, token, shipmentId)
     elif params.type == "dewar" and autocreate:
         # Automatically register dewar if no code is provided
@@ -102,7 +112,10 @@ def create_top_level_container(shipmentId: int | None, params: TopLevelContainer
                 Config.ispyb_api.jwt,
                 method="POST",
                 url=f"/proposals/{proposal.reference}/dewar-registry",
-                json={"facilityCode": new_code},
+                json={
+                    "facilityCode": new_code,
+                    "manufacturerSerialNumber": (None if params.code.lower().strip() == "n/a" else params.code),
+                },
             )
 
             if ext_resp.status_code != 201:
