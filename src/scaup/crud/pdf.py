@@ -98,7 +98,11 @@ class ConsigneeAddress(object):
                 detail="Failed to get consignee address from shipping service",
             )
 
-        to_lines = [v for k, v in consignee_response.json().items() if k.startswith("consignee_") and type(v) is str]
+        to_lines = [
+            v
+            for k, v in consignee_response.json().items()
+            if k.startswith("consignee_") and type(v) is str and not k.endswith("eori")
+        ]
 
         return to_lines
 
@@ -324,7 +328,9 @@ def get_shipping_labels(shipment_id: int, token: str):
         if response.status_code == 200:
             shipment_request = response.json()
 
-            from_lines = [line for line in shipment_request["contact"].values() if line is not None]
+            from_lines = [
+                line for field, line in shipment_request["contact"].items() if line is not None and field != "eori"
+            ]
 
             to_lines = _get_consignee_address(shipment_request["shipmentId"], token)
 
