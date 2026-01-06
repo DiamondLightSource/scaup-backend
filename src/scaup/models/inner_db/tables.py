@@ -95,8 +95,9 @@ class Container(Base, BaseColumns):
     isCurrent: Mapped[bool] = mapped_column(default=False, comment="Whether container position is current")
     registeredContainer: Mapped[str | None] = mapped_column()
 
+    parent: Mapped[Optional["Container"]] = relationship("Container", back_populates="children", remote_side=[id])
     topLevelContainer: Mapped[Optional["TopLevelContainer"]] = relationship(back_populates="children")
-    children: Mapped[List["Container"] | None] = relationship("Container")
+    children: Mapped[List["Container"] | None] = relationship("Container", back_populates="parent")
     samples: Mapped[List["Sample"] | None] = relationship(back_populates="container")
 
 

@@ -387,7 +387,7 @@ class ReportPDF(FPDF):
     def add_table(
         self,
         table_contents: Sequence[tuple[str, ...]],
-        width: int = 100,
+        width: int | None = 100,
         caption: str = "Table",
         col_widths: tuple | None = None,
     ):
@@ -421,18 +421,9 @@ def generate_report(shipment_id: int, token: str):
         "Unknown" if not ispyb_session["beamLineOperator"] else ", ".join(ispyb_session["beamLineOperator"])
     )
 
-    session_table = [
-        ("Start Date", ispyb_session["startDate"]),
-        ("End Date", ispyb_session["endDate"]),
-        ("Local Contact", local_contacts),
-        ("TEM", ispyb_session["beamLineName"]),
-        ("Camera", ""),
-        ("Software", ""),
-    ]
-
     grids = inner_db.session.scalars(
         select(Sample)
-        .join(Sample.container)
+        .join(Sample.container, isouter=True)
         .filter(Sample.shipmentId == shipment_id)
         .options(contains_eager(Sample.container))
         .order_by(Sample.subLocation.desc(), Sample.containerId, Sample.location)
@@ -440,16 +431,22 @@ def generate_report(shipment_id: int, token: str):
 
     # TODO: rethink this once we're using user-provided templates
     grids_table = [
-        ("Gridbox", "Position", "Cassette Slot", "Foil", "Hole", "Comments"),
-        *[("",) * 6] * 12,
+        ("Puck", "Puck Pos.", "Gridbox", "Gridbox Pos.", "Cassette Slot", "Foil", "Hole", "Comments"),
+        *[("",) * 8] * 12,
     ]
 
     current_row = 1
+    grid_count = 0
 
     for grid in grids:
-        if not hasattr(grid, "container"):
+        # Because grids is a generator, we have to count them here. This allows us to
+        # access parents (and parents of parents) for all grids in a lazy-loading manner
+        grid_count += 1
+        if not hasattr(grid, "container") or grid.containerId is None:
             continue
         grids_table[current_row] = (
+            str(grid.container.parent.name),
+            str(grid.container.location),
             str(grid.container.name),
             str(grid.location),
             str(grid.subLocation),
@@ -458,6 +455,16 @@ def generate_report(shipment_id: int, token: str):
             str(grid.comments),
         )
         current_row += 1
+
+    session_table = [
+        ("Start Date", ispyb_session["startDate"]),
+        ("End Date", ispyb_session["endDate"]),
+        ("Local Contact", local_contacts),
+        ("TEM", ispyb_session["beamLineName"]),
+        ("Camera", ""),
+        ("Software", ""),
+        ("Number of Grids", str(grid_count)),
+    ]
 
     pre_session = inner_db.session.scalar(select(PreSession).filter(PreSession.shipmentId == shipment_id))
 
@@ -474,12 +481,16 @@ def generate_report(shipment_id: int, token: str):
     pdf.add_page()
 
     pdf.set_xy(x=5, y=20)
+    pdf.add_table(grids_table, width=None, caption="Grids", col_widths=(2, 2, 2, 2, 2, 3, 1, 4))
+
+    # There was no good way of fitting all three tables in one page, even if the grids table was as small
+    # as possible, so we always create a new page
+    pdf.add_page()
+
+    pdf.set_xy(x=5, y=20)
     pdf.add_table(session_table, width=100, caption="Session")
 
-    pdf.set_xy(x=110, y=20)
-    pdf.add_table(grids_table, width=182, caption="Grids", col_widths=(2, 1, 2, 3, 1, 2))
-
-    pdf.set_xy(x=5, y=70)
+    pdf.set_xy(x=140, y=20)
     pdf.add_table(pre_session_table, width=100, caption="Data Collection Parameters")
 
     headers = {
