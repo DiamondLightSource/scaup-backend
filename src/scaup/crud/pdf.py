@@ -442,12 +442,14 @@ def generate_report(shipment_id: int, token: str):
         # Because grids is a generator, we have to count them here. This allows us to
         # access parents (and parents of parents) for all grids in a lazy-loading manner
         grid_count += 1
-        if not hasattr(grid, "container") or grid.containerId is None:
-            continue
+        puck_name: str = grid.container.parent.name if grid.container and grid.container.parent else "None"
+        gridbox_name: str = grid.container.name if grid.container else "None"
+        gridbox_location: str = str(grid.container.location) if grid.container is not None else "None"
+
         grids_table[current_row] = (
-            str(grid.container.parent.name),
-            str(grid.container.location),
-            str(grid.container.name),
+            str(puck_name),
+            str(gridbox_location),
+            str(gridbox_name),
             str(grid.location),
             str(grid.subLocation),
             str(grid.details["foil"]),
