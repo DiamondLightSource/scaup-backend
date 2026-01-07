@@ -177,8 +177,11 @@ class Expeye:
             ext_obj.url = f"{ext_obj.external_link_prefix}{item.externalId}"
             method = "PATCH"
 
+        # There is no way of verifying orphan sample ownership in ISPyB, so we need to use SCAUP's
+        # token instead to create them on behalf of SCAUP, which has permission to manipulate all samples.
+        # TODO: revisit this when SCAUP creates containers, dewars and shipments for orphan samples
         response = ExternalRequest.request(
-            token,
+            Config.ispyb_api.jwt,
             method=method,
             url=ext_obj.url,
             json=ext_obj.item_body.model_dump(mode="json", exclude=ext_obj.to_exclude),

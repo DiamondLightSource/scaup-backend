@@ -112,7 +112,10 @@ def push_shipment(shipmentId: int, token: str):
     )
 
     for sample in containerless_samples:
-        Expeye.upsert(token, sample, None, session_id)
+        # There is no way of verifying orphan sample ownership in ISPyB, so we need to use SCAUP's
+        # token instead to create them on behalf of SCAUP, which has permission to manipulate all samples.
+        # TODO: revisit this when SCAUP creates containers, dewars and shipments for orphan samples
+        Expeye.upsert(Config.ispyb_api.jwt, sample, None, session_id)
 
     modified_items = list(create_all_items_in_shipment(shipment, f"{shipment.proposalCode}{shipment.proposalNumber}"))
 
