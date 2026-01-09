@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 v0.18.2 (09/01/2025)
 +++++++++
 
+**Changed**
+
+- Display more information in sample collection report
+
 **Fixed**
 
 - Fix permissions issues when pushing to ISPyB
