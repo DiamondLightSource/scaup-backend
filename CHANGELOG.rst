@@ -8,8 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v0.18.2 (09/01/2025)
++++++++++
+
+**Fixed**
+
+- Fix permissions issues when pushing to ISPyB
+
++++++++++
 v0.18.1 (17/12/2025)
 +++++++++
+
+**Fixed**
 
 - Hide EORI from tracking labels
 
