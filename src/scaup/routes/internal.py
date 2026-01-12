@@ -8,7 +8,7 @@ from ..crud.containers import create_container
 from ..crud.top_level_containers import create_top_level_container
 from ..models.containers import ContainerIn, ContainerOut
 from ..models.shipments import GenericItem, ShipmentChildren
-from ..models.top_level_containers import TopLevelContainerIn, TopLevelContainerOut
+from ..models.top_level_containers import PreloadedInventoryDewar, TopLevelContainerIn, TopLevelContainerOut
 from ..utils.auth import check_em_staff
 
 
@@ -77,3 +77,13 @@ def create_orphan_top_level_container(
 def get_internal_container(topLevelContainerId: int):
     """Get internal top level container and its children"""
     return crud.get_internal_container_tree(top_level_container_id=topLevelContainerId)
+
+
+@router.post(
+    "/preloaded-dewars",
+    response_model=TopLevelContainerOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_preloaded_inventory_dewar(parameters: PreloadedInventoryDewar = Body()):
+    """Create preloaded inventory dewar with pucks and grid boxes"""
+    return crud.create_preloaded_inventory_dewar(name=parameters.name)

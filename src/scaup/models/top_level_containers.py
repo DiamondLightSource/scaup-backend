@@ -14,6 +14,10 @@ class TopLevelContainerHistory(BaseModel):
     arrivalDate: datetime | None = None
 
 
+class PreloadedInventoryDewar(BaseModel):
+    name: str
+
+
 class BaseTopLevelContainer(BaseModel):
     details: Optional[dict[str, Any]] = None
     comments: Optional[str] = None

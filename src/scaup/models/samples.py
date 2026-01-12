@@ -40,7 +40,7 @@ class OptionalSample(BaseSample):
 
 class SampleOut(BaseSample):
     id: int = Field(validation_alias=AliasChoices("sampleId", "id", AliasPath("Sample", "id")))
-    shipmentId: int = Field(validation_alias=InnerAlias("shipmentId"))
+    shipmentId: int | None = Field(default=None, validation_alias=InnerAlias("shipmentId"))
     proteinId: int = Field(validation_alias=InnerAlias("proteinId"))
     containerName: Optional[str] = None
     type: str = Field(validation_alias=InnerAlias("type"))
