@@ -29,10 +29,7 @@ def test_create_no_name(client):
 
     resp = client.post(
         "/shipments/1/topLevelContainers",
-        json={
-            "type": "dewar",
-            "code": "DLS-EM-0001",
-        },
+        json={"type": "dewar", "code": "DLS-EM-0001", "manufacturerSerialNumber": "serial123"},
     )
 
     assert resp.status_code == 201
@@ -48,10 +45,7 @@ def test_create_auto_barcode_no_instrument(client):
 
     resp = client.post(
         "/shipments/1/topLevelContainers",
-        json={
-            "type": "dewar",
-            "code": "DLS-EM-0001",
-        },
+        json={"type": "dewar", "code": "DLS-EM-0001", "manufacturerSerialNumber": "serial123"},
     )
 
     assert resp.status_code == 201
@@ -122,10 +116,7 @@ def test_create_duplicate_name(client):
 
     resp = client.post(
         "/shipments/1/topLevelContainers",
-        json={
-            "type": "dewar",
-            "code": "DLS-EM-0000",
-        },
+        json={"type": "dewar", "code": "DLS-EM-0000", "manufacturerSerialNumber": "serial123"},
     )
 
     assert resp.status_code == 409
@@ -163,8 +154,29 @@ def test_create_no_code(client):
 
 
 @responses.activate
+def test_create_invalid_serial(client):
+    """Should raise error if invalid manufacturer serial code is provided for registered dewar"""
+    responses.get(
+        f"{Config.ispyb_api.url}/proposals/cm1/dewar-registry/DLS-EM-0001",
+        status=200,
+        json={"manufacturerSerialNumber": "different123"},
+    )
+
+    resp = client.post(
+        "/shipments/1/topLevelContainers",
+        json={
+            "type": "dewar",
+            "code": "DLS-EM-0001",
+            "manufacturerSerialNumber": "test123",
+        },
+    )
+
+    assert resp.status_code == 404
+
+
+@responses.activate
 def test_create_with_serial(client):
-    """Should automatically generate code if serial code is provided"""
+    """Should automatically create dewar registry entry with serial code if serial code is provided"""
     creation_response = responses.post(
         f"{Config.ispyb_api.url}/proposals/cm1/dewar-registry",
         status=201,
@@ -181,7 +193,8 @@ def test_create_with_serial(client):
         "/shipments/1/topLevelContainers",
         json={
             "type": "dewar",
-            "code": "test123",
+            "code": None,
+            "manufacturerSerialNumber": "serial123",
         },
     )
 
@@ -193,7 +206,7 @@ def test_create_with_serial(client):
 
     assert json.loads(creation_response.calls[0].request.body.decode()) == {
         "facilityCode": "DLS-BI-5672",
-        "manufacturerSerialNumber": "test123",
+        "manufacturerSerialNumber": "serial123",
     }
 
 

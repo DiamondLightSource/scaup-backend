@@ -24,17 +24,17 @@ class BaseTopLevelContainer(BaseModel):
             "by the container index is used"
         ),
     )
+    code: str | None = None
 
 
 class TopLevelContainerIn(BaseTopLevelContainer):
     type: str
-    code: str = "n/a"
+    manufacturerSerialNumber: str | None = None
     isInternal: bool = False
 
 
 class OptionalTopLevelContainer(BaseTopLevelContainer):
     type: Optional[str] = None
-    code: Optional[str] = None
     barCode: Optional[str] = None
 
 
