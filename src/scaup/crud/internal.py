@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import insert, select
 from sqlalchemy.orm import joinedload
 
 from ..models.inner_db.tables import Container, TopLevelContainer
@@ -6,6 +6,7 @@ from ..models.shipments import ShipmentChildren
 from ..models.top_level_containers import TopLevelContainerOut
 from ..utils.database import inner_db
 from ..utils.query import query_result_to_object
+from ..utils.session import retry_if_exists
 
 
 def get_unassigned(limit: int, page: int):
@@ -43,3 +44,39 @@ def get_internal_containers(limit: int, page: int):
     query = select(TopLevelContainer).filter(TopLevelContainer.isInternal.is_(True))
 
     return inner_db.paginate(query, limit, page, slow_count=False, scalar=False)
+
+
+@retry_if_exists
+def create_preloaded_inventory_dewar(name: str):
+    tlc = inner_db.session.scalar(
+        insert(TopLevelContainer).returning(TopLevelContainer),
+        {"name": name, "isInternal": True, "code": name},
+    )
+
+    containers = inner_db.session.scalars(
+        insert(Container).returning(Container),
+        [
+            {"name": i, "isInternal": True, "topLevelContainerId": tlc.id, "type": "puck", "subType": "2"}
+            for i in range(1, 6)
+        ],
+    ).all()
+
+    inner_db.session.execute(
+        insert(Container),
+        [
+            {
+                "name": f"Gridbox_{pos + 1}_Puck_{container.name}",
+                "isInternal": True,
+                "parentId": container.id,
+                "type": "gridBox",
+                "subType": "auto",
+                "location": pos + 1,
+            }
+            for pos in range(12)
+            for container in containers
+        ],
+    )
+
+    inner_db.session.commit()
+
+    return tlc

@@ -68,7 +68,7 @@ class OptionalContainer(BaseContainer):
 
 
 class ContainerOut(BaseContainer):
-    shipmentId: int
+    shipmentId: int | None = None
     id: int = Field(validation_alias=AliasChoices("containerId", "id"))
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
     type: str
