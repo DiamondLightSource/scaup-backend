@@ -21,10 +21,7 @@ creation_params = (
         ),
         pytest.param(
             "topLevelContainers",
-            {
-                "type": "dewar",
-                "code": "DLS-EM-0001",
-            },
+            {"type": "dewar", "code": "DLS-EM-0001", "manufacturerSerialNumber": "serial123"},
             TopLevelContainer,
             id="topLevelContainers",
         ),

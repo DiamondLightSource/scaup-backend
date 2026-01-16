@@ -60,6 +60,15 @@ def _check_fields(
         )
 
         if code_response.status_code == 200:
+            registry_json: dict[str, Any] = code_response.json()
+            msn = registry_json.get("manufacturerSerialNumber")
+            if isinstance(params, TopLevelContainerIn) and msn is not None:
+                app_logger.error(f"{msn}, {params.manufacturerSerialNumber}")
+                if msn != params.manufacturerSerialNumber:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="Manufacturer serial number does not match the provided facility code",
+                    )
             return
 
     raise HTTPException(
@@ -114,7 +123,7 @@ def create_top_level_container(shipmentId: int | None, params: TopLevelContainer
                 url=f"/proposals/{proposal.reference}/dewar-registry",
                 json={
                     "facilityCode": new_code,
-                    "manufacturerSerialNumber": (None if params.code.lower().strip() == "n/a" else params.code),
+                    "manufacturerSerialNumber": params.manufacturerSerialNumber,
                 },
             )
 
