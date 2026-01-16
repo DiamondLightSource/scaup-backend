@@ -446,7 +446,7 @@ def generate_report(shipment_id: int, token: str):
         gridbox_name: str = grid.container.name if grid.container else "None"
         gridbox_location: str = str(grid.container.location) if grid.container is not None else "None"
 
-        grids_table[current_row] = (
+        row_text = (
             str(puck_name),
             str(gridbox_location),
             str(gridbox_name),
@@ -456,6 +456,12 @@ def generate_report(shipment_id: int, token: str):
             str(grid.details["hole"]),
             str(grid.comments),
         )
+
+        if current_row >= len(grids_table):
+            grids_table.append(row_text)
+        else:
+            grids_table[current_row] = row_text
+
         current_row += 1
 
     session_table = [
