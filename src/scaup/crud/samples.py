@@ -3,12 +3,14 @@ import re
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
 from lims_utils.models import Paged, ProposalReference
+from psycopg.errors import ForeignKeyViolation
 from sqlalchemy import and_, insert, select
+from sqlalchemy.exc import IntegrityError
 
 from ..models.inner_db.tables import Container, Sample, SampleParentChild, Shipment
 from ..models.samples import OptionalSample, SampleIn, SampleOut
 from ..utils.config import Config
-from ..utils.crud import assert_not_booked, edit_item
+from ..utils.crud import assert_not_booked, delete_item, edit_item
 from ..utils.database import inner_db
 from ..utils.external import Expeye, ExternalRequest
 from ..utils.session import retry_if_exists
@@ -189,3 +191,16 @@ def get_samples(
                 pass
 
     return validated_samples
+
+
+def delete_sample(sample_id: int):
+    try:
+        delete_item(table=Sample, item_id=sample_id)
+    except IntegrityError as e:
+        if isinstance(e.__cause__, ForeignKeyViolation):
+            # If a foreign key violation occurs, that's because the sample is in SampleParentChild
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Sample is linked to a different session and cannot be deleted",
+            )
+        raise

@@ -3,9 +3,7 @@ from fastapi.security import HTTPAuthorizationCredentials
 
 from ..auth import Permissions, auth_scheme
 from ..crud import samples as crud
-from ..models.inner_db.tables import Sample
 from ..models.samples import OptionalSample, SampleOut
-from ..utils.crud import delete_item
 
 auth_sample = Permissions.sample
 
@@ -29,4 +27,4 @@ def edit_sample(
 @router.delete("/{sampleId}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_sample(sampleId=Depends(auth_sample)):
     """Create new sample in shipment"""
-    return delete_item(table=Sample, item_id=sampleId)
+    return crud.delete_sample(sample_id=sampleId)
