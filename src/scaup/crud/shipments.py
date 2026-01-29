@@ -170,7 +170,7 @@ def _get_children(
 @assert_no_unassigned
 def build_shipment_request(shipmentId: int, token: str):
     shipment = _get_shipment_tree(shipmentId)
-    proposal_reference = f"{shipment.proposalCode}{shipment.proposalNumber:06}"
+    proposal_reference = f"{shipment.proposalCode}{shipment.proposalNumber}"
 
     packages: list[dict] = []
     for tlc in shipment.children:
@@ -252,7 +252,6 @@ def build_shipment_request(shipmentId: int, token: str):
     )
 
     built_request_body = {
-        # TODO: remove padding once shipping service removes regex check
         "session_number": shipment.visitNumber,
         "proposal": proposal_reference,
         "external_id": shipment.externalId,
