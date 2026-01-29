@@ -8,7 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
-v0.18.2 (09/01/2025)
+v0.19.0 (16/01/2026)
++++++++++
+
+**Changed**
+
+- All grids are now displayed in PDF reports, even if they don't have a cassette slot assigned
+
+**Added**
+
+- Perform manufacturer serial number check when creating dewars
+- Add endpoint for creating inventory dewar
+
++++++++++
+v0.18.2 (09/01/2026)
 +++++++++
 
 **Changed**
