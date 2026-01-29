@@ -188,7 +188,7 @@ def test_request_fail(client):
 def test_invalid_dewar_response_from_ispyb(client):
     """Should throw error if ISPyB returns error when getting dewar from dewar registry"""
     responses.get(
-        f"{Config.ispyb_api.url}/proposals/cm000003/dewar-registry/DLS-4",
+        f"{Config.ispyb_api.url}/proposals/cm3/dewar-registry/DLS-4",
         status=404,
         json={},
     )
