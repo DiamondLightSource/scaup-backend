@@ -187,6 +187,10 @@ def create_top_level_container(shipmentId: int | None, params: TopLevelContainer
 
 def edit_top_level_container(topLevelContainerId: int, params: OptionalTopLevelContainer, token: str):
     _check_fields(params, token, topLevelContainerId)
+
+    if params.code is not None:
+        params.name = params.code if params.name is None else params.name
+
     return edit_item(TopLevelContainer, params, topLevelContainerId, token)
 
 
