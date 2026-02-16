@@ -37,6 +37,24 @@ def test_edit_code(client):
 
 
 @responses.activate
+def test_edit_code_name(client):
+    """Should update name if code changes"""
+    resp = client.patch(
+        "/topLevelContainers/2",
+        json={"code": "DLS-EM-0000"},
+    )
+
+    assert resp.status_code == 200
+
+    data = resp.json()
+    assert data["name"] == "DLS-EM-0000"
+
+    assert (
+        inner_db.session.scalar(select(TopLevelContainer).filter(TopLevelContainer.name == "DLS-EM-0000")) is not None
+    )
+
+
+@responses.activate
 def test_edit_invalid_code(client):
     """Should not update top level container if code is not valid"""
     resp = client.patch(
