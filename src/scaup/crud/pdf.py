@@ -56,6 +56,16 @@ def _add_unit(key: str, val: str | bool | int | float):
     return new_val
 
 
+def _rewrite_title(text: str):
+    if text == "useTomoEpu":
+        return "Use Tomo EPU"
+
+    if text == "gridCrossGrating":
+        return "Cross Grating/Carbon Grid"
+
+    return pascal_to_title(text)
+
+
 class ConsigneeAddress(object):
     """This is a class to provide a global cache for the consignee address, to prevent hitting the shipping service
     with too many redundant requests."""
@@ -483,7 +493,7 @@ def generate_report(shipment_id: int, token: str):
         )
 
     # TODO: rethink this once we're using user-provided templates
-    pre_session_table = [(pascal_to_title(key), _add_unit(key, value)) for key, value in pre_session.details.items()]
+    pre_session_table = [(_rewrite_title(key), _add_unit(key, value)) for key, value in pre_session.details.items()]
 
     pdf = ReportPDF(shipment)
     pdf.add_page()
@@ -499,7 +509,7 @@ def generate_report(shipment_id: int, token: str):
     pdf.add_table(session_table, width=100, caption="Session")
 
     pdf.set_xy(x=140, y=20)
-    pdf.add_table(pre_session_table, width=100, caption="Data Collection Parameters")
+    pdf.add_table(pre_session_table, width=100, caption="Requested Data Collection Parameters")
 
     headers = {
         "Content-Disposition": (
