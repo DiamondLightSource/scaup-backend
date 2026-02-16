@@ -2,8 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.5
--- Dumped by pg_dump version 17.4
+\restrict U6bOmzaZYjYIO0Hg2gWsqgE5LjK1vVHNNCtv3caSVlfRNEoi3Gvy4hpNaeUfHGq
+
+-- Dumped from database version 17.6 (Debian 17.6-2.pgdg13+1)
+-- Dumped by pg_dump version 18.0
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -45,7 +47,7 @@ CREATE TABLE public."Container" (
     details json,
     "requestedReturn" boolean NOT NULL,
     "registeredContainer" character varying,
-    name character varying(40) NOT NULL,
+    name character varying(80) NOT NULL,
     "externalId" integer,
     comments character varying(255),
     "isInternal" boolean NOT NULL,
@@ -161,7 +163,7 @@ CREATE TABLE public."Sample" (
     location smallint,
     details json,
     "containerId" integer,
-    name character varying(40) NOT NULL,
+    name character varying(80) NOT NULL,
     "externalId" integer,
     comments character varying(255),
     "subLocation" smallint,
@@ -250,7 +252,7 @@ CREATE TABLE public."Shipment" (
     "creationDate" timestamp with time zone DEFAULT now() NOT NULL,
     "shipmentRequest" integer,
     status character varying(25) DEFAULT 'Created'::character varying,
-    name character varying(40) NOT NULL,
+    name character varying(80) NOT NULL,
     "externalId" integer,
     comments character varying(255),
     "proposalCode" character varying(2) NOT NULL,
@@ -301,7 +303,7 @@ CREATE TABLE public."TopLevelContainer" (
     details json,
     code character varying(20) NOT NULL,
     type character varying(40) DEFAULT 'dewar'::character varying NOT NULL,
-    name character varying(40) NOT NULL,
+    name character varying(80) NOT NULL,
     "externalId" integer,
     comments character varying(255),
     "isInternal" boolean NOT NULL,
@@ -498,7 +500,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-730f6f07da68
+31b603858335
 \.
 
 
@@ -860,4 +862,6 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict U6bOmzaZYjYIO0Hg2gWsqgE5LjK1vVHNNCtv3caSVlfRNEoi3Gvy4hpNaeUfHGq
 

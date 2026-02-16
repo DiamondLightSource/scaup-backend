@@ -22,7 +22,7 @@ TopLevelContainerTypes = Literal["dewar", "toolbox", "parcel"]
 
 
 class BaseColumns:
-    name: Mapped[str] = mapped_column(String(40))
+    name: Mapped[str] = mapped_column(String(80))
     externalId: Mapped[int | None] = mapped_column(unique=True, comment="Item ID in ISPyB")
     comments: Mapped[str | None] = mapped_column(String(255))
     creationDate: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
