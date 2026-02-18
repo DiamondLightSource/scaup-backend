@@ -252,6 +252,7 @@ def build_shipment_request(shipmentId: int, token: str):
     )
 
     built_request_body = {
+        "staff_notification_email": Config.shipping_service.staff_email,
         "session_number": shipment.visitNumber,
         "proposal": proposal_reference,
         "external_id": shipment.externalId,

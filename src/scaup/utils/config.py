@@ -37,6 +37,7 @@ class ShippingService:
     backend_url: str = "https://localtest.diamond.ac.uk/"
     secret: str = "no-secret"
     callback_url: str = "https://localhost/api"
+    staff_email: str | None = None
 
 
 @dataclass
