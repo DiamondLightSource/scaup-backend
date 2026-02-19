@@ -304,8 +304,12 @@ def get_shipment_request(shipmentId: int):
 
 
 def handle_callback(shipment_id: int, callback_body: StatusUpdate):
+    columns: dict[str, str | None] = {
+        "status": callback_body.status if callback_body.status != "CREATED" else "Pickup Cancelled"
+    }
+
     updated_shipment = inner_db.session.scalar(
-        update(Shipment).returning(Shipment).filter_by(id=shipment_id).values({"status": callback_body.status})
+        update(Shipment).returning(Shipment).filter_by(id=shipment_id).values(columns)
     )
 
     inner_db.session.commit()
