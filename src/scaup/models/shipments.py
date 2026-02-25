@@ -79,8 +79,8 @@ class ShipmentExternal(BaseExternal):
 
 class StatusUpdate(BaseModel):
     origin_url: str
-    journey_type: str
+    journey_type: str | None = None
     status: str
-    tracking_number: str
+    tracking_number: str | None = None
     pickup_confirmation_code: str | None = None
     pickup_confirmation_timestamp: datetime | None
