@@ -1,14 +1,14 @@
 from typing import Any
 
 from fastapi import HTTPException, status
-from jwt import DecodeError, ExpiredSignatureError, InvalidAudienceError, decode
+from jwt import DecodeError, decode
 from lims_utils.auth import GenericUser
 from lims_utils.logging import app_logger
 
 from .config import Config
 
 
-def is_admin(perms: list[int]):
+def is_admin(perms: list[str]):
     return bool(set(Config.auth.read_all_perms) & set(perms))
 
 
@@ -30,8 +30,8 @@ def decode_jwt(token: str, aud: str = Config.shipping_service.callback_url) -> d
         )
 
         return decoded_body
-    except (DecodeError, ExpiredSignatureError, InvalidAudienceError) as e:
-        app_logger.warning(f"Error while parsing token {token}: {e}")
+    except DecodeError as e:
+        app_logger.warning(f"Error while parsing token: {e}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token provided")
 
 

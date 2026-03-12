@@ -1,6 +1,7 @@
 import jwt
 import pytest
 from fastapi import HTTPException
+from jwt.exceptions import ExpiredSignatureError, InvalidAudienceError
 
 from scaup.utils.auth import check_em_staff, check_jwt
 from scaup.utils.config import Config
@@ -33,7 +34,7 @@ def test_jwt_invalid_aud():
     """Should not allow unmatched audiences"""
     token = jwt.encode({"id": 1, "exp": 9e9, "aud": "invalid-aud"}, Config.auth.jwt_private, algorithm="ES256")
 
-    with pytest.raises(HTTPException, match="401: Invalid token provided"):
+    with pytest.raises(InvalidAudienceError):
         check_jwt(token, 1)
 
 
@@ -43,7 +44,7 @@ def test_jwt_invalid_exp():
         {"id": 1, "exp": 0, "aud": Config.shipping_service.callback_url}, Config.auth.jwt_private, algorithm="ES256"
     )
 
-    with pytest.raises(HTTPException, match="401: Invalid token provided"):
+    with pytest.raises(ExpiredSignatureError):
         check_jwt(token, 1)
 
 
