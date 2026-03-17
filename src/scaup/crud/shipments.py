@@ -256,7 +256,7 @@ def build_shipment_request(shipmentId: int, token: str):
         "proposal": proposal_reference,
         "external_id": shipment.externalId,
         "origin_url": f"{Config.frontend_url}/proposals/{shipment.proposalCode}{shipment.proposalNumber}/sessions/"
-        + f"{shipment.visitNumber}/shipments/{shipment.id}",
+        + f"{shipment.visitNumber}/shipments/{shipment.id}/booking-and-labels",
         "packages": packages,
         "dispatch_callback_url": f"{Config.shipping_service.callback_url}/shipments/{shipmentId}"
         + f"/update-status?token={jwt_token}",
