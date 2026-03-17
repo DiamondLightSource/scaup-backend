@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict U6bOmzaZYjYIO0Hg2gWsqgE5LjK1vVHNNCtv3caSVlfRNEoi3Gvy4hpNaeUfHGq
+\restrict d72nezL6GFmyJfWygOXIItNbUm9nLf7ppTZvOludmJUxwe52McussFN2gKEi9wj
 
 -- Dumped from database version 17.6 (Debian 17.6-2.pgdg13+1)
 -- Dumped by pg_dump version 18.0
@@ -421,6 +421,73 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 648	97	\N	646	gridBox	4	1	\N	f	\N	Grid_Box_02	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
 1904	229	\N	1901	gridBox	4	1	\N	f	\N	Grid_Box_01	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
 1901	229	720	\N	puck	4	\N	\N	f	\N	Puck_01	\N	\N	f	f	\N	2025-01-10 08:54:42.073855+00
+2248	\N	988	\N	puck	\N	\N	\N	f	\N	1	\N	\N	t	f	2	2026-03-17 11:11:37.395377+00
+2249	\N	988	\N	puck	\N	\N	\N	f	\N	2	\N	\N	t	f	2	2026-03-17 11:11:37.395377+00
+2250	\N	988	\N	puck	\N	\N	\N	f	\N	3	\N	\N	t	f	2	2026-03-17 11:11:37.395377+00
+2251	\N	988	\N	puck	\N	\N	\N	f	\N	4	\N	\N	t	f	2	2026-03-17 11:11:37.395377+00
+2252	\N	988	\N	puck	\N	\N	\N	f	\N	5	\N	\N	t	f	2	2026-03-17 11:11:37.395377+00
+2254	\N	\N	2249	gridBox	\N	1	\N	f	\N	Gridbox_1_Puck_2	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2255	\N	\N	2250	gridBox	\N	1	\N	f	\N	Gridbox_1_Puck_3	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2256	\N	\N	2251	gridBox	\N	1	\N	f	\N	Gridbox_1_Puck_4	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2257	\N	\N	2252	gridBox	\N	1	\N	f	\N	Gridbox_1_Puck_5	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2258	\N	\N	2248	gridBox	\N	2	\N	f	\N	Gridbox_2_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2259	\N	\N	2249	gridBox	\N	2	\N	f	\N	Gridbox_2_Puck_2	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2260	\N	\N	2250	gridBox	\N	2	\N	f	\N	Gridbox_2_Puck_3	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2261	\N	\N	2251	gridBox	\N	2	\N	f	\N	Gridbox_2_Puck_4	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2262	\N	\N	2252	gridBox	\N	2	\N	f	\N	Gridbox_2_Puck_5	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2263	\N	\N	2248	gridBox	\N	3	\N	f	\N	Gridbox_3_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2264	\N	\N	2249	gridBox	\N	3	\N	f	\N	Gridbox_3_Puck_2	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2265	\N	\N	2250	gridBox	\N	3	\N	f	\N	Gridbox_3_Puck_3	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2266	\N	\N	2251	gridBox	\N	3	\N	f	\N	Gridbox_3_Puck_4	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2267	\N	\N	2252	gridBox	\N	3	\N	f	\N	Gridbox_3_Puck_5	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2268	\N	\N	2248	gridBox	\N	4	\N	f	\N	Gridbox_4_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2269	\N	\N	2249	gridBox	\N	4	\N	f	\N	Gridbox_4_Puck_2	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2270	\N	\N	2250	gridBox	\N	4	\N	f	\N	Gridbox_4_Puck_3	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2271	\N	\N	2251	gridBox	\N	4	\N	f	\N	Gridbox_4_Puck_4	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2272	\N	\N	2252	gridBox	\N	4	\N	f	\N	Gridbox_4_Puck_5	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2273	\N	\N	2248	gridBox	\N	5	\N	f	\N	Gridbox_5_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2274	\N	\N	2249	gridBox	\N	5	\N	f	\N	Gridbox_5_Puck_2	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2275	\N	\N	2250	gridBox	\N	5	\N	f	\N	Gridbox_5_Puck_3	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2276	\N	\N	2251	gridBox	\N	5	\N	f	\N	Gridbox_5_Puck_4	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2277	\N	\N	2252	gridBox	\N	5	\N	f	\N	Gridbox_5_Puck_5	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2278	\N	\N	2248	gridBox	\N	6	\N	f	\N	Gridbox_6_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2279	\N	\N	2249	gridBox	\N	6	\N	f	\N	Gridbox_6_Puck_2	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2280	\N	\N	2250	gridBox	\N	6	\N	f	\N	Gridbox_6_Puck_3	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2281	\N	\N	2251	gridBox	\N	6	\N	f	\N	Gridbox_6_Puck_4	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2282	\N	\N	2252	gridBox	\N	6	\N	f	\N	Gridbox_6_Puck_5	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2283	\N	\N	2248	gridBox	\N	7	\N	f	\N	Gridbox_7_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2284	\N	\N	2249	gridBox	\N	7	\N	f	\N	Gridbox_7_Puck_2	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2285	\N	\N	2250	gridBox	\N	7	\N	f	\N	Gridbox_7_Puck_3	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2286	\N	\N	2251	gridBox	\N	7	\N	f	\N	Gridbox_7_Puck_4	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2287	\N	\N	2252	gridBox	\N	7	\N	f	\N	Gridbox_7_Puck_5	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2288	\N	\N	2248	gridBox	\N	8	\N	f	\N	Gridbox_8_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2289	\N	\N	2249	gridBox	\N	8	\N	f	\N	Gridbox_8_Puck_2	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2290	\N	\N	2250	gridBox	\N	8	\N	f	\N	Gridbox_8_Puck_3	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2291	\N	\N	2251	gridBox	\N	8	\N	f	\N	Gridbox_8_Puck_4	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2292	\N	\N	2252	gridBox	\N	8	\N	f	\N	Gridbox_8_Puck_5	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2293	\N	\N	2248	gridBox	\N	9	\N	f	\N	Gridbox_9_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2294	\N	\N	2249	gridBox	\N	9	\N	f	\N	Gridbox_9_Puck_2	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2295	\N	\N	2250	gridBox	\N	9	\N	f	\N	Gridbox_9_Puck_3	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2296	\N	\N	2251	gridBox	\N	9	\N	f	\N	Gridbox_9_Puck_4	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2297	\N	\N	2252	gridBox	\N	9	\N	f	\N	Gridbox_9_Puck_5	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2298	\N	\N	2248	gridBox	\N	10	\N	f	\N	Gridbox_10_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2299	\N	\N	2249	gridBox	\N	10	\N	f	\N	Gridbox_10_Puck_2	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2300	\N	\N	2250	gridBox	\N	10	\N	f	\N	Gridbox_10_Puck_3	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2301	\N	\N	2251	gridBox	\N	10	\N	f	\N	Gridbox_10_Puck_4	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2302	\N	\N	2252	gridBox	\N	10	\N	f	\N	Gridbox_10_Puck_5	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2303	\N	\N	2248	gridBox	\N	11	\N	f	\N	Gridbox_11_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2304	\N	\N	2249	gridBox	\N	11	\N	f	\N	Gridbox_11_Puck_2	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2305	\N	\N	2250	gridBox	\N	11	\N	f	\N	Gridbox_11_Puck_3	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2306	\N	\N	2251	gridBox	\N	11	\N	f	\N	Gridbox_11_Puck_4	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2307	\N	\N	2252	gridBox	\N	11	\N	f	\N	Gridbox_11_Puck_5	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2308	\N	\N	2248	gridBox	\N	12	\N	f	\N	Gridbox_12_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2309	\N	\N	2249	gridBox	\N	12	\N	f	\N	Gridbox_12_Puck_2	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2310	\N	\N	2250	gridBox	\N	12	\N	f	\N	Gridbox_12_Puck_3	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2311	\N	\N	2251	gridBox	\N	12	\N	f	\N	Gridbox_12_Puck_4	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2312	\N	\N	2252	gridBox	\N	12	\N	f	\N	Gridbox_12_Puck_5	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2314	309	989	\N	puck	\N	\N	{}	f	\N	test2	372665		f	f	auto	2026-03-17 11:12:31.214055+00
+2253	\N	\N	2248	gridBox	\N	1	null	f	\N	Gridbox_1_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+2313	309	\N	2314	gridBox	\N	1	{"c-clip": "Anti-Clockwise (facing left with respect to notch)", "store": false}	f	\N	test	372666		f	f	auto	2026-03-17 11:12:17.496318+00
 \.
 
 
@@ -431,6 +498,8 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 COPY public."PreSession" ("preSessionId", "shipmentId", details) FROM stdin;
 15	2	{"name": "previous"}
 54	117	{"clipped": false, "gridCrossGrating": "No", "pixelSize": "", "totalDose": "", "dosePerFrame": "", "tiltSpan": "", "tiltStep": "", "startAngle": "", "tiltScheme": "", "useTomoEpu": "Tomo", "experimentType": "3D-ED", "comments": ""}
+428	309	{"pixelSize": "1", "totalDose": "1", "dosePerFrame": "1", "tiltSpan": ""}
+429	310	{"pixelSize": "1", "totalDose": "1", "dosePerFrame": "1", "tiltSpan": ""}
 \.
 
 
@@ -448,6 +517,8 @@ COPY public."Sample" ("sampleId", "shipmentId", "proteinId", type, location, det
 3	1	4407	sample	1	{"details": null, "shipmentId": 1, "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2"}	4	Sample_02	6186947	\N	1	2025-01-10 08:54:42.073855+00
 561	117	338108	grid	1	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	776	3P_1	6212665	\N	1	2025-01-10 08:54:42.073855+00
 1877	229	338108	grid	1	{"buffer": "", "concentration": "", "foil": "Quantifoil copper", "film": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrification": "GP2", "vitrificationConditions": ""}	1904	3P_1	\N	\N	1	2025-01-10 08:54:42.073855+00
+2580	309	338108	grid	\N	{"buffer": "", "concentration": "", "supportMaterial": "Quantifoil copper", "foil": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrificationConditions": ""}	\N	3P_1	7512479	\N	\N	2026-03-17 11:12:08.852985+00
+2581	310	338108	grid	1	{"buffer": "", "concentration": "", "supportMaterial": "Quantifoil copper", "foil": "Holey carbon", "mesh": "200", "hole": "R 0.6/1", "vitrificationConditions": ""}	2253	3P_1	7512480	\N	\N	2026-03-17 11:15:27.385417+00
 \.
 
 
@@ -457,6 +528,7 @@ COPY public."Sample" ("sampleId", "shipmentId", "proteinId", type, location, det
 
 COPY public."SampleParentChild" ("parentId", "childId", "creationDate") FROM stdin;
 612	1877	2025-03-13 09:49:12.797986+00
+2580	2581	2026-03-17 11:15:27.385417+00
 \.
 
 
@@ -475,6 +547,8 @@ COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status,
 204	2024-07-15 15:35:32.472987+00	\N	Created	3	\N	\N	bi	23047	99	2025-06-09 08:29:07.995804+00
 229	2025-01-10 08:54:23.171217+00	\N	Created	100	\N	\N	bi	23047	102	2025-06-09 08:29:07.995804+00
 117	2025-06-05 14:15:42.285+00	1	at facility	1	63975	\N	bi	23047	100	2025-06-05 14:15:42.285+00
+309	2026-03-17 11:12:00.592499+00	\N	Submitted	Derived_Session	79331	\N	bi	23047	103	2026-03-17 11:12:00.592499+00
+310	2026-03-17 11:15:20.507591+00	\N	Created	Imported_samples	\N	\N	bi	23047	104	2026-03-17 11:15:20.507591+00
 \.
 
 
@@ -492,6 +566,8 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 221	\N	{}	DLS-BI-0020	dewar	DLS-BI-0020	\N		t	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
 720	229	{}	DLS-BI-0020	dewar	DLS-BI-0020	\N		f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
 199	117	{}	DLS-BI-0020	dewar	DLS-BI-0020	80365		f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
+988	\N	\N	Inventory_Dewar	dewar	Inventory_Dewar	\N	\N	t	\N	2026-03-17 11:11:37.395377+00
+989	309	{}	DLS-BI-0022	dewar	DLS-BI-0022	88962		f	bi23047-103-m06-0000989	2026-03-17 11:12:39.677754+00
 \.
 
 
@@ -508,35 +584,35 @@ COPY public.alembic_version (version_num) FROM stdin;
 -- Name: Container_containerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Container_containerId_seq"', 2247, true);
+SELECT pg_catalog.setval('public."Container_containerId_seq"', 2314, true);
 
 
 --
 -- Name: PreSession_preSessionId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 427, true);
+SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 429, true);
 
 
 --
 -- Name: Sample_sampleId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 2579, true);
+SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 2581, true);
 
 
 --
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 308, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 310, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 987, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 989, true);
 
 
 --
@@ -863,5 +939,5 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict U6bOmzaZYjYIO0Hg2gWsqgE5LjK1vVHNNCtv3caSVlfRNEoi3Gvy4hpNaeUfHGq
+\unrestrict d72nezL6GFmyJfWygOXIItNbUm9nLf7ppTZvOludmJUxwe52McussFN2gKEi9wj
 
