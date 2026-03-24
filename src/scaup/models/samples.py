@@ -46,6 +46,7 @@ class SampleOut(BaseSample):
     type: str = Field(validation_alias=InnerAlias("type"))
     dataCollectionGroupId: Optional[int] = None
     parentShipmentName: Optional[str] = None
+    isInternal: Optional[bool] = None
     originSamples: Optional[List["SampleOut"]] = Field(
         default=None, validation_alias=AliasPath("Sample", "originSamples")
     )

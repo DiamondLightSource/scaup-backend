@@ -11,4 +11,4 @@ def test_get(mock_user, client):
     )
 
     assert resp.status_code == 200
-    assert len(resp.json()["items"]) == 1
+    assert len(resp.json()["items"]) == 2

@@ -11,6 +11,11 @@ def test_get(client):
         status=200,
         json={"shippingStatus": "opened"},
     )
+    responses.get(
+        f"{Config.ispyb_api.url}/shipments/79331",
+        status=200,
+        json={"shippingStatus": "opened"},
+    )
 
     resp = client.get("/proposals/bi23047/shipments")
 
@@ -18,7 +23,7 @@ def test_get(client):
 
     data = resp.json()
 
-    assert len(data["items"]) == 5
+    assert len(data["items"]) == 7
 
 
 @responses.activate

@@ -129,6 +129,7 @@ def get_samples(
             Sample,
             Container.name.label("containerName"),
             Shipment.name.label("parentShipmentName"),
+            Container.isInternal.label("isInternal"),
         )
         .select_from(Shipment)
         .join(Sample, Sample.shipmentId == Shipment.id)
