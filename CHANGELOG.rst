@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v1.0.0 (24/03/2026)
++++++++++
+
+**Added**
+
+- Redirect user directly to booking/labels page
+- Return whether or not sample is in internal inventory
+- Relay staff email address to shipping service 
+
++++++++++
 v0.20.0 (12/03/2026)
 +++++++++
 
@@ -17,7 +27,7 @@ v0.20.0 (12/03/2026)
 
 **Changed**
 
-- Swap out NextAuth for Better Auth
+- Remove CAS auth logic
 
 +++++++++
 v0.19.1 (16/02/2026)
