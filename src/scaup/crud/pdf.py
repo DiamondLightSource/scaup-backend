@@ -129,7 +129,9 @@ class TrackingLabelPages(FPDF):
         to_lines: List[str] | None = None,
     ):
         super().__init__()
-        self.set_font("helvetica", size=14)
+        self.add_font(fname=DEJAVU_SANS)
+        self.add_font(fname=DEJAVU_SANS_BOLD, family="dejavusans", style="B")
+        self.set_font("DejaVuSans", size=14)
         self.location = location
         self.from_lines = from_lines
         self.to_lines = to_lines
@@ -147,7 +149,7 @@ class TrackingLabelPages(FPDF):
 
         # Label instructions
         self.image(DIAMOND_LOGO, x="L", y=7, h=15)
-        self.set_font("helvetica", size=26, style="B")
+        self.set_font("DejaVuSans", size=26, style="B")
         self.cell(align="R", w=0, text="Instructions", h=15, new_x="LMARGIN")
 
         self.set_y(30)
@@ -193,10 +195,10 @@ class TrackingLabelPages(FPDF):
             self.code39("*" + dewar.code + "*", x=35, y=y_pos, w=2, h=25)
 
             self.set_y(y_pos + 26)
-            self.set_font("helvetica", size=26, style="B")
+            self.set_font("DejaVuSans", size=26, style="B")
             self.cell(w=0, text=dewar.code, align="C", new_y="NEXT", new_x="LMARGIN")
 
-            self.set_font("helvetica", size=16, style="B")
+            self.set_font("DejaVuSans", size=16, style="B")
             self.multi_cell(w=0, text=TEMPORARY_DEWAR_TEXT, align="C")
 
             self.image(CUT_HERE, x="L", y=y_pos + 55, w=194)
@@ -240,7 +242,7 @@ class TrackingLabelPages(FPDF):
                 self.add_page()
                 self.set_y(135)
 
-                self.set_font("helvetica", size=14, style="B")
+                self.set_font("DejaVuSans", size=14, style="B")
 
                 self.cell(
                     w=l_col_size,
@@ -257,7 +259,7 @@ class TrackingLabelPages(FPDF):
                     h=14,
                 )
 
-                self.set_font("helvetica", size=12)
+                self.set_font("DejaVuSans", size=12)
 
                 # Address lines
                 self.multi_cell(
