@@ -15,7 +15,9 @@ from ..utils.external import update_shipment_statuses
 
 def create_shipment(proposal_reference: ProposalReference, params: ShipmentIn):
     # Proposal existence is already checked by Microauth
-    session_type_id = inner_db.session.execute(select(SessionType.id).filter(SessionType.name == params.sessionType)).scalar_one()
+    session_type_id = inner_db.session.execute(
+        select(SessionType.id).filter(SessionType.name == params.sessionType)
+    ).scalar_one()
 
     new_shipment = inner_db.session.scalar(
         insert(Shipment).returning(Shipment),

@@ -7,6 +7,7 @@ from ..utils.models import BaseExternal
 
 type SessionTypeName = Literal["TEM", "Aquilos"]
 
+
 def result_to_item_data(result: dict[str, Any]):
     # Ignore private properties
     result_as_dict = {
@@ -17,6 +18,7 @@ def result_to_item_data(result: dict[str, Any]):
         result_as_dict = {**result_as_dict, **result["details"]}
 
     return result_as_dict
+
 
 class SessionType(BaseModel):
     name: SessionTypeName

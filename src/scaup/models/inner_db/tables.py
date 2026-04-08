@@ -1,5 +1,4 @@
 from datetime import datetime
-from enum import Enum
 from typing import Any, List, Literal, Optional
 
 from sqlalchemy import (
@@ -20,6 +19,8 @@ class Base(DeclarativeBase):
 
 
 type TopLevelContainerTypes = Literal["dewar", "toolbox", "parcel"]
+
+
 class BaseColumns:
     name: Mapped[str] = mapped_column(String(80))
     externalId: Mapped[int | None] = mapped_column(unique=True, comment="Item ID in ISPyB")
@@ -43,12 +44,15 @@ class Shipment(Base, BaseColumns):
     status: Mapped[str | None] = mapped_column(String(25), server_default="Created")
     lastStatusUpdate: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
+
 class SessionType(Base):
     __tablename__ = "SessionType"
 
     id: Mapped[int] = mapped_column("sessionTypeId", primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(40), index=True, unique=True)
-    sampleCapacity: Mapped[int] = mapped_column(SmallInteger, comment="Number of samples that can be loaded in a session of this type")
+    sampleCapacity: Mapped[int] = mapped_column(
+        SmallInteger, comment="Number of samples that can be loaded in a session of this type"
+    )
 
     shipments: Mapped["Shipment"] = relationship("Shipment", back_populates="sessionType")
 
