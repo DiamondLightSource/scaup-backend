@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict d72nezL6GFmyJfWygOXIItNbUm9nLf7ppTZvOludmJUxwe52McussFN2gKEi9wj
+\restrict LAaXpeLFrz6APG61fXGbqetjDCjX6REG9CqgVhKhcVBAuSuAZYME9dRE5f5MMy0
 
 -- Dumped from database version 17.6 (Debian 17.6-2.pgdg13+1)
--- Dumped by pg_dump version 18.0
+-- Dumped by pg_dump version 18.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -244,6 +244,48 @@ ALTER SEQUENCE public."Sample_sampleId_seq" OWNED BY public."Sample"."sampleId";
 
 
 --
+-- Name: SessionType; Type: TABLE; Schema: public; Owner: sample_handling
+--
+
+CREATE TABLE public."SessionType" (
+    "sessionTypeId" integer NOT NULL,
+    name character varying(40) NOT NULL,
+    "sampleCapacity" smallint NOT NULL
+);
+
+
+ALTER TABLE public."SessionType" OWNER TO sample_handling;
+
+--
+-- Name: COLUMN "SessionType"."sampleCapacity"; Type: COMMENT; Schema: public; Owner: sample_handling
+--
+
+COMMENT ON COLUMN public."SessionType"."sampleCapacity" IS 'Number of samples that can be loaded in a session of this type';
+
+
+--
+-- Name: SessionType_sessionTypeId_seq; Type: SEQUENCE; Schema: public; Owner: sample_handling
+--
+
+CREATE SEQUENCE public."SessionType_sessionTypeId_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."SessionType_sessionTypeId_seq" OWNER TO sample_handling;
+
+--
+-- Name: SessionType_sessionTypeId_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sample_handling
+--
+
+ALTER SEQUENCE public."SessionType_sessionTypeId_seq" OWNED BY public."SessionType"."sessionTypeId";
+
+
+--
 -- Name: Shipment; Type: TABLE; Schema: public; Owner: sample_handling
 --
 
@@ -258,7 +300,8 @@ CREATE TABLE public."Shipment" (
     "proposalCode" character varying(2) NOT NULL,
     "proposalNumber" integer NOT NULL,
     "visitNumber" integer NOT NULL,
-    "lastStatusUpdate" timestamp with time zone DEFAULT now() NOT NULL
+    "lastStatusUpdate" timestamp with time zone DEFAULT now() NOT NULL,
+    "sessionTypeId" integer DEFAULT 1 NOT NULL
 );
 
 
@@ -380,6 +423,13 @@ ALTER TABLE ONLY public."PreSession" ALTER COLUMN "preSessionId" SET DEFAULT nex
 --
 
 ALTER TABLE ONLY public."Sample" ALTER COLUMN "sampleId" SET DEFAULT nextval('public."Sample_sampleId_seq"'::regclass);
+
+
+--
+-- Name: SessionType sessionTypeId; Type: DEFAULT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."SessionType" ALTER COLUMN "sessionTypeId" SET DEFAULT nextval('public."SessionType_sessionTypeId_seq"'::regclass);
 
 
 --
@@ -533,22 +583,32 @@ COPY public."SampleParentChild" ("parentId", "childId", "creationDate") FROM std
 
 
 --
+-- Data for Name: SessionType; Type: TABLE DATA; Schema: public; Owner: sample_handling
+--
+
+COPY public."SessionType" ("sessionTypeId", name, "sampleCapacity") FROM stdin;
+1	TEM	12
+2	Aquilos	2
+\.
+
+
+--
 -- Data for Name: Shipment; Type: TABLE DATA; Schema: public; Owner: sample_handling
 --
 
-COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status, name, "externalId", comments, "proposalCode", "proposalNumber", "visitNumber", "lastStatusUpdate") FROM stdin;
-1	2024-05-02 13:12:36.528788+00	\N	\N	Shipment_01	\N	\N	cm	1	1	2025-06-09 08:29:07.995804+00
-2	2024-05-02 13:12:36.528788+00	\N	\N	Shipment_02	123	\N	cm	2	1	2025-06-09 08:29:07.995804+00
-89	2024-05-02 13:12:36.528788+00	\N	Booked	Shipment_03	256	\N	cm	2	1	2025-06-09 08:29:07.995804+00
-97	2024-06-26 12:55:39.211687+00	\N	\N	Shipment_04	\N	\N	cm	3	1	2025-06-09 08:29:07.995804+00
-106	2024-06-26 12:55:39.211687+00	\N	\N	Shipment_05	789	\N	cm	3	1	2025-06-09 08:29:07.995804+00
-118	2024-06-26 13:40:32.191664+00	\N	\N	2	\N	\N	bi	23047	100	2025-06-09 08:29:07.995804+00
-126	2024-07-15 15:35:32.472987+00	\N	\N	1	\N	\N	bi	23047	99	2025-06-09 08:29:07.995804+00
-204	2024-07-15 15:35:32.472987+00	\N	Created	3	\N	\N	bi	23047	99	2025-06-09 08:29:07.995804+00
-229	2025-01-10 08:54:23.171217+00	\N	Created	100	\N	\N	bi	23047	102	2025-06-09 08:29:07.995804+00
-117	2025-06-05 14:15:42.285+00	1	at facility	1	63975	\N	bi	23047	100	2025-06-05 14:15:42.285+00
-309	2026-03-17 11:12:00.592499+00	\N	Submitted	Derived_Session	79331	\N	bi	23047	103	2026-03-17 11:12:00.592499+00
-310	2026-03-17 11:15:20.507591+00	\N	Created	Imported_samples	\N	\N	bi	23047	104	2026-03-17 11:15:20.507591+00
+COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status, name, "externalId", comments, "proposalCode", "proposalNumber", "visitNumber", "lastStatusUpdate", "sessionTypeId") FROM stdin;
+1	2024-05-02 13:12:36.528788+00	\N	\N	Shipment_01	\N	\N	cm	1	1	2025-06-09 08:29:07.995804+00	1
+2	2024-05-02 13:12:36.528788+00	\N	\N	Shipment_02	123	\N	cm	2	1	2025-06-09 08:29:07.995804+00	1
+89	2024-05-02 13:12:36.528788+00	\N	Booked	Shipment_03	256	\N	cm	2	1	2025-06-09 08:29:07.995804+00	1
+97	2024-06-26 12:55:39.211687+00	\N	\N	Shipment_04	\N	\N	cm	3	1	2025-06-09 08:29:07.995804+00	1
+106	2024-06-26 12:55:39.211687+00	\N	\N	Shipment_05	789	\N	cm	3	1	2025-06-09 08:29:07.995804+00	1
+118	2024-06-26 13:40:32.191664+00	\N	\N	2	\N	\N	bi	23047	100	2025-06-09 08:29:07.995804+00	1
+126	2024-07-15 15:35:32.472987+00	\N	\N	1	\N	\N	bi	23047	99	2025-06-09 08:29:07.995804+00	1
+204	2024-07-15 15:35:32.472987+00	\N	Created	3	\N	\N	bi	23047	99	2025-06-09 08:29:07.995804+00	1
+229	2025-01-10 08:54:23.171217+00	\N	Created	100	\N	\N	bi	23047	102	2025-06-09 08:29:07.995804+00	1
+117	2025-06-05 14:15:42.285+00	1	at facility	1	63975	\N	bi	23047	100	2025-06-05 14:15:42.285+00	1
+309	2026-03-17 11:12:00.592499+00	\N	Submitted	Derived_Session	79331	\N	bi	23047	103	2026-03-17 11:12:00.592499+00	1
+310	2026-03-17 11:15:20.507591+00	\N	Created	Imported_samples	\N	\N	bi	23047	104	2026-03-17 11:15:20.507591+00	1
 \.
 
 
@@ -576,7 +636,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-31b603858335
+c5d0b0fbc1e4
 \.
 
 
@@ -599,6 +659,13 @@ SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 429, true);
 --
 
 SELECT pg_catalog.setval('public."Sample_sampleId_seq"', 2581, true);
+
+
+--
+-- Name: SessionType_sessionTypeId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
+--
+
+SELECT pg_catalog.setval('public."SessionType_sessionTypeId_seq"', 1, false);
 
 
 --
@@ -685,6 +752,14 @@ ALTER TABLE ONLY public."Sample"
 
 ALTER TABLE ONLY public."Sample"
     ADD CONSTRAINT "Sample_unique_sublocation" UNIQUE ("subLocation", "shipmentId");
+
+
+--
+-- Name: SessionType SessionType_pkey; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."SessionType"
+    ADD CONSTRAINT "SessionType_pkey" PRIMARY KEY ("sessionTypeId");
 
 
 --
@@ -814,6 +889,20 @@ CREATE INDEX "ix_Sample_shipmentId" ON public."Sample" USING btree ("shipmentId"
 
 
 --
+-- Name: ix_SessionType_name; Type: INDEX; Schema: public; Owner: sample_handling
+--
+
+CREATE UNIQUE INDEX "ix_SessionType_name" ON public."SessionType" USING btree (name);
+
+
+--
+-- Name: ix_SessionType_sessionTypeId; Type: INDEX; Schema: public; Owner: sample_handling
+--
+
+CREATE INDEX "ix_SessionType_sessionTypeId" ON public."SessionType" USING btree ("sessionTypeId");
+
+
+--
 -- Name: ix_Shipment_proposalCode; Type: INDEX; Schema: public; Owner: sample_handling
 --
 
@@ -920,6 +1009,14 @@ ALTER TABLE ONLY public."Sample"
 
 
 --
+-- Name: Shipment Shipment_sessionTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."Shipment"
+    ADD CONSTRAINT "Shipment_sessionTypeId_fkey" FOREIGN KEY ("sessionTypeId") REFERENCES public."SessionType"("sessionTypeId");
+
+
+--
 -- Name: TopLevelContainer TopLevelContainer_shipmentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sample_handling
 --
 
@@ -939,5 +1036,5 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict d72nezL6GFmyJfWygOXIItNbUm9nLf7ppTZvOludmJUxwe52McussFN2gKEi9wj
+\unrestrict LAaXpeLFrz6APG61fXGbqetjDCjX6REG9CqgVhKhcVBAuSuAZYME9dRE5f5MMy0
 
