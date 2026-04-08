@@ -1,10 +1,11 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from ..utils.models import BaseExternal
 
+type SessionTypeName = Literal["TEM", "Aquilos"]
 
 def result_to_item_data(result: dict[str, Any]):
     # Ignore private properties
@@ -17,10 +18,16 @@ def result_to_item_data(result: dict[str, Any]):
 
     return result_as_dict
 
+class SessionType(BaseModel):
+    name: SessionTypeName
+    sampleCapacity: int
+
 
 class ShipmentIn(BaseModel):
     name: str
     comments: Optional[str] = None
+    # This is to make the API more user-friendly, the session type is stored as an ID in the database
+    sessionType: SessionTypeName = Field(default="TEM", description="Session type for the shipment")
 
 
 class ShipmentOut(BaseModel):
@@ -36,6 +43,7 @@ class ShipmentOut(BaseModel):
     shipmentRequest: Optional[int] = None
     lastStatusUpdate: datetime
     externalId: int | None = None
+    sessionType: SessionType
 
 
 class GenericItemData(BaseModel):
