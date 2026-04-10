@@ -18,7 +18,7 @@ class Base(DeclarativeBase):
     pass
 
 
-TopLevelContainerTypes = Literal["dewar", "toolbox", "parcel"]
+type TopLevelContainerTypes = Literal["dewar", "toolbox", "parcel"]
 
 
 class BaseColumns:
@@ -35,12 +35,26 @@ class Shipment(Base, BaseColumns):
     proposalCode: Mapped[str] = mapped_column(String(2), index=True)
     proposalNumber: Mapped[int] = mapped_column(index=True)
     visitNumber: Mapped[int] = mapped_column(index=True)
+    sessionTypeId: Mapped[int] = mapped_column(ForeignKey("SessionType.sessionTypeId"), server_default="1")
 
     children: Mapped[List["TopLevelContainer"]] = relationship(back_populates="shipment")
+    sessionType: Mapped["SessionType"] = relationship(back_populates="shipments")
 
     shipmentRequest: Mapped[int | None] = mapped_column()
     status: Mapped[str | None] = mapped_column(String(25), server_default="Created")
     lastStatusUpdate: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class SessionType(Base):
+    __tablename__ = "SessionType"
+
+    id: Mapped[int] = mapped_column("sessionTypeId", primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String(40), index=True, unique=True)
+    sampleCapacity: Mapped[int] = mapped_column(
+        SmallInteger, comment="Number of samples that can be loaded in a session of this type"
+    )
+
+    shipments: Mapped["Shipment"] = relationship("Shipment", back_populates="sessionType")
 
 
 class TopLevelContainer(Base, BaseColumns):

@@ -5,7 +5,7 @@ from lims_utils.models import Paged, ProposalReference
 from sqlalchemy import insert, select
 from sqlalchemy.exc import MultipleResultsFound
 
-from ..models.inner_db.tables import Sample, Shipment
+from ..models.inner_db.tables import Sample, SessionType, Shipment
 from ..models.samples import SublocationAssignment
 from ..models.shipments import ShipmentIn
 from ..utils.crud import assign_dcg_to_sublocation
@@ -15,6 +15,9 @@ from ..utils.external import update_shipment_statuses
 
 def create_shipment(proposal_reference: ProposalReference, params: ShipmentIn):
     # Proposal existence is already checked by Microauth
+    session_type_id = inner_db.session.execute(
+        select(SessionType.id).filter(SessionType.name == params.sessionType)
+    ).scalar_one()
 
     new_shipment = inner_db.session.scalar(
         insert(Shipment).returning(Shipment),
@@ -22,6 +25,7 @@ def create_shipment(proposal_reference: ProposalReference, params: ShipmentIn):
             "proposalNumber": proposal_reference.number,
             "proposalCode": proposal_reference.code,
             "visitNumber": proposal_reference.visit_number,
+            "sessionTypeId": session_type_id,
             **params.model_dump(),
         },
     )
