@@ -29,6 +29,7 @@ class Auth:
 class DB:
     pool: int = 10
     overflow: int = 20
+    max_shipments_per_session: int = 2
 
 
 @dataclass
