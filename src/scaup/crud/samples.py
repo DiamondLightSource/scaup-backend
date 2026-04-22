@@ -76,6 +76,14 @@ def create_sample(
             detail="Too many sample copies requested",
         )
 
+    # This is because of ISPyB - it does not allow sample names longer than 45 characters, and we add a suffix of at
+    # least 2 characters for duplicates
+    if params.name and len(params.name) > 43:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Combination of macromolecule prefix and name must not be longer than 43 characters.",
+        )
+
     samples_json = [
         {
             "shipmentId": shipmentId,

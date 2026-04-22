@@ -1,7 +1,9 @@
 import re
-from typing import Optional
+from typing import Annotated, Optional
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+type IspybCompliantName = Annotated[str, Field(max_length=45)]  # Because of ISPyB
 
 
 class BaseModelWithNameValidator(BaseModel):

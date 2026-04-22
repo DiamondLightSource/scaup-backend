@@ -22,6 +22,7 @@ class BaseSample(BaseModelWithNameValidator):
         default=None,
         description=("Sample name, if not provided, the provided protein's name followed by the sample index is used"),
         validation_alias=InnerAlias("name"),
+        max_length=45,  # Because of ISPyB
     )
 
 
