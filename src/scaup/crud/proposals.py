@@ -40,7 +40,7 @@ def create_shipment(
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,
             f"Only {Config.db.max_shipments_per_session} sample collections are allowed per session. Contact"
-            "staff if you require more.",
+            " staff if you require more.",
         )
 
     new_shipment = inner_db.session.scalar(
