@@ -3,7 +3,7 @@ from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from ..utils.models import BaseExternal
+from ..utils.models import BaseExternal, IspybCompliantName
 
 type SessionTypeName = Literal["TEM", "Aquilos"]
 
@@ -26,7 +26,7 @@ class SessionType(BaseModel):
 
 
 class ShipmentIn(BaseModel):
-    name: str
+    name: IspybCompliantName
     comments: Optional[str] = None
     # This is to make the API more user-friendly, the session type is stored as an ID in the database
     sessionType: SessionTypeName = Field(default="TEM", description="Session type for the shipment")

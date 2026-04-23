@@ -273,3 +273,15 @@ def test_invalid_parent(client):
     )
 
     assert resp.status_code == 404
+
+
+@responses.activate
+def test_long_name(client):
+    """Should return error if name is too long"""
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"containerId": 4, "proteinId": 4407, "name": "a" * 35},
+    )
+
+    assert resp.status_code == 400
