@@ -18,7 +18,7 @@
       "Dr John Doe": "john@diamond.ac.uk"
     }
   },
-  "db": { "pool": 3, "overflow": 6 },
+  "db": { "pool": 3, "overflow": 6, "max_shipments_per_session": 2 },
   "ispyb_api": "http://127.0.0.1:8060/api",
   "frontend_url": "http://localtest.diamond.ac.uk:9000"
 }
