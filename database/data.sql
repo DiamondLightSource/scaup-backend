@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict LAaXpeLFrz6APG61fXGbqetjDCjX6REG9CqgVhKhcVBAuSuAZYME9dRE5f5MMy0
+\restrict oEh9AANNObdfLMroz9f9vqJCF7b7SqNCubiM4gNgNwnsRzmKHcUIkaOXNveYeMO
 
 -- Dumped from database version 17.6 (Debian 17.6-2.pgdg13+1)
 -- Dumped by pg_dump version 18.3
@@ -550,6 +550,9 @@ COPY public."PreSession" ("preSessionId", "shipmentId", details) FROM stdin;
 54	117	{"clipped": false, "gridCrossGrating": "No", "pixelSize": "", "totalDose": "", "dosePerFrame": "", "tiltSpan": "", "tiltStep": "", "startAngle": "", "tiltScheme": "", "useTomoEpu": "Tomo", "experimentType": "3D-ED", "comments": ""}
 428	309	{"pixelSize": "1", "totalDose": "1", "dosePerFrame": "1", "tiltSpan": ""}
 429	310	{"pixelSize": "1", "totalDose": "1", "dosePerFrame": "1", "tiltSpan": ""}
+430	311	{"pixelSize": "1", "totalDose": "1", "dosePerFrame": "1", "tiltSpan": ""}
+431	312	{"pixelSize": "1", "totalDose": "1", "dosePerFrame": "1", "tiltSpan": ""}
+432	313	{"pixelSize": "1", "totalDose": "1", "dosePerFrame": "1", "tiltSpan": ""}
 \.
 
 
@@ -609,6 +612,9 @@ COPY public."Shipment" ("shipmentId", "creationDate", "shipmentRequest", status,
 117	2025-06-05 14:15:42.285+00	1	at facility	1	63975	\N	bi	23047	100	2025-06-05 14:15:42.285+00	1
 309	2026-03-17 11:12:00.592499+00	\N	Submitted	Derived_Session	79331	\N	bi	23047	103	2026-03-17 11:12:00.592499+00	1
 310	2026-03-17 11:15:20.507591+00	\N	Created	Imported_samples	\N	\N	bi	23047	104	2026-03-17 11:15:20.507591+00	1
+311	2026-04-28 10:54:07.193015+00	1829	Request Created	test	80210	\N	bi	23047	101	2026-04-28 10:54:07.193015+00	1
+312	2026-04-28 10:54:49.880798+00	1830	Request Created	test2	80211	\N	bi	23047	101	2026-04-28 10:54:49.880798+00	1
+313	2026-04-28 10:55:30.388573+00	\N	Submitted	test3	80212	\N	bi	23047	101	2026-04-28 10:55:30.388573+00	1
 \.
 
 
@@ -628,6 +634,9 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 199	117	{}	DLS-BI-0020	dewar	DLS-BI-0020	80365		f	1100af88-2e0b-46a7-93f9-2737a0b23d0c	2025-01-10 08:54:42.073855+00
 988	\N	\N	Inventory_Dewar	dewar	Inventory_Dewar	\N	\N	t	\N	2026-03-17 11:11:37.395377+00
 989	309	{}	DLS-BI-0022	dewar	DLS-BI-0022	88962		f	bi23047-103-m06-0000989	2026-03-17 11:12:39.677754+00
+990	311	{}	DLS-BI-1125	dewar	DLS-BI-1125	89901		f	bi23047-101-m05-0000990	2026-04-28 10:54:13.389735+00
+991	312	{}	DLS-BI-0020	dewar	DLS-BI-0020	89902		f	bi23047-101-m05-0000991	2026-04-28 10:54:55.06228+00
+992	313	{}	DLS-MX-0735	dewar	DLS-MX-0735	89903		f	bi23047-101-m05-0000992	2026-04-28 10:55:35.915618+00
 \.
 
 
@@ -651,7 +660,7 @@ SELECT pg_catalog.setval('public."Container_containerId_seq"', 2314, true);
 -- Name: PreSession_preSessionId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 429, true);
+SELECT pg_catalog.setval('public."PreSession_preSessionId_seq"', 432, true);
 
 
 --
@@ -672,14 +681,14 @@ SELECT pg_catalog.setval('public."SessionType_sessionTypeId_seq"', 1, false);
 -- Name: Shipment_shipmentId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 310, true);
+SELECT pg_catalog.setval('public."Shipment_shipmentId_seq"', 313, true);
 
 
 --
 -- Name: TopLevelContainer_topLevelContainerId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 989, true);
+SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 992, true);
 
 
 --
@@ -1036,5 +1045,5 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict LAaXpeLFrz6APG61fXGbqetjDCjX6REG9CqgVhKhcVBAuSuAZYME9dRE5f5MMy0
+\unrestrict oEh9AANNObdfLMroz9f9vqJCF7b7SqNCubiM4gNgNwnsRzmKHcUIkaOXNveYeMO
 

@@ -5,9 +5,10 @@ from typing import Generator, List, Sequence
 import jwt
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import joinedload
 
+from ..auth import GenericUser
 from ..models.inner_db.tables import (
     AvailableTable,
     Container,
@@ -21,6 +22,7 @@ from ..models.shipments import (
     ShipmentOut,
     StatusUpdate,
 )
+from ..utils.auth import is_admin
 from ..utils.config import Config
 from ..utils.crud import assert_no_unassigned, assign_dcg_to_sublocation
 from ..utils.database import inner_db
@@ -168,9 +170,27 @@ def _get_children(
 
 
 @assert_no_unassigned
-def build_shipment_request(shipmentId: int, token: str):
+def build_shipment_request(shipmentId: int, token: str, user: GenericUser | None = None):
     shipment = _get_shipment_tree(shipmentId)
     proposal_reference = f"{shipment.proposalCode}{shipment.proposalNumber}"
+
+    existing_shipment_count = inner_db.session.scalar(
+        select(func.count(Shipment.id)).filter(
+            Shipment.proposalCode == shipment.proposalCode,
+            Shipment.proposalNumber == shipment.proposalNumber,
+            Shipment.visitNumber == shipment.visitNumber,
+            Shipment.shipmentRequest.is_not(None),
+        )
+    )
+
+    if existing_shipment_count > (Config.db.max_shipments_per_session - 1) and not (
+        user and is_admin(user.permissions)
+    ):
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            f"Only {Config.db.max_shipments_per_session} shipment requests are allowed per session. Contact"
+            " staff if you require more.",
+        )
 
     packages: list[dict] = []
     for tlc in shipment.children:
