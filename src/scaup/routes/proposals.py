@@ -4,7 +4,7 @@ from fastapi import APIRouter, Body, Depends, Query, status
 from fastapi.security import HTTPAuthorizationCredentials
 from lims_utils.models import Paged, ProposalReference, pagination
 
-from ..auth import GenericUser, Permissions, User, auth_scheme
+from ..auth import Permissions, auth_scheme
 from ..crud import containers as containers_crud
 from ..crud import proposals as crud
 from ..crud import samples as samples_crud
@@ -26,13 +26,9 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
     response_model=ShipmentOut,
 )
-def create_shipment(
-    proposalReference: ProposalReference = Depends(auth),
-    parameters: ShipmentIn = Body(),
-    user: GenericUser = Depends(User),
-):
+def create_shipment(proposalReference: ProposalReference = Depends(auth), parameters: ShipmentIn = Body()):
     """Create new shipment in session"""
-    return crud.create_shipment(proposal_reference=proposalReference, params=parameters, user=user)
+    return crud.create_shipment(proposal_reference=proposalReference, params=parameters)
 
 
 @router.get(

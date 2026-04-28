@@ -23,7 +23,7 @@ def test_get(client):
 
     data = resp.json()
 
-    assert len(data["items"]) == 7
+    assert len(data["items"]) == 10
 
 
 @responses.activate

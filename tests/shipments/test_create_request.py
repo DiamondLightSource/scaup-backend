@@ -13,6 +13,8 @@ from scaup.models.inner_db.tables import (
 from scaup.utils.config import Config
 from scaup.utils.database import inner_db
 
+from ..test_utils.users import admin, user
+
 
 @responses.activate
 def test_create_shipment_request(client):
@@ -198,3 +200,34 @@ def test_invalid_dewar_response_from_ispyb(client):
     )
 
     assert resp.status_code == 424
+
+
+@pytest.mark.parametrize("mock_user", [user], indirect=True)
+@responses.activate
+def test_quantity_limit(mock_user, client):
+    """Should not allow more than two shipmet requests per session for non-admin users"""
+    resp = client.post("/shipments/313/request")
+
+    assert resp.status_code == 403
+
+
+@pytest.mark.parametrize("mock_user", [admin], indirect=True)
+@responses.activate
+@pytest.mark.noregister
+def test_quantity_limit_admin(mock_user, client):
+    """Should allow more than two sample collections per session for admin users"""
+    responses.post(
+        f"{Config.shipping_service.backend_url}/api/shipment_requests/",
+        status=201,
+        json={"shipmentRequestId": 50},
+    )
+
+    responses.get(
+        f"{Config.ispyb_api.url}/proposals/bi23047/dewar-registry/DLS-MX-0735",
+        status=200,
+        json={"manufacturerSerialNumber": "foo"},
+    )
+
+    resp = client.post("/shipments/313/request")
+
+    assert resp.status_code == 201
