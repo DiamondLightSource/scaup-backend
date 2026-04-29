@@ -8,6 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v1.1.0 (29/04/2026)
++++++++++
+
+**Fixed**
+
+- Fix "Use Tomo/EPU" description in PDF report
+
+**Changed**
+
+- Limit regular users to two shipments per session
+- Disallow long names
+
+**Added**
+
+- Allow user to specify session type
+
++++++++++
 v1.0.1 (01/04/2026)
 +++++++++
 

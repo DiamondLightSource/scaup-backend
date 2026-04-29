@@ -58,7 +58,7 @@ def _add_unit(key: str, val: str | bool | int | float):
 
 def _rewrite_title(text: str):
     if text == "useTomoEpu":
-        return "Use Tomo EPU"
+        return "Use Tomo/EPU"
 
     if text == "gridCrossGrating":
         return "Cross Grating/Carbon Grid"
