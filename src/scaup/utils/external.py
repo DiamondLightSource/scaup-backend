@@ -127,16 +127,17 @@ class ExternalObject:
                 else:
                     self.to_exclude = {"firstExperimentId"}
 
-                # We store the dewar's facility code, but not the numeric dewar registry ID that ISPyB also expects.
-                # Even though the alphanumeric code is a primary key in the DewarRegistry table, the dewar table still
-                # expects a numeric dewarRegistryId which is used in some systems.
-                # Since the facility code can be changed by the user, we need to update this even if it was already
-                # pushed to ISPyB
-                dewar_reg = _get_resource_from_ispyb(
-                    token, f"/proposals/{shipment.proposal}/dewar-registry/{item.code}"
-                )
+                if item.code:
+                    # We store the dewar's facility code, but not the numeric dewar registry ID that ISPyB also expects.
+                    # Even though the alphanumeric code is a primary key in the DewarRegistry table, the dewar table
+                    # still expects a numeric dewarRegistryId which is used in some systems.
+                    # Since the facility code can be changed by the user, we need to update this even if it was already
+                    # pushed to ISPyB
+                    dewar_reg = _get_resource_from_ispyb(
+                        token, f"/proposals/{shipment.proposal}/dewar-registry/{item.code}"
+                    )
 
-                self.item_body.dewarRegistryId = dewar_reg["dewarRegistryId"]
+                    self.item_body.dewarRegistryId = dewar_reg["dewarRegistryId"]
                 self.external_key = "dewarId"
             case Sample():
                 if item_id is None:

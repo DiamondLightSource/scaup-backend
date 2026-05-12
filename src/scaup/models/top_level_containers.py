@@ -53,14 +53,14 @@ class TopLevelContainerOut(BaseTopLevelContainer):
 
 class TopLevelContainerExternal(BaseExternal):
     comments: str
-    code: str
+    code: str | None = None
     barCode: str | None = None
     firstExperimentId: int | None = None
     weight: float = 18
     dewarRegistryId: int | None = None
 
     @computed_field
-    def facilityCode(self) -> str:
+    def facilityCode(self) -> str | None:
         return self.code
 
     # The dewar logistics service expects this to be a valid JSON string

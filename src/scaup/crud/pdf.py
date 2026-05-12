@@ -3,7 +3,7 @@ from typing import List, Sequence
 
 import qrcode
 from fastapi import HTTPException, Response, status
-from fpdf import FPDF
+from fpdf import FPDF, Align
 from fpdf.fonts import FontFace
 from lims_utils.logging import app_logger
 from sqlalchemy import Row, select
@@ -148,7 +148,7 @@ class TrackingLabelPages(FPDF):
         self.add_page()
 
         # Label instructions
-        self.image(DIAMOND_LOGO, x="L", y=7, h=15)
+        self.image(DIAMOND_LOGO, x=Align.L, y=7, h=15)
         self.set_font("DejaVuSans", size=26, style="B")
         self.cell(align="R", w=0, text="Instructions", h=15, new_x="LMARGIN")
 
@@ -201,7 +201,7 @@ class TrackingLabelPages(FPDF):
             self.set_font("DejaVuSans", size=16, style="B")
             self.multi_cell(w=0, text=TEMPORARY_DEWAR_TEXT, align="C")
 
-            self.image(CUT_HERE, x="L", y=y_pos + 55, w=194)
+            self.image(CUT_HERE, x=Align.L, y=y_pos + 55, w=194)
 
             y_pos += 70
 
@@ -229,7 +229,7 @@ class TrackingLabelPages(FPDF):
 
         if self.from_lines is None:
             self.add_page()
-            self.image(CUT_HERE, x="L", y=139, w=194)
+            self.image(CUT_HERE, x=Align.L, y=139, w=194)
 
         # If we don't have an address, display both labels in a single page
         offset_values = [0, 143] if self.from_lines is None else [10, 10]
@@ -280,8 +280,8 @@ class TrackingLabelPages(FPDF):
                     text="\n".join(self.to_lines),
                 )
 
-            self.image(DIAMOND_LOGO, x="L", y=7 + offset, h=15)
-            self.image(THIS_SIDE_UP, x="R", y=7 + offset, w=30)
+            self.image(DIAMOND_LOGO, x=Align.L, y=7 + offset, h=15)
+            self.image(THIS_SIDE_UP, x=Align.R, y=7 + offset, w=30)
             self.image(img, x=(self.w - 60) / 2, y=offset, h=55, w=55)
             self.set_y(y=54 + offset)
             self.cell(w=0, text=str(dewar.barCode), align="C")
