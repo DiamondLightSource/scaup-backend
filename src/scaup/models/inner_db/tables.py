@@ -66,7 +66,7 @@ class TopLevelContainer(Base, BaseColumns):
     shipmentId: Mapped[int | None] = mapped_column(ForeignKey("Shipment.shipmentId"), index=True)
 
     details: Mapped[dict[str, Any] | None] = mapped_column(JSON)
-    code: Mapped[str] = mapped_column(String(20))
+    code: Mapped[str | None] = mapped_column(String(20))
     barCode: Mapped[str | None] = mapped_column(String(40))
     type: Mapped[str] = mapped_column(String(40), server_default="dewar")
     isInternal: Mapped[bool] = mapped_column(
