@@ -5,6 +5,7 @@ from lims_utils.models import Paged, pagination
 from ..auth import User, auth_scheme
 from ..crud import internal as crud
 from ..crud.containers import create_container
+from ..crud.pdf import generate_inventory_report
 from ..crud.top_level_containers import create_top_level_container
 from ..models.containers import ContainerIn, ContainerOut
 from ..models.shipments import GenericItem, ShipmentChildren
@@ -30,6 +31,15 @@ router = APIRouter(
 def get_internal_containers(page: dict[str, int] = Depends(pagination)):
     """Get internal top level containers"""
     return crud.get_internal_containers(**page)
+
+
+@router.get(
+    "/report",
+    responses={200: {"content": {"application/pdf": {}}}},
+)
+def print_inventory_report():
+    """Get printable inventory report"""
+    return generate_inventory_report()
 
 
 @router.get(

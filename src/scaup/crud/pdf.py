@@ -371,23 +371,14 @@ def get_shipping_labels(shipment_id: int, token: str):
     )
 
 
-class ReportPDF(FPDF):
-    def __init__(self, shipment: Shipment):
+class BaseReportPDF(FPDF):
+    def __init__(self):
         super().__init__(orientation="landscape")
-        self.shipment = shipment
         self.add_font(fname=DEJAVU_SANS)
         self.add_font(fname=DEJAVU_SANS_BOLD, family="dejavusans", style="B")
         self.set_font("DejaVuSans", size=10)
 
     def header(self):
-        self.set_font("DejaVuSans", style="B", size=18)
-        self.cell(
-            text=(
-                f"{self.shipment.name} ({self.shipment.proposalCode}{self.shipment.proposalNumber}"
-                + f"-{self.shipment.visitNumber})"
-            ),
-            w=0,
-        )
         self.image(DIAMOND_LOGO, x="R", y=7, h=12)
         self.line(y1=20, y2=21, x1=5, x2=self.w - 5)
         self.ln(21)
@@ -411,6 +402,25 @@ class ReportPDF(FPDF):
                 row = table.row()
                 for datum in data_row:
                     row.cell(datum)
+
+
+class ReportPDF(BaseReportPDF):
+    def __init__(self, shipment: Shipment):
+        super().__init__()
+        self.shipment = shipment
+
+    def header(self):
+        self.set_font("DejaVuSans", style="B", size=18)
+        self.cell(
+            text=(
+                f"{self.shipment.name} ({self.shipment.proposalCode}{self.shipment.proposalNumber}"
+                + f"-{self.shipment.visitNumber})"
+            ),
+            w=0,
+        )
+        self.image(DIAMOND_LOGO, x="R", y=7, h=12)
+        self.line(y1=20, y2=21, x1=5, x2=self.w - 5)
+        self.ln(21)
 
 
 def generate_report(shipment_id: int, token: str):
@@ -443,7 +453,16 @@ def generate_report(shipment_id: int, token: str):
 
     # TODO: rethink this once we're using user-provided templates
     grids_table = [
-        ("Puck", "Puck Pos.", "Gridbox", "Gridbox Pos.", "Cassette Slot", "Foil", "Hole", "Comments"),
+        (
+            "Puck",
+            "Puck Pos.",
+            "Gridbox",
+            "Gridbox Pos.",
+            "Cassette Slot",
+            "Foil",
+            "Hole",
+            "Comments",
+        ),
         *[("",) * 8] * 12,
     ]
 
@@ -516,6 +535,66 @@ def generate_report(shipment_id: int, token: str):
     headers = {
         "Content-Disposition": (
             "inline;" + f'filename="report-{shipment.proposalCode}{shipment.proposalNumber}-{shipment.visitNumber}.pdf"'
+        )
+    }
+    return Response(
+        bytes(pdf.output()),
+        headers=headers,
+        media_type="application/pdf",
+    )
+
+
+def generate_inventory_report():
+    inventory_dewars = inner_db.session.scalars(
+        select(TopLevelContainer).filter(TopLevelContainer.isInternal.is_(True))
+    )
+
+    pdf = BaseReportPDF()
+
+    for dewar in inventory_dewars:
+        grids_table = [
+            (
+                "Puck",
+                "Puck Pos.",
+                "Gridbox",
+                "Gridbox Pos.",
+                "Cassette Slot",
+                "Foil",
+                "Hole",
+                "Comments",
+            ),
+        ]
+        pdf.add_page()
+        pdf.set_xy(x=5, y=5)
+        pdf.set_font("DejaVuSans", style="B", size=18)
+        pdf.cell(text=dewar.name)
+        for puck in dewar.children:
+            for grid_box in puck.children:
+                for sample in grid_box.samples:
+                    grids_table.append(
+                        (
+                            puck.name,
+                            str(grid_box.location),
+                            grid_box.name,
+                            str(sample.location),
+                            str(sample.subLocation),
+                            sample.details["foil"],
+                            sample.details["hole"],
+                            sample.comments,
+                        )
+                    )
+
+        pdf.set_xy(x=5, y=20)
+        pdf.add_table(
+            grids_table,
+            width=None,
+            caption="Grids",
+            col_widths=(2, 2, 2, 2, 2, 3, 1, 4),
+        )
+
+    headers = {
+        "Content-Disposition": (
+            "inline;" + f'filename="report-inventory-{datetime.now().strftime("%d/%m/%Y %H:%M")}.pdf"'
         )
     }
     return Response(
