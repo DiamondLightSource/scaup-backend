@@ -594,7 +594,7 @@ def generate_inventory_report():
 
     headers = {
         "Content-Disposition": (
-            "inline;" + f'filename="report-inventory-{datetime.now().strftime("%d/%m/%Y %H:%M")}.pdf"'
+            "inline;" + f'filename="report-inventory-{datetime.now().strftime("%d-%m-%YT%H:%M")}.pdf"'
         )
     }
     return Response(
