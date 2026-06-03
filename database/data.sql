@@ -593,7 +593,7 @@ COPY public."SessionType" ("sessionTypeId", name, "sampleCapacity") FROM stdin;
 1	TEM	12
 2	Aquilos	2
 3	CLEM	2
-4	Talos	12
+4   Talos	12
 5   CryoSIM 12
 6   SXT 12
 \.
