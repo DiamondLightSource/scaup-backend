@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from ..utils.models import BaseExternal, IspybCompliantName
 
-type SessionTypeName = Literal["TEM", "Aquilos", "CLEM", "Talos", "SXT", "CryoSIM"]
+type SessionTypeName = Literal["TEM", "Aquilos", "CLEM", "Talos", "SXT", "CryoSIM", "MX"]
 
 
 def result_to_item_data(result: dict[str, Any]):
