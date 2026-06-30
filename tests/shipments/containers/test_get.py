@@ -16,3 +16,13 @@ def test_get_internal(client):
 
     data = resp.json()
     assert data["internalStorageContainer"] == 221
+
+
+def test_get_in_shipment(client):
+    """Should get containers in shipment"""
+    resp = client.get("/shipments/204/containers")
+
+    assert resp.status_code == 200
+
+    data = resp.json()
+    assert len(data["items"]) == 3
