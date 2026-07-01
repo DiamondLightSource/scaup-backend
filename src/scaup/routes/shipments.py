@@ -86,6 +86,20 @@ def create_container(shipmentId=Depends(auth), parameters: ContainerIn = Body())
     return container_crud.create_container(shipmentId=shipmentId, params=parameters)
 
 
+@router.get(
+    "/{shipmentId}/containers",
+    response_model=Paged[ContainerOut],
+    tags=["Containers"],
+)
+def get_containers(
+    shipmentId=Depends(auth),
+    page: dict[str, int] = Depends(pagination),
+    type: str = Query(description="Container type to filter by", default=None, examples=["gridBox"]),
+):
+    """Get containers in shipment"""
+    return container_crud.get_containers(**page, container_type=type, is_internal=False, shipment_id=shipmentId)
+
+
 @router.post(
     "/{shipmentId}/samples",
     status_code=status.HTTP_201_CREATED,

@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status
+from lims_utils.logging import app_logger
 from lims_utils.models import ProposalReference
 from sqlalchemy import func, insert, select, update
 from sqlalchemy.orm import aliased
@@ -61,25 +62,30 @@ def get_container(container_id: int):
 def get_containers(
     limit: int,
     page: int,
-    proposal_reference: ProposalReference,
     is_internal: bool,
-    container_type: str | None,
+    proposal_reference: ProposalReference | None = None,
+    container_type: str | None = None,
+    shipment_id: int | None = None,
 ):
-    query = (
-        select(Container)
-        .join(Shipment)
-        .filter(
-            Shipment.proposalCode == proposal_reference.code,
-            Shipment.proposalNumber == proposal_reference.number,
-            Shipment.visitNumber == proposal_reference.visit_number,
-        )
-    )
+    query = select(Container).join(Shipment)
 
     if is_internal:
         query = query.filter(Container.isInternal.is_(True))
 
     if container_type:
         query = query.filter(Container.type == container_type)
+
+    if shipment_id:
+        query = query.filter(Shipment.id == shipment_id)
+    elif proposal_reference:
+        query = query.filter(
+            Shipment.proposalCode == proposal_reference.code,
+            Shipment.proposalNumber == proposal_reference.number,
+            Shipment.visitNumber == proposal_reference.visit_number,
+        )
+    else:
+        app_logger.error("Nor shipment_id or proposal_reference were provided when fetching container list")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
     return inner_db.paginate(query, limit, page, slow_count=True, scalar=False)
 
