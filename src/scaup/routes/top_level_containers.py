@@ -1,7 +1,11 @@
-from fastapi import APIRouter, Body, Depends, status
+from typing import List
+
+from fastapi import APIRouter, Body, Depends, Query, status
 from fastapi.security import HTTPAuthorizationCredentials
+from lims_utils.models import pagination
 
 from ..auth import Permissions, auth_scheme
+from ..crud import containers as containers_crud
 from ..crud import top_level_containers as crud
 from ..models.inner_db.tables import TopLevelContainer
 from ..models.top_level_containers import (
@@ -30,6 +34,19 @@ def edit_container(
         topLevelContainerId=topLevelContainerId,
         params=parameters,
         token=token.credentials,
+    )
+
+
+@router.get("/{topLevelContainerId}/containers", response_model=TopLevelContainerOut)
+def get_containers(
+    topLevelContainerId=Depends(auth),
+    isInternal: bool = False,
+    type: List[str] = Query(description="Container type to filter by", default=None, examples=["gridBox"]),
+    page: dict[str, int] = Depends(pagination),
+):
+    """Get existing containers in top level container"""
+    return containers_crud.get_containers(
+        top_level_container_id=topLevelContainerId, container_type=type, is_internal=isInternal, **page
     )
 
 
