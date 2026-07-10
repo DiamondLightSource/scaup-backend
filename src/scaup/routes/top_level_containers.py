@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi import APIRouter, Body, Depends, Query, status
 from fastapi.security import HTTPAuthorizationCredentials
-from lims_utils.models import pagination
+from lims_utils.models import Paged, pagination
 
 from ..auth import Permissions, auth_scheme
 from ..crud import containers as containers_crud
@@ -37,7 +37,7 @@ def edit_container(
     )
 
 
-@router.get("/{topLevelContainerId}/containers", response_model=TopLevelContainerOut)
+@router.get("/{topLevelContainerId}/containers", response_model=Paged[TopLevelContainerOut])
 def get_containers(
     topLevelContainerId=Depends(auth),
     isInternal: bool = False,
