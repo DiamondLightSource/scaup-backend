@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
 from lims_utils.models import ProposalReference
@@ -64,7 +66,8 @@ def get_containers(
     page: int,
     is_internal: bool,
     proposal_reference: ProposalReference | None = None,
-    container_type: str | None = None,
+    top_level_container_id: int | None = None,
+    container_type: List[str] | str | None = None,
     shipment_id: int | None = None,
 ):
     query = select(Container).join(Shipment)
@@ -73,7 +76,9 @@ def get_containers(
         query = query.filter(Container.isInternal.is_(True))
 
     if container_type:
-        query = query.filter(Container.type == container_type)
+        if isinstance(container_type, str):
+            container_type = [container_type]
+        query = query.filter(Container.type.in_(container_type))
 
     if shipment_id:
         query = query.filter(Shipment.id == shipment_id)
@@ -83,8 +88,12 @@ def get_containers(
             Shipment.proposalNumber == proposal_reference.number,
             Shipment.visitNumber == proposal_reference.visit_number,
         )
+    elif top_level_container_id:
+        query = query.filter(Container.topLevelContainerId == top_level_container_id)
     else:
-        app_logger.error("Nor shipment_id or proposal_reference were provided when fetching container list")
+        app_logger.error(
+            "Nor shipment_id, top_level_container_id or proposal_reference were provided when fetching container list"
+        )
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
     return inner_db.paginate(query, limit, page, slow_count=True, scalar=False)
