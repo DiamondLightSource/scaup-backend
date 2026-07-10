@@ -96,18 +96,6 @@ def get_containers(
         )
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
-    if shipment_id:
-        query = query.filter(Shipment.id == shipment_id)
-    elif proposal_reference:
-        query = query.filter(
-            Shipment.proposalCode == proposal_reference.code,
-            Shipment.proposalNumber == proposal_reference.number,
-            Shipment.visitNumber == proposal_reference.visit_number,
-        )
-    else:
-        app_logger.error("Nor shipment_id or proposal_reference were provided when fetching container list")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
-
     return inner_db.paginate(query, limit, page, slow_count=True, scalar=False)
 
 
