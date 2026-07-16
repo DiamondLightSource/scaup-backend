@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Body, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials
+from lims_utils.models import Paged, pagination
 
 from ..auth import Permissions, auth_scheme
 from ..crud import containers as crud
+from ..crud import samples as samples_crud
 from ..models.containers import ContainerOut, OptionalContainer
 from ..models.inner_db.tables import Container
+from ..models.samples import SampleOut
 from ..utils.crud import delete_item
 
 router = APIRouter(
@@ -19,6 +22,15 @@ def get_container(
 ):
     """Get container"""
     return crud.get_container(container_id=containerId)
+
+
+@router.get("/{containerId}/samples", response_model=Paged[SampleOut])
+def get_samples(
+    containerId=Depends(Permissions.container),
+    page: dict[str, int] = Depends(pagination),
+):
+    """Get container"""
+    return samples_crud.get_samples(limit=page["limit"], page=page["page"], container_id=containerId)
 
 
 @router.patch("/{containerId}", response_model=ContainerOut)

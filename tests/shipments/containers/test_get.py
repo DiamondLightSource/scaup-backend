@@ -26,3 +26,13 @@ def test_get_in_shipment(client):
 
     data = resp.json()
     assert len(data["items"]) == 3
+
+
+def test_get_unassigned_in_shipment(client):
+    """Should get containers in shipment"""
+    resp = client.get("/shipments/204/containers?unassignedOnly=true")
+
+    assert resp.status_code == 200
+
+    data = resp.json()
+    assert len(data["items"]) == 1

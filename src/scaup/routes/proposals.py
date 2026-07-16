@@ -57,7 +57,8 @@ def get_samples(
 ):
     """Get samples in session"""
     return samples_crud.get_samples(
-        **page,
+        page=page["page"],
+        limit=page["limit"],
         proposal_reference=proposalReference,
         ignore_external=ignoreExternal,
         shipment_id=None,
@@ -82,10 +83,11 @@ def get_containers(
 ):
     """Get containers in session"""
     return containers_crud.get_containers(
+        page=page["page"],
+        limit=page["limit"],
         is_internal=isInternal,
         proposal_reference=proposalReference,
         container_type=type,
-        **page,
     )
 
 

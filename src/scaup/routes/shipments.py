@@ -95,9 +95,14 @@ def get_containers(
     shipmentId=Depends(auth),
     page: dict[str, int] = Depends(pagination),
     type: str = Query(description="Container type to filter by", default=None, examples=["gridBox"]),
+    unassignedOnly: bool = Query(
+        default=False, description="Only return containers that are not assigned to a top level container"
+    ),
 ):
     """Get containers in shipment"""
-    return container_crud.get_containers(**page, container_type=type, is_internal=False, shipment_id=shipmentId)
+    return container_crud.get_containers(
+        **page, container_type=type, is_internal=False, unassigned_only=unassignedOnly, shipment_id=shipmentId
+    )
 
 
 @router.post(
@@ -135,6 +140,7 @@ def get_samples(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     page: dict[str, int] = Depends(pagination),
     ignoreExternal: bool = True,
+    unassignedOnly: bool = Query(default=False, description="Only return samples that are not assigned to a container"),
 ):
     """Get samples in shipment"""
     return sample_crud.get_samples(
@@ -144,6 +150,7 @@ def get_samples(
         token=token.credentials,
         internal_only=False,
         ignore_internal=False,
+        unassigned_only=unassignedOnly,
     )
 
 

@@ -18,6 +18,16 @@ def test_get(client):
     assert len(data["items"]) == 3
 
 
+def test_get_unassigned_in_shipment(client):
+    """Should get unassigned samples in shipment"""
+    resp = client.get("/shipments/1/samples?unassignedOnly=true")
+
+    assert resp.status_code == 200
+
+    data = resp.json()
+    assert len(data["items"]) == 1
+
+
 @responses.activate
 def test_get_external(client):
     """Should get all samples in shipment with external data collection group id"""
