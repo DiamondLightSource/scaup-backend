@@ -49,6 +49,7 @@ class TopLevelContainerOut(BaseTopLevelContainer):
     externalId: int | None = None
     barCode: str | None = None
     history: List[TopLevelContainerHistory] | None = None
+    shipmentId: int | None = None
 
 
 class TopLevelContainerExternal(BaseExternal):

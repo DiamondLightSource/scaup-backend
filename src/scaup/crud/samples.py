@@ -127,10 +127,12 @@ def get_samples(
     page: int,
     proposal_reference: ProposalReference | None = None,
     shipment_id: int | None = None,
+    container_id: int | None = None,
     ignore_external: bool = True,
     token: str | None = None,
     internal_only: bool = False,
     ignore_internal: bool = False,
+    unassigned_only: bool = False,
 ):
     query = (
         select(
@@ -155,6 +157,8 @@ def get_samples(
                 Shipment.visitNumber == proposal_reference.visit_number,
             )
         )
+    elif container_id:
+        query = query.filter(Sample.containerId == container_id)
     else:
         raise Exception("Either shipment_id or proposal_reference must be set")
 
@@ -163,6 +167,9 @@ def get_samples(
 
     if ignore_internal:
         query = query.filter(Container.isInternal.is_not(True))
+
+    if unassigned_only:
+        query = query.filter(Sample.containerId.is_(None))
 
     query = query.order_by(Container.name, Container.location, Sample.location)
     samples = inner_db.paginate(query, limit, page, slow_count=True, scalar=True)

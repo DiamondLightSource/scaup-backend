@@ -46,7 +46,11 @@ def get_containers(
 ):
     """Get existing containers in top level container"""
     return containers_crud.get_containers(
-        top_level_container_id=topLevelContainerId, container_type=type, is_internal=isInternal, **page
+        page=page["page"],
+        limit=page["limit"],
+        top_level_container_id=topLevelContainerId,
+        container_type=type,
+        is_internal=isInternal,
     )
 
 

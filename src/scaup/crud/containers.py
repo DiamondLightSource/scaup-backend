@@ -3,7 +3,7 @@ from typing import List
 from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
 from lims_utils.models import ProposalReference
-from sqlalchemy import func, insert, select, update
+from sqlalchemy import and_, func, insert, select, update
 from sqlalchemy.orm import aliased
 
 from ..models.containers import ContainerIn, ContainerOut, OptionalContainer
@@ -69,6 +69,7 @@ def get_containers(
     top_level_container_id: int | None = None,
     container_type: List[str] | str | None = None,
     shipment_id: int | None = None,
+    unassigned_only: bool = False,
 ):
     query = select(Container).join(Shipment)
 
@@ -95,6 +96,9 @@ def get_containers(
             "Nor shipment_id, top_level_container_id or proposal_reference were provided when fetching container list"
         )
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+
+    if unassigned_only:
+        query = query.filter(and_(Container.topLevelContainerId.is_(None), Container.parentId.is_(None)))
 
     return inner_db.paginate(query, limit, page, slow_count=True, scalar=False)
 
