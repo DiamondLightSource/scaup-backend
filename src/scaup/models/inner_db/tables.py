@@ -43,6 +43,8 @@ class Shipment(Base, BaseColumns):
     shipmentRequest: Mapped[int | None] = mapped_column()
     status: Mapped[str | None] = mapped_column(String(25), server_default="Created")
     lastStatusUpdate: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    samples: Mapped[List["Sample"] | None] = relationship(back_populates="shipment")
+    containers: Mapped[List["Container"] | None] = relationship(back_populates="shipment")
 
 
 class SessionType(Base):
@@ -109,6 +111,7 @@ class Container(Base, BaseColumns):
     isCurrent: Mapped[bool] = mapped_column(default=False, comment="Whether container position is current")
     registeredContainer: Mapped[str | None] = mapped_column()
 
+    shipment: Mapped[Optional["Shipment"]] = relationship(back_populates="containers")
     parent: Mapped[Optional["Container"]] = relationship("Container", back_populates="children", remote_side=[id])
     topLevelContainer: Mapped[Optional["TopLevelContainer"]] = relationship(back_populates="children")
     children: Mapped[List["Container"] | None] = relationship("Container", back_populates="parent")
@@ -157,6 +160,7 @@ class Sample(Base, BaseColumns):
     containerId: Mapped[int | None] = mapped_column(
         ForeignKey("Container.containerId", ondelete="SET NULL"), index=True
     )
+    shipment: Mapped[Optional["Shipment"]] = relationship(back_populates="samples")
     container: Mapped[Optional["Container"]] = relationship(back_populates="samples")
 
     originSamples: Mapped[List["Sample"] | None] = relationship(

@@ -33,10 +33,19 @@ def query_result_to_object(
     """
     parsed_items: list[GenericItem] = []
     for item in result:
+        fields = filter_fields(item)
+
+        if hasattr(item, "shipment") and item.shipment:
+            fields["sessionReference"] = (
+                f"{item.shipment.proposalCode}{item.shipment.proposalNumber}-{item.shipment.visitNumber}"
+                if item.shipment
+                else None
+            )
+
         parsed_item = GenericItem(
             id=item.id,
             name=item.name,
-            data=GenericItemData(**filter_fields(item)),
+            data=GenericItemData(**fields),
         )
         if not isinstance(item, Sample):
             if isinstance(item, Container) and item.samples:
