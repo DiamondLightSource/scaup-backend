@@ -48,10 +48,16 @@ def _get_user(token: str):
 
         if response.status_code != 200:
             try:
-                raise HTTPException(status_code=response.status_code, detail=response.json().get("detail"))
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=response.json().get("detail"),
+                )
             except JSONDecodeError:
                 app_logger.error(f"Microauth returned {response.status_code}: {response.text}")
-                raise HTTPException(status_code=response.status_code, detail="Failed to fetch user info from Microauth")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail="Failed to fetch user info from Microauth",
+                )
         return response.json()
 
 
@@ -74,7 +80,10 @@ def _check_perms(data_id: T, endpoint: str, token: str) -> T:
         if is_admin(permissions):
             return data_id
 
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Provided JWT lacks permissions")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Provided JWT lacks permissions",
+        )
     except (InvalidAudienceError, InvalidAlgorithmError):
         response = requests.get(
             "".join(
@@ -83,13 +92,21 @@ def _check_perms(data_id: T, endpoint: str, token: str) -> T:
                     "/permission/",
                     endpoint,
                     "/",
-                    str(data_id) if endpoint != "proposal" else str(data_id) + "/inSessions",
+                    (str(data_id) if endpoint != "proposal" else str(data_id) + "/inSessions"),
                 ]
             ),
             headers={"Authorization": f"Bearer {token}"},
         )
 
         if response.status_code != 200:
+            user = User(
+                request=Request(scope={"type": "http"}),
+                token=HTTPAuthorizationCredentials(scheme="Bearer", credentials=token),
+            )
+
+            if is_admin(user.permissions):
+                return data_id
+
             detail = response.json().get("detail")
             app_logger.error(f"Microauth returned {response.status_code}: {detail}")
 
