@@ -173,8 +173,6 @@ def test_shipment_request_no_packages(client):
 
     assert resp.status_code == 400
 
-    assert resp.status_code == 404
-
 
 def test_unassigned(client):
     """Should not create shipment request if shipment has unassigned items"""
@@ -243,6 +241,6 @@ def test_quantity_limit_admin(mock_user, client):
         json={"manufacturerSerialNumber": "foo"},
     )
 
-    resp = client.post("/shipments/313/request")
+    resp = client.post("/shipments/313/request?pushToIspyb=false")
 
     assert resp.status_code == 201
