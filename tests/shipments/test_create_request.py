@@ -38,6 +38,28 @@ def test_create_shipment_request(client):
 
 
 @responses.activate
+def test_create_shipment_request_and_push(client):
+    """Should create shipment request in external application"""
+    responses.post(
+        f"{Config.shipping_service.backend_url}/api/shipment_requests/",
+        status=201,
+        json={"shipmentRequestId": 50},
+    )
+
+    resp = client.post(
+        "/shipments/118/request",
+    )
+
+    assert resp.status_code == 201
+
+    shipment = inner_db.session.execute(select(Shipment).filter_by(id=118)).scalar_one()
+
+    assert shipment.status == "Request Created"
+    assert shipment.shipmentRequest == 50
+    assert shipment.externalId is not None
+
+
+@responses.activate
 def test_shipment_request_body(client):
     """Should send well formed body to upstream service"""
     resp_post = responses.post(

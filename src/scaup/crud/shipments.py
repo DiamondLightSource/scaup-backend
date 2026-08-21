@@ -192,6 +192,11 @@ def build_shipment_request(shipmentId: int, token: str, user: GenericUser | None
             " staff if you require more.",
         )
 
+    if shipment.externalId is None:
+        # Push shipments to ISPyB first, so that all items have an externalId before
+        # creating a shipment request in the shipping service
+        push_shipment(shipmentId=shipmentId, token=token)
+
     packages: list[dict] = []
     for tlc in shipment.children:
         line_items: list[dict] = []
