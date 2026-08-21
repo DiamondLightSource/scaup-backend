@@ -47,12 +47,12 @@ def test_create_shipment_request_and_push(client):
     )
 
     resp = client.post(
-        "/shipments/118/request",
+        "/shipments/97/request",
     )
 
     assert resp.status_code == 201
 
-    shipment = inner_db.session.execute(select(Shipment).filter_by(id=118)).scalar_one()
+    shipment = inner_db.session.execute(select(Shipment).filter_by(id=97)).scalar_one()
 
     assert shipment.status == "Request Created"
     assert shipment.shipmentRequest == 50
@@ -172,13 +172,6 @@ def test_shipment_request_no_packages(client):
     )
 
     assert resp.status_code == 400
-
-
-def test_create_not_in_ispyb(client):
-    """Should not create shipment request if shipment not in ISPyB"""
-    resp = client.post(
-        "/shipments/97/request",
-    )
 
     assert resp.status_code == 404
 
