@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 +++++++++
+v1.5.2 (26/08/2026)
++++++++++
+
+**Added**
+
+- Allow pushing to ISPyB automatically
+
++++++++++
 v1.5.1 (10/08/2026)
 +++++++++
 

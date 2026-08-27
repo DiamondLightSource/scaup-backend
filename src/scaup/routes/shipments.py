@@ -175,11 +175,14 @@ def get_top_level_containers(
 )
 def create_shipment_request(
     shipmentId=Depends(auth),
+    pushToIspyb: bool = True,
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     user: GenericUser = Depends(User),
 ):
     """Create new shipment request"""
-    return shipment_crud.build_shipment_request(shipmentId=shipmentId, token=token.credentials, user=user)
+    return shipment_crud.build_shipment_request(
+        shipmentId=shipmentId, token=token.credentials, push=pushToIspyb, user=user
+    )
 
 
 @router.get("/{shipmentId}/request", response_class=RedirectResponse)

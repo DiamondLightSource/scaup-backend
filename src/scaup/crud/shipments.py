@@ -170,7 +170,7 @@ def _get_children(
 
 
 @assert_no_unassigned
-def build_shipment_request(shipmentId: int, token: str, user: GenericUser | None = None):
+def build_shipment_request(shipmentId: int, token: str, push=True, user: GenericUser | None = None):
     shipment = _get_shipment_tree(shipmentId)
     proposal_reference = f"{shipment.proposalCode}{shipment.proposalNumber}"
 
@@ -191,6 +191,11 @@ def build_shipment_request(shipmentId: int, token: str, user: GenericUser | None
             f"Only {Config.db.max_shipments_per_session} shipment requests are allowed per session. Contact"
             " staff if you require more.",
         )
+
+    if shipment.externalId is None and push:
+        # Push shipments to ISPyB first, so that all items have an externalId before
+        # creating a shipment request in the shipping service
+        push_shipment(shipmentId=shipmentId, token=token)
 
     packages: list[dict] = []
     for tlc in shipment.children:
