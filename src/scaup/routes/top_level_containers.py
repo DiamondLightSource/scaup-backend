@@ -7,6 +7,7 @@ from lims_utils.models import Paged, pagination
 from ..auth import Permissions, auth_scheme
 from ..crud import containers as containers_crud
 from ..crud import top_level_containers as crud
+from ..models.containers import ContainerOut
 from ..models.inner_db.tables import TopLevelContainer
 from ..models.top_level_containers import (
     OptionalTopLevelContainer,
@@ -37,7 +38,7 @@ def edit_container(
     )
 
 
-@router.get("/{topLevelContainerId}/containers", response_model=Paged[TopLevelContainerOut])
+@router.get("/{topLevelContainerId}/containers", response_model=Paged[ContainerOut])
 def get_containers(
     topLevelContainerId=Depends(auth),
     isInternal: bool = False,
