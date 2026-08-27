@@ -29,12 +29,17 @@ def edit_container(
     topLevelContainerId=Depends(auth),
     parameters: OptionalTopLevelContainer = Body(),
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+    ignoreMsn: bool = Query(
+        description="Ignore manufacturer serial number mismatch when editing top level container",
+        default=False,
+    ),
 ):
     """Edit existing container"""
     return crud.edit_top_level_container(
         topLevelContainerId=topLevelContainerId,
         params=parameters,
         token=token.credentials,
+        ignore_msn=ignoreMsn,
     )
 
 

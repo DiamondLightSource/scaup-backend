@@ -36,6 +36,7 @@ def _check_fields(
     params: TopLevelContainerIn | OptionalTopLevelContainer,
     token: str,
     item_id: int | None = None,
+    ignore_msn: bool = False,
 ):
     if item_id is None:
         return
@@ -62,13 +63,17 @@ def _check_fields(
         if code_response.status_code == 200:
             registry_json: dict[str, Any] = code_response.json()
             msn = registry_json.get("manufacturerSerialNumber")
-            if isinstance(params, TopLevelContainerIn) and msn is not None:
+            if (
+                isinstance(params, TopLevelContainerIn)
+                and msn is not None
+                and msn != params.manufacturerSerialNumber
+                and not ignore_msn
+            ):
                 app_logger.error(f"{msn}, {params.manufacturerSerialNumber}")
-                if msn != params.manufacturerSerialNumber:
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail="Manufacturer serial number does not match the provided facility code",
-                    )
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Manufacturer serial number does not match the provided facility code",
+                )
             return
 
     raise HTTPException(
@@ -79,7 +84,9 @@ def _check_fields(
 
 @assert_not_booked
 @retry_if_exists
-def create_top_level_container(shipmentId: int | None, params: TopLevelContainerIn, token: str, autocreate=True):
+def create_top_level_container(
+    shipmentId: int | None, params: TopLevelContainerIn, token: str, autocreate=True, ignore_msn=False
+):
     proposal = (
         None
         if shipmentId is None
@@ -92,7 +99,7 @@ def create_top_level_container(shipmentId: int | None, params: TopLevelContainer
     )
 
     if _check_if_dls_code(params.code):
-        _check_fields(params, token, shipmentId)
+        _check_fields(params, token, shipmentId, ignore_msn=ignore_msn)
     elif params.type == "dewar" and autocreate:
         # Automatically register dewar if no code is provided
         # The range is 0999 to 9900 because these are DLS-BI barcodes guaranteed to be available to our application
@@ -185,8 +192,8 @@ def create_top_level_container(shipmentId: int | None, params: TopLevelContainer
     return container
 
 
-def edit_top_level_container(topLevelContainerId: int, params: OptionalTopLevelContainer, token: str):
-    _check_fields(params, token, topLevelContainerId)
+def edit_top_level_container(topLevelContainerId: int, params: OptionalTopLevelContainer, token: str, ignore_msn=False):
+    _check_fields(params, token, topLevelContainerId, ignore_msn=ignore_msn)
 
     if params.code is not None:
         params.name = params.code if params.name is None else params.name
