@@ -69,10 +69,16 @@ def create_top_level_container(
     shipmentId=Depends(auth),
     parameters: TopLevelContainerIn = Body(),
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+    ignoreMsn: bool = Query(
+        description="Ignore manufacturer serial number mismatch when editing top level container",
+        default=False,
+    ),
 ):
     """Create new container in shipment. If the top level container type is 'dewar' and the provided code is
     empty or null, a new one is created."""
-    return tlc_crud.create_top_level_container(shipmentId=shipmentId, params=parameters, token=token.credentials)
+    return tlc_crud.create_top_level_container(
+        shipmentId=shipmentId, params=parameters, token=token.credentials, ignore_msn=ignoreMsn
+    )
 
 
 @router.post(
