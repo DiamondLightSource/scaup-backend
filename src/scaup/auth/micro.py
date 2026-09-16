@@ -173,21 +173,18 @@ class Permissions(GenericPermissions):
         shipmentId: int,
         token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     ) -> int:
-        proposal_reference = inner_db.session.scalar(
-            select(
-                func.concat(
-                    Shipment.proposalCode,
-                    Shipment.proposalNumber,
-                    "-",
-                    Shipment.visitNumber,
-                )
-            ).filter_by(id=shipmentId)
-        )
+        shipment = inner_db.session.scalar(select(Shipment).filter_by(id=shipmentId))
 
-        if proposal_reference is None:
+        if shipment is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shipment does not exist")
 
-        _check_perms(proposal_reference, "session", token.credentials)
+        proposal_reference = f"{shipment.proposalCode}{shipment.proposalNumber}"
+
+        if shipment.visitNumber:
+            proposal_reference = f"{proposal_reference}-{shipment.visitNumber}"
+            _check_perms(proposal_reference, "session", token.credentials)
+        else:
+            _check_perms(proposal_reference, "proposal", token.credentials)
 
         return shipmentId
 
