@@ -34,7 +34,7 @@ class Shipment(Base, BaseColumns):
     id: Mapped[int] = mapped_column("shipmentId", primary_key=True, index=True)
     proposalCode: Mapped[str] = mapped_column(String(2), index=True)
     proposalNumber: Mapped[int] = mapped_column(index=True)
-    visitNumber: Mapped[int] = mapped_column(index=True)
+    visitNumber: Mapped[int | None] = mapped_column(index=True)
     sessionTypeId: Mapped[int] = mapped_column(ForeignKey("SessionType.sessionTypeId"), server_default="1")
 
     children: Mapped[List["TopLevelContainer"]] = relationship(back_populates="shipment")
