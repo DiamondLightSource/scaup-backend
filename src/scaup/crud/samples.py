@@ -13,6 +13,7 @@ from ..utils.config import Config
 from ..utils.crud import assert_not_booked, delete_item, edit_item
 from ..utils.database import inner_db
 from ..utils.external import Expeye, ExternalRequest
+from ..utils.generic import lowest_missing
 from ..utils.session import retry_if_exists
 
 
@@ -114,10 +115,21 @@ def create_sample(
     return Paged(items=samples, total=params.copies, page=0, limit=params.copies)
 
 
-def edit_sample(sampleId: int, params: OptionalSample, token: str):
+def edit_sample(sampleId: int, params: OptionalSample, token: str, auto_location: bool = False):
     if params.proteinId is not None:
         # TODO: check with eBIC if they'd like to overwrite the user provided name on protein changes
         _get_protein(params.proteinId, token)
+
+    if auto_location:
+        if params.containerId is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot auto-assign location without a containerId",
+            )
+        locations = inner_db.session.scalars(select(Sample.location).filter(Sample.containerId == params.containerId))
+        new_location = lowest_missing([0, *locations])
+
+        params.location = new_location
 
     return edit_item(Sample, params, sampleId, token)
 
