@@ -92,6 +92,18 @@ def test_auto_location(client):
 
 
 @responses.activate
+def test_auto_location_no_container(client):
+    """Should throw error if autoLocation is set to true but no containerId is provided"""
+
+    resp = client.patch(
+        "/samples/2?autoLocation=true",
+        json={"containerId": None},
+    )
+
+    assert resp.status_code == 400
+
+
+@responses.activate
 def test_duplicate_sublocation(client):
     """Should reset sublocation from old sample if another sample already occupies that position"""
 
