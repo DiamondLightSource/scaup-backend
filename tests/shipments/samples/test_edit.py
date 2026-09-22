@@ -77,6 +77,21 @@ def test_duplicate_location(client):
 
 
 @responses.activate
+def test_auto_location(client):
+    """Should set location automatically if autoLocation is set to true and containerId is provided"""
+
+    resp = client.patch(
+        "/samples/2?autoLocation=true",
+        json={"containerId": 4},
+    )
+
+    sample = inner_db.session.execute(select(Sample.location, Sample.containerId).filter(Sample.id == 2)).one()
+
+    assert resp.status_code == 200
+    assert sample.location == 2
+
+
+@responses.activate
 def test_duplicate_sublocation(client):
     """Should reset sublocation from old sample if another sample already occupies that position"""
 

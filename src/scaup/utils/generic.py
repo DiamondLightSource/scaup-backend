@@ -15,6 +15,7 @@ def pascal_to_title(original_str: str, join_character=" "):
 
     return join_character.join(new_strs)
 
+
 def lowest_missing(s: list[int]) -> int:
     """Return the lowest missing integer in a list of integers"""
     i = 0
