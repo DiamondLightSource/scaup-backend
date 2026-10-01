@@ -18,6 +18,7 @@ from scaup.utils.external import ExternalRequest
 from ..assets.paths import COMPANY_LOGO_LIGHT
 from ..models.alerts import (
     ALERT_BODY,
+    DISPATCH_BODY,
     EMAIL_FOOTER,
     EMAIL_HEADER,
     SAMPLE_COLLECTION_LINK,
@@ -163,7 +164,7 @@ def alert_session_lcs():
                         r_msg = msg
                         r_msg["To"] = recipient
 
-                        app_logger.info(recipient)
+                        app_logger.info("Sending alert email to %s", recipient)
 
                         smtp.sendmail(Config.alerts.contact_email, recipient, msg.as_string())
 
@@ -174,3 +175,51 @@ def alert_session_lcs():
                         )
                 except Exception as e:
                     app_logger.error("Error while sending alert email to %s: %s", recipient, e)
+
+def alert_dispatch(shipment: Shipment):
+    dewar = shipment.children[0]
+    request_url = f"/dewars/{dewar.externalId}/history?limit=1"
+
+    resp = ExternalRequest.request(
+        token=Config.ispyb_api.jwt,
+        url=request_url,
+    )
+
+    dewar_location = "Unknown"
+    proposal = f"{shipment.proposalCode}{shipment.proposalNumber}"
+
+    if resp.status_code != 200:
+        app_logger.warning(
+            f"Expeye upstream returned {resp.text} with status code {resp.status_code} for request to"
+            + f"{request_url}."
+        )
+    else:
+        dewar_location = resp.json()["items"][0]["storageLocation"]
+
+    msg = create_email(
+        DISPATCH_BODY.safe_substitute(
+            proposal=proposal,
+            air_waybill=f"{Config.shipping_service.frontend_url}/shipment-requests/{shipment.shipmentRequest}/outgoing",
+            dewar_code=dewar.code,
+            dewar_barcode=dewar.barCode,
+            location=dewar_location,
+        ),
+        f"Dispatch requested for dewar {dewar.barCode} from {dewar_location}",
+    )
+
+    try:
+        with SMTP(Config.alerts.smtp_server, Config.alerts.smtp_port, timeout=10) as smtp:
+            r_msg = msg
+            r_msg["To"] = Config.shipping_service.goods_handling_email
+
+            app_logger.info("Sending dispatch email to %s", Config.shipping_service.goods_handling_email)
+
+            smtp.sendmail(Config.alerts.contact_email, Config.shipping_service.goods_handling_email, msg.as_string())
+
+            app_logger.info(
+                "%s received email for dispatch proposal %s",
+                Config.shipping_service.goods_handling_email,
+                proposal,
+            )
+    except Exception as e:
+        app_logger.error("Error while sending alert email to %s: %s", Config.shipping_service.goods_handling_email, e)

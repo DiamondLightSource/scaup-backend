@@ -38,3 +38,17 @@ $sample_collection_links
 <p>Many thanks,</p>
 <p>SCAUP team</p>
 """)
+
+DISPATCH_BODY = Template("""
+<p>Dear goods handling,</p>
+<p>The following dewar is ready to leave Diamond:</p>
+
+<p><b>Proposal:</b> $proposal</p>
+<p><b>Air Waybill</b>: $air_waybill</p>
+<p><b>Dewar Facility Code:</b> $dewar_code</p>
+<p><b>Dewar Barcode:</b> $dewar_barcode</p>
+<p><b>Current Location:</b> $location</p>
+
+<p>Many thanks,</p>
+<p>SCAUP team</p>
+""")

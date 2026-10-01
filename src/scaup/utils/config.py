@@ -38,15 +38,16 @@ class ShippingService:
     backend_url: str = "https://localtest.diamond.ac.uk/"
     secret: str = "no-secret"
     callback_url: str = "https://localhost/api"
-    staff_email: str | None = None
+    staff_email: str
+    goods_handling_email: str
 
 
 @dataclass
 class Alerts:
     smtp_server: str
-    smtp_port: str
+    smtp_port: int
     local_contacts: dict[str, str]
-    contact_email: str | None = None
+    contact_email: str
 
 
 def _read_config():
