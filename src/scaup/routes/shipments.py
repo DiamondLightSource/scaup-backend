@@ -20,6 +20,7 @@ from ..models.pre_sessions import PreSessionIn, PreSessionOut
 from ..models.samples import SampleIn, SampleOut, SublocationAssignment
 from ..models.shipments import (
     ShipmentChildren,
+    ShipmentDirection,
     ShipmentOut,
     StatusUpdate,
     UnassignedItems,
@@ -192,9 +193,9 @@ def create_shipment_request(
 
 
 @router.get("/{shipmentId}/request", response_class=RedirectResponse)
-def get_shipment_request(shipmentId=Depends(auth)):
+def get_shipment_request(shipmentId=Depends(auth), direction: ShipmentDirection = "incoming"):
     """Get shipment request"""
-    return shipment_crud.get_shipment_request(shipmentId)
+    return shipment_crud.get_shipment_request(shipmentId, direction=direction)
 
 
 @router.get(

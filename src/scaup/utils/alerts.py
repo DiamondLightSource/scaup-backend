@@ -199,7 +199,14 @@ def alert_dispatch(shipment: Shipment):
             + f"{request_url}."
         )
     else:
-        dewar_location = resp.json()["items"][0]["storageLocation"]
+        dewar_history = resp.json()["items"]
+        if dewar_history and len(dewar_history) > 0 and "storageLocation" in dewar_history[0]:
+            dewar_location = dewar_history[0]["storageLocation"]
+        else:
+            app_logger.warning(
+                f"Expeye upstream returned {resp.text} with status code {resp.status_code} for request to "
+                + f"{request_url}, but no storage location was found."
+            )
 
     msg = create_email(
         DISPATCH_BODY.safe_substitute(
