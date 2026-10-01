@@ -29,6 +29,7 @@ from tests.shipments.top_level_containers.responses import (
 
 from .test_utils.regex import (
     creation_regex,
+    dewar_history_regex,
     lab_contact_regex,
     proposal_regex,
     protein_regex,
@@ -157,5 +158,20 @@ def register_responses(request):
             "beamLineName": "m03",
             "startDate": "2025-07-21T01:00:00",
             "endDate": "2025-07-24T01:00:00",
+        },
+    )
+
+    responses.add(
+        responses.GET,
+        dewar_history_regex,
+        json={
+            "items": [
+                {
+                    "dewarStatus": "opened",
+                    "storageLocation": "location",
+                    "dewarId": 80365,
+                    "arrivalDate": "2025-06-09T08:36:50.527000Z",
+                }
+            ]
         },
     )

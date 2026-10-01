@@ -19,9 +19,11 @@ from ..models.inner_db.tables import (
 from ..models.samples import SublocationAssignment
 from ..models.shipments import (
     ShipmentChildren,
+    ShipmentDirection,
     ShipmentOut,
     StatusUpdate,
 )
+from ..utils.alerts import alert_dispatch
 from ..utils.auth import is_admin
 from ..utils.config import Config
 from ..utils.crud import assert_no_unassigned, assign_dcg_to_sublocation
@@ -269,7 +271,8 @@ def build_shipment_request(shipmentId: int, token: str, push=True, user: Generic
     jwt_token = jwt.encode(
         {
             "id": shipmentId,
-            "exp": int(time.time()) + 1.3e6,
+            # 45 days
+            "exp": int(time.time()) + 3.888e6,
             "aud": Config.shipping_service.callback_url,
         },
         Config.auth.jwt_private,
@@ -317,7 +320,7 @@ def build_shipment_request(shipmentId: int, token: str, push=True, user: Generic
     return updated_item
 
 
-def get_shipment_request(shipmentId: int):
+def get_shipment_request(shipmentId: int, direction: ShipmentDirection = "incoming"):
     request_id = inner_db.session.scalar(select(Shipment.shipmentRequest).filter(Shipment.id == shipmentId))
 
     if request_id is None:
@@ -326,7 +329,7 @@ def get_shipment_request(shipmentId: int):
             "Shipment does not have a request assigned to it",
         )
 
-    return f"{Config.shipping_service.frontend_url}/shipment-requests/{request_id}/incoming"
+    return f"{Config.shipping_service.frontend_url}/shipment-requests/{request_id}/{direction}"
 
 
 def handle_callback(shipment_id: int, callback_body: StatusUpdate):
@@ -337,6 +340,9 @@ def handle_callback(shipment_id: int, callback_body: StatusUpdate):
     updated_shipment = inner_db.session.scalar(
         update(Shipment).returning(Shipment).filter_by(id=shipment_id).values(columns)
     )
+
+    if callback_body.journey_type == "FROM_FACILITY":
+        alert_dispatch(shipment=updated_shipment)
 
     inner_db.session.commit()
 
