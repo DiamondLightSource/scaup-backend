@@ -95,6 +95,7 @@ class StatusUpdate(BaseModel):
     pickup_confirmation_code: str | None = None
     pickup_confirmation_timestamp: datetime | None
 
+
 class ShipmentContactInfo(BaseModel):
     company_name: str
     address_line1: str

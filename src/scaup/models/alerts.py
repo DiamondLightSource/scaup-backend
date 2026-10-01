@@ -13,7 +13,7 @@ EMAIL_HEADER = """
 """
 
 EMAIL_FOOTER = """
-    <p style="border-top: 1px solid #001d55; background-color: #1040A1; padding: 10px; color: white;">© 2025, Diamond Light Source</p></div>
+    <p style="border-top: 1px solid #001d55; background-color: #1040A1; padding: 10px; color: white;">© 2026, Diamond Light Source</p></div>
 """
 
 SAMPLE_COLLECTION_LINK = Template("""
@@ -40,11 +40,10 @@ $sample_collection_links
 """)
 
 DISPATCH_BODY = Template("""
-<p>Dear goods handling,</p>
 <p>The following dewar is ready to leave Diamond:</p>
 
 <p><b>Proposal:</b> $proposal</p>
-<p><b>Air Waybill</b>: $air_waybill</p>
+<p><b>Air Waybill</b>: <a href="$air_waybill">$air_waybill</a></p>
 <p><b>Dewar Facility Code:</b> $dewar_code</p>
 <p><b>Dewar Barcode:</b> $dewar_barcode</p>
 <p><b>Current Location:</b> $location</p>

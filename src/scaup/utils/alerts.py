@@ -176,7 +176,12 @@ def alert_session_lcs():
                 except Exception as e:
                     app_logger.error("Error while sending alert email to %s: %s", recipient, e)
 
+
 def alert_dispatch(shipment: Shipment):
+    if not shipment.children or len(shipment.children) == 0:
+        app_logger.error("Shipment %s has no children, cannot send dispatch email", shipment.id)
+        return
+
     dewar = shipment.children[0]
     request_url = f"/dewars/{dewar.externalId}/history?limit=1"
 
@@ -190,7 +195,7 @@ def alert_dispatch(shipment: Shipment):
 
     if resp.status_code != 200:
         app_logger.warning(
-            f"Expeye upstream returned {resp.text} with status code {resp.status_code} for request to"
+            f"Expeye upstream returned {resp.text} with status code {resp.status_code} for request to "
             + f"{request_url}."
         )
     else:

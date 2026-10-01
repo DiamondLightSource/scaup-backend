@@ -271,7 +271,7 @@ def build_shipment_request(shipmentId: int, token: str, push=True, user: Generic
         {
             "id": shipmentId,
             # 45 days
-            "exp": int(time.time()) + 3.888e+6,
+            "exp": int(time.time()) + 3.888e6,
             "aud": Config.shipping_service.callback_url,
         },
         Config.auth.jwt_private,

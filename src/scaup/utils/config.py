@@ -34,12 +34,12 @@ class DB:
 
 @dataclass
 class ShippingService:
+    staff_email: str
+    goods_handling_email: str
     frontend_url: str = "https://localtest.diamond.ac.uk/"
     backend_url: str = "https://localtest.diamond.ac.uk/"
     secret: str = "no-secret"
     callback_url: str = "https://localhost/api"
-    staff_email: str
-    goods_handling_email: str
 
 
 @dataclass
