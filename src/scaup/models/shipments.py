@@ -94,17 +94,3 @@ class StatusUpdate(BaseModel):
     tracking_number: str | None = None
     pickup_confirmation_code: str | None = None
     pickup_confirmation_timestamp: datetime | None
-
-
-class ShipmentContactInfo(BaseModel):
-    company_name: str
-    address_line1: str
-    address_line2: str
-    address_line3: str
-    city: str
-    country: str
-    post_code: str
-    contact_name: str
-    contact_phone_number: str
-    contact_email: str
-    eori: str
