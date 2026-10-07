@@ -55,6 +55,9 @@ class SampleOut(BaseSample):
         default=None, validation_alias=AliasPath("Sample", "derivedSamples")
     )
     externalId: Optional[int] = Field(default=None, validation_alias=InnerAlias("externalId"))
+    ancestorContainerId: Optional[int] = None
+    ancestorContainerName: Optional[str] = None
+    ancestorLocation: Optional[int] = None
 
 
 class SampleExternal(BaseExternal):

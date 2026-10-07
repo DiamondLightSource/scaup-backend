@@ -4,8 +4,9 @@ from fastapi import HTTPException, status
 from lims_utils.logging import app_logger
 from lims_utils.models import Paged, ProposalReference
 from psycopg.errors import ForeignKeyViolation
-from sqlalchemy import and_, insert, select
+from sqlalchemy import and_, func, insert, literal, select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import aliased
 
 from ..models.inner_db.tables import Container, Sample, SampleParentChild, Shipment
 from ..models.samples import OptionalSample, SampleIn, SampleOut
@@ -146,33 +147,97 @@ def get_samples(
     ignore_internal: bool = False,
     unassigned_only: bool = False,
 ):
+    ancestors = select(
+        SampleParentChild.childId.label("sampleId"),
+        SampleParentChild.parentId.label("ancestorId"),
+        literal(1).label("depth"),
+    ).cte("ancestors", recursive=True)
+
+    ancestors_query = (
+        select(
+            ancestors.c.sampleId,
+            SampleParentChild.parentId,
+            ancestors.c.depth + 1,
+        )
+        .join(
+            SampleParentChild,
+            SampleParentChild.childId == ancestors.c.ancestorId,
+        )
+        .filter(ancestors.c.depth < 10)
+    )
+
+    if shipment_id:
+        query_filters = Sample.shipmentId == shipment_id
+    elif proposal_reference:
+        query_filters = and_(
+            Shipment.proposalCode == proposal_reference.code,
+            Shipment.proposalNumber == proposal_reference.number,
+            Shipment.visitNumber == proposal_reference.visit_number,
+        )
+    elif container_id:
+        query_filters = Sample.containerId == container_id
+    else:
+        raise Exception("Either shipment_id, container_id or proposal_reference must be set")
+
+    ancestors_query = ancestors_query.filter(query_filters)
+    ancestors = ancestors.union_all(ancestors_query)
+
+    AncestorSample = aliased(Sample)
+
+    ranked = (
+        select(
+            ancestors.c.sampleId,
+            AncestorSample.location.label("ancestorLocation"),
+            AncestorSample.id.label("ancestorSampleId"),
+            AncestorSample.containerId.label("ancestorContainerId"),
+            func.row_number()
+            .over(
+                partition_by=ancestors.c.sampleId,
+                order_by=ancestors.c.depth,
+            )
+            .label("rn"),
+        )
+        .select_from(ancestors)
+        .join(AncestorSample, AncestorSample.id == ancestors.c.ancestorId)
+        .where(AncestorSample.containerId.is_not(None))
+        .subquery("ranked_ancestors")
+    )
+
+    closest = (
+        select(
+            ranked.c.sampleId,
+            ranked.c.ancestorLocation,
+            ranked.c.ancestorSampleId,
+            ranked.c.ancestorContainerId,
+        )
+        .where(ranked.c.rn == 1)
+        .subquery("closest_ancestor")
+    )
+
+    AncestorContainer = aliased(Container)
+
     query = (
         select(
             Sample,
-            Container.name.label("containerName"),
             Shipment.name.label("parentShipmentName"),
             Container.isInternal.label("isInternal"),
+            func.coalesce(Sample.location, closest.c.ancestorLocation).label("location"),
+            closest.c.ancestorSampleId.label("ancestorSampleId"),
+            func.coalesce(Container.id, closest.c.ancestorContainerId).label("ancestorContainerId"),
+            func.coalesce(Container.name, AncestorContainer.name).label("containerName"),
         )
         .select_from(Shipment)
         .join(Sample, Sample.shipmentId == Shipment.id)
         .join(Container, Container.id == Sample.containerId, isouter=True)
+        .join(closest, closest.c.sampleId == Sample.id, isouter=True)
+        .join(
+            AncestorContainer,
+            AncestorContainer.id == closest.c.ancestorContainerId,
+            isouter=True,
+        )
     )
 
-    if shipment_id:
-        query = query.filter(Sample.shipmentId == shipment_id)
-    elif proposal_reference:
-        # Shipment IDs are already more granular than proposal references, no point in filtering twice
-        query = query.filter(
-            and_(
-                Shipment.proposalCode == proposal_reference.code,
-                Shipment.proposalNumber == proposal_reference.number,
-                Shipment.visitNumber == proposal_reference.visit_number,
-            )
-        )
-    elif container_id:
-        query = query.filter(Sample.containerId == container_id)
-    else:
-        raise Exception("Either shipment_id or proposal_reference must be set")
+    query = query.filter(query_filters)
 
     if internal_only:
         query = query.filter(Container.isInternal.is_(True))
