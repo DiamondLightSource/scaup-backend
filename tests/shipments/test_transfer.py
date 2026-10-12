@@ -1,13 +1,9 @@
-import logging
 from unittest.mock import ANY, patch
 
 import pytest
 import responses
-from sqlalchemy import select
 
-from scaup.models.inner_db.tables import Shipment
 from scaup.utils.config import Config
-from scaup.utils.database import inner_db
 
 
 @responses.activate
