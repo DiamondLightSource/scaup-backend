@@ -1,5 +1,6 @@
 from typing import Protocol, runtime_checkable
 
+from fastapi.security import HTTPAuthorizationCredentials
 from lims_utils.models import parse_proposal
 
 
@@ -10,7 +11,11 @@ class GenericPermissions(Protocol):
         return parse_proposal(proposal_reference=proposalReference)
 
     @staticmethod
-    def session(proposalReference: str, visitNumber: int):
+    def session(
+        proposalReference: str,
+        visitNumber: int,
+        token: HTTPAuthorizationCredentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=""),
+    ):
         return parse_proposal(proposal_reference=proposalReference, visit_number=visitNumber)
 
     @staticmethod

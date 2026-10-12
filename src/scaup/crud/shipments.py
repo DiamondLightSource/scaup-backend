@@ -4,11 +4,12 @@ from typing import Generator, List, Sequence
 
 import jwt
 from fastapi import HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials
 from lims_utils.logging import app_logger
 from sqlalchemy import func, select, update
 from sqlalchemy.orm import joinedload
 
-from ..auth import GenericUser
+from ..auth import GenericUser, Permissions
 from ..models.inner_db.tables import (
     AvailableTable,
     Container,
@@ -21,9 +22,11 @@ from ..models.shipments import (
     ShipmentChildren,
     ShipmentDirection,
     ShipmentOut,
+    ShipmentPerson,
+    ShipmentTransferIn,
     StatusUpdate,
 )
-from ..utils.alerts import alert_dispatch
+from ..utils.alerts import alert_dispatch, alert_transfer
 from ..utils.auth import is_admin
 from ..utils.config import Config
 from ..utils.crud import assert_no_unassigned, assign_dcg_to_sublocation
@@ -84,7 +87,11 @@ def push_shipment(shipmentId: int, token: str):
         token,
         url=f"/proposals/{shipment.proposalCode}{shipment.proposalNumber}/sessions/{shipment.visitNumber}",
     )
-    session_id = session_response.json()["sessionId"]
+
+    if session_response.status_code != 200:
+        session_id = None
+    else:
+        session_id = session_response.json()["sessionId"]
 
     # The existence of the session is already verified by Microauth
     assert session_id is not None, "Session should exist upstream, yet it doesn't"
@@ -359,3 +366,74 @@ def assign_dcg_to_sublocation_in_shipment(shipment_id: int, parameters: List[Sub
         )
 
         assign_dcg_to_sublocation(ext_id, s_assignment)
+
+
+def _get_contact(contact: str | int | None):
+    if not contact:
+        return None
+
+    resp = ExternalRequest.request(
+        token=Config.ispyb_api.jwt,
+        url=f"/persons/{contact}",
+    )
+
+    if resp.status_code == 404:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"{contact} is not a valid contact in ISPyB",
+        )
+
+    if resp.status_code != 200:
+        app_logger.error(f"Error while getting contact {contact} from upstream: {resp.text}")
+        raise HTTPException(
+            status_code=status.HTTP_424_FAILED_DEPENDENCY,
+            detail="Failed to retrieve contact from ISPyB",
+        )
+
+    return ShipmentPerson.model_validate(resp.json())
+
+
+def transfer_shipment(shipment_id: int, parameters: ShipmentTransferIn, token: HTTPAuthorizationCredentials):
+    shipment = inner_db.session.scalar(select(Shipment).filter(Shipment.id == shipment_id))
+
+    if not shipment.children or len(shipment.children) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Shipment {shipment.id} has no children, cannot send transfer email",
+        )
+
+    # This is because if we check the shipment object later, the visit number will have been updated,
+    # as it points to a reference to the object, and that reference gets updated by SQLAlchemy when
+    # we update the database.
+    old_visit = f"{shipment.proposalCode}{shipment.proposalNumber}-{shipment.visitNumber}"
+
+    if parameters.newSession is not None:
+        Permissions.session(f"{shipment.proposalCode}{shipment.proposalNumber}", parameters.newSession, token)
+
+    past_local_contact = _get_contact(parameters.pastLocalContact)
+    next_local_contact = _get_contact(parameters.nextLocalContact)
+    lab_contact = _get_contact(parameters.labContact)
+
+    next_shipment = inner_db.session.scalar(
+        update(Shipment)
+        .returning(Shipment)
+        .filter(Shipment.id == shipment_id)
+        .values(
+            {
+                "visitNumber": parameters.newSession,
+            }
+        )
+    )
+
+    new_visit = f"{next_shipment.proposalCode}{next_shipment.proposalNumber}-{next_shipment.visitNumber}"
+
+    inner_db.session.commit()
+
+    alert_transfer(
+        shipment,
+        old_visit,
+        new_visit,
+        past_local_contact=past_local_contact,
+        next_local_contact=next_local_contact,
+        lab_contact=lab_contact,
+    )

@@ -12,9 +12,6 @@ from lims_utils.models import ProposalReference, parse_proposal
 from pydantic import BaseModel
 from sqlalchemy import select
 
-from scaup.models.shipments import ShipmentOut
-from scaup.utils.external import ExternalRequest
-
 from ..assets.paths import COMPANY_LOGO_LIGHT
 from ..models.alerts import (
     ALERT_BODY,
@@ -22,12 +19,44 @@ from ..models.alerts import (
     EMAIL_FOOTER,
     EMAIL_HEADER,
     SAMPLE_COLLECTION_LINK,
+    TRANSFER_BODY,
 )
 from ..models.inner_db.tables import Shipment
+from ..models.shipments import ShipmentOut, ShipmentPerson
+from ..utils.external import ExternalRequest
 from .config import Config
 from .database import inner_session
 
 session_alerts_scheduler = AsyncIOScheduler()
+
+
+def _get_dewar_history(dewar_external_id: int | None):
+    if not dewar_external_id:
+        return None
+
+    request_url = f"/dewars/{dewar_external_id}/history?limit=1"
+
+    resp = ExternalRequest.request(
+        token=Config.ispyb_api.jwt,
+        url=request_url,
+    )
+
+    if resp.status_code != 200:
+        app_logger.warning(
+            f"Expeye upstream returned {resp.text} with status code {resp.status_code} for request to "
+            + f"{request_url}."
+        )
+        return None
+
+    dewar_history = resp.json()["items"]
+    if dewar_history and len(dewar_history) > 0 and "storageLocation" in dewar_history[0]:
+        return dewar_history[0]["storageLocation"]
+
+    app_logger.warning(
+        f"Expeye upstream returned {resp.text} with status code {resp.status_code} for request to "
+        + f"{request_url}, but no storage location was found."
+    )
+    return None
 
 
 class UpcomingSession(BaseModel):
@@ -183,30 +212,9 @@ def alert_dispatch(shipment: Shipment):
         return
 
     dewar = shipment.children[0]
-    request_url = f"/dewars/{dewar.externalId}/history?limit=1"
 
-    resp = ExternalRequest.request(
-        token=Config.ispyb_api.jwt,
-        url=request_url,
-    )
-
-    dewar_location = "Unknown"
+    dewar_location = _get_dewar_history(dewar.externalId) or "Unknown"
     proposal = f"{shipment.proposalCode}{shipment.proposalNumber}"
-
-    if resp.status_code != 200:
-        app_logger.warning(
-            f"Expeye upstream returned {resp.text} with status code {resp.status_code} for request to "
-            + f"{request_url}."
-        )
-    else:
-        dewar_history = resp.json()["items"]
-        if dewar_history and len(dewar_history) > 0 and "storageLocation" in dewar_history[0]:
-            dewar_location = dewar_history[0]["storageLocation"]
-        else:
-            app_logger.warning(
-                f"Expeye upstream returned {resp.text} with status code {resp.status_code} for request to "
-                + f"{request_url}, but no storage location was found."
-            )
 
     msg = create_email(
         DISPATCH_BODY.safe_substitute(
@@ -224,9 +232,16 @@ def alert_dispatch(shipment: Shipment):
             r_msg = msg
             r_msg["To"] = Config.shipping_service.goods_handling_email
 
-            app_logger.info("Sending dispatch email to %s", Config.shipping_service.goods_handling_email)
+            app_logger.info(
+                "Sending dispatch email to %s",
+                Config.shipping_service.goods_handling_email,
+            )
 
-            smtp.sendmail(Config.alerts.contact_email, Config.shipping_service.goods_handling_email, msg.as_string())
+            smtp.sendmail(
+                Config.alerts.contact_email,
+                Config.shipping_service.goods_handling_email,
+                msg.as_string(),
+            )
 
             app_logger.info(
                 "%s received email for dispatch proposal %s",
@@ -234,4 +249,62 @@ def alert_dispatch(shipment: Shipment):
                 proposal,
             )
     except Exception as e:
-        app_logger.error("Error while sending alert email to %s: %s", Config.shipping_service.goods_handling_email, e)
+        app_logger.error(
+            "Error while sending alert email to %s: %s",
+            Config.shipping_service.goods_handling_email,
+            e,
+        )
+
+
+def alert_transfer(
+    shipment: Shipment,
+    old_visit: str,
+    next_visit: str,
+    past_local_contact: ShipmentPerson | None,
+    next_local_contact: ShipmentPerson | None,
+    lab_contact: ShipmentPerson | None,
+):
+    dewar = shipment.children
+
+    dewars = ", ".join([d.code for d in dewar if d.code])
+    dewar_locations = {d.code: _get_dewar_history(d.externalId) or "Unknown" for d in dewar}
+
+    msg = create_email(
+        TRANSFER_BODY.safe_substitute(
+            visit=old_visit,
+            air_waybill=f"{Config.shipping_service.frontend_url}/shipment-requests/{shipment.shipmentRequest}/outgoing",
+            dewar_code=dewars,
+            last_lc=f"{past_local_contact.givenName} {past_local_contact.familyName}"
+            if past_local_contact
+            else "Unknown",
+            next_lc_name=f"{next_local_contact.givenName} {next_local_contact.familyName}"
+            if next_local_contact
+            else "Unknown",
+            next_lc_phone=next_local_contact.phoneNumber if next_local_contact else "Unknown",
+            next_lc_email=next_local_contact.emailAddress if next_local_contact else "Unknown",
+            next_visit=next_visit,
+            location=", ".join([f"{location} ({code})" for code, location in dewar_locations.items()]),
+        ),
+        f"Transfer requested for dewar(s) {dewars} from {old_visit}",
+    )
+
+    recipients = [
+        lc.emailAddress for lc in [past_local_contact, next_local_contact, lab_contact] if lc and lc.emailAddress
+    ]
+
+    try:
+        with SMTP(Config.alerts.smtp_server, Config.alerts.smtp_port, timeout=10) as smtp:
+            r_msg = msg
+            r_msg["To"] = ", ".join(recipients)
+
+            app_logger.info("Sending transfer email to %s", recipients)
+
+            smtp.sendmail(Config.alerts.contact_email, recipients, msg.as_string())
+
+            app_logger.info(
+                "%s received email for transfer from visit %s",
+                recipients,
+                old_visit,
+            )
+    except Exception as e:
+        app_logger.error("Error while sending transfer email to %s: %s", recipients, e)
