@@ -268,10 +268,7 @@ def get_pdf_report(
     return pdf_crud.generate_report(shipment_id=shipmentId, token=token.credentials)
 
 
-@router.patch(
-    "/{shipmentId}/transfer",
-    response_model=ShipmentOut
-)
+@router.patch("/{shipmentId}/transfer", response_model=ShipmentOut)
 def transfer_shipment(
     shipmentId=Depends(auth),
     parameters: ShipmentTransferIn = Body(),
