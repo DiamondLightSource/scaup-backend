@@ -270,6 +270,7 @@ def get_pdf_report(
 
 @router.patch(
     "/{shipmentId}/transfer",
+    response_model=ShipmentOut
 )
 def transfer_shipment(
     shipmentId=Depends(auth),

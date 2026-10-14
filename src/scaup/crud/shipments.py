@@ -437,3 +437,5 @@ def transfer_shipment(shipment_id: int, parameters: ShipmentTransferIn, token: H
         next_local_contact=next_local_contact,
         lab_contact=lab_contact,
     )
+
+    return inner_db.session.scalar(select(Shipment).filter(Shipment.id == shipment_id))
