@@ -147,25 +147,6 @@ def get_samples(
     ignore_internal: bool = False,
     unassigned_only: bool = False,
 ):
-    ancestors = select(
-        SampleParentChild.childId.label("sampleId"),
-        SampleParentChild.parentId.label("ancestorId"),
-        literal(1).label("depth"),
-    ).cte("ancestors", recursive=True)
-
-    ancestors_query = (
-        select(
-            ancestors.c.sampleId,
-            SampleParentChild.parentId,
-            ancestors.c.depth + 1,
-        )
-        .join(
-            SampleParentChild,
-            SampleParentChild.childId == ancestors.c.ancestorId,
-        )
-        .filter(ancestors.c.depth < 10)
-    )
-
     if shipment_id:
         query_filters = Sample.shipmentId == shipment_id
     elif proposal_reference:
@@ -179,7 +160,32 @@ def get_samples(
     else:
         raise Exception("Either shipment_id, container_id or proposal_reference must be set")
 
-    ancestors_query = ancestors_query.filter(query_filters)
+    ancestors = (
+        select(
+            SampleParentChild.childId.label("sampleId"),
+            SampleParentChild.parentId.label("ancestorId"),
+            literal(1).label("depth"),
+        )
+        .select_from(SampleParentChild)
+        .join(Sample, Sample.id == SampleParentChild.childId)
+        .join(Shipment, Shipment.id == Sample.shipmentId)
+        .where(query_filters)
+        .cte("ancestors", recursive=True)
+    )
+
+    ancestors_query = (
+        select(
+            ancestors.c.sampleId,
+            SampleParentChild.parentId,
+            ancestors.c.depth + 1,
+        )
+        .join(
+            SampleParentChild,
+            SampleParentChild.childId == ancestors.c.ancestorId,
+        )
+        .where(ancestors.c.depth < 10)
+    )
+
     ancestors = ancestors.union_all(ancestors_query)
 
     AncestorSample = aliased(Sample)

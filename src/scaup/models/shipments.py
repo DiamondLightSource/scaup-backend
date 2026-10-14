@@ -95,3 +95,17 @@ class StatusUpdate(BaseModel):
     tracking_number: str | None = None
     pickup_confirmation_code: str | None = None
     pickup_confirmation_timestamp: datetime | None
+
+
+class ShipmentTransferIn(BaseModel):
+    newSession: int | None = None
+    pastLocalContact: str | int | None = None
+    nextLocalContact: str | int | None = None
+    labContact: str | int | None = None
+
+
+class ShipmentPerson(BaseModel):
+    familyName: str
+    givenName: str
+    emailAddress: str | None = None
+    phoneNumber: str | None = None

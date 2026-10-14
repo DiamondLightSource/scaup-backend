@@ -51,3 +51,22 @@ DISPATCH_BODY = Template("""
 <p>Many thanks,</p>
 <p>SCAUP team</p>
 """)
+
+TRANSFER_BODY = Template("""
+<p>$last_lc from visit $visit requested an internal transfer for their dewar(s):</p>
+
+<p><b>Dewar Code</b>: $dewar_code</p>
+<hr/>
+<p><b>Last Visit</b>: $visit</p>
+<p><b>Current Location</b>: $location</p>
+<p><b>Last Local Contact</b>: $last_lc</p>
+<hr/>
+<p><b>Next Visit</b>: $next_visit</p>
+<p><b>Next Local Contact</b></p>
+<p><b>Full Name</b>: $next_lc_name</p>
+<p><b>Phone No.</b>: $next_lc_phone</p>
+<p><b>Email Address</b>: $next_lc_email</p>
+
+<p>Many thanks,</p>
+<p>SCAUP team</p>
+""")

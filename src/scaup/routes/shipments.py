@@ -22,6 +22,7 @@ from ..models.shipments import (
     ShipmentChildren,
     ShipmentDirection,
     ShipmentOut,
+    ShipmentTransferIn,
     StatusUpdate,
     UnassignedItems,
 )
@@ -265,3 +266,13 @@ def get_pdf_report(
 ):
     """Get PDF report of shipment"""
     return pdf_crud.generate_report(shipment_id=shipmentId, token=token.credentials)
+
+
+@router.patch("/{shipmentId}/transfer", response_model=ShipmentOut)
+def transfer_shipment(
+    shipmentId=Depends(auth),
+    parameters: ShipmentTransferIn = Body(),
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+):
+    """Get PDF report of shipment"""
+    return shipment_crud.transfer_shipment(shipment_id=shipmentId, parameters=parameters, token=token)
