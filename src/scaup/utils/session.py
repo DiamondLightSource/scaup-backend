@@ -21,6 +21,8 @@ CONSTRAINT_VIOLATION_TO_COLUMN = {
     "Sample_unique_sublocation": {"subLocation": None},
     "Sample_unique_location": {"location": None, "containerId": None},
     "Container_unique_location": {"location": None, "parentId": None},
+    "TopLevelContainer_unique_code": {"shipmentId": None, "code": None},
+    "TopLevelContainer_unique_barCode": {"shipmentId": None, "barCode": None},
 }
 
 
