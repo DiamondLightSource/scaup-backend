@@ -16,16 +16,16 @@ description = "Scaup's backend"
 dependencies = [
     "APScheduler~=3.11.0",
     "SQLAlchemy~=2.0.51",
-    "fastapi~=0.141.1",
+    "fastapi~=0.143.5",
     "psycopg[binary,pool]~=3.3.4",
     "pydantic~=2.12.5",
     "uvicorn~=0.52.1",
     "types-requests",
-    "lims_utils~=0.4.15",
+    "lims_utils~=0.4.16",
     "requests~=2.32.5",
     "fpdf2~=2.8.4",
     "qrcode~=8.2.0",
-    "pyjwt[crypto]~=2.13.0",
+    "pyjwt[crypto]~=2.15.1",
     "pillow==12.3.0",
     "alembic"
 ]
