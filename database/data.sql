@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict oEh9AANNObdfLMroz9f9vqJCF7b7SqNCubiM4gNgNwnsRzmKHcUIkaOXNveYeMO
+\restrict 9zPQY51R4zMqbFomzbZ0SYJUCdDxftNa8Uer4g48d4DoBkesrJGibEUwIy6XeBh
 
 -- Dumped from database version 17.6 (Debian 17.6-2.pgdg13+1)
--- Dumped by pg_dump version 18.3
+-- Dumped by pg_dump version 18.4
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -299,7 +299,7 @@ CREATE TABLE public."Shipment" (
     comments character varying(255),
     "proposalCode" character varying(2) NOT NULL,
     "proposalNumber" integer NOT NULL,
-    "visitNumber" integer NOT NULL,
+    "visitNumber" integer,
     "lastStatusUpdate" timestamp with time zone DEFAULT now() NOT NULL,
     "sessionTypeId" integer DEFAULT 1 NOT NULL
 );
@@ -344,7 +344,7 @@ CREATE TABLE public."TopLevelContainer" (
     "topLevelContainerId" integer NOT NULL,
     "shipmentId" integer,
     details json,
-    code character varying(20) NOT NULL,
+    code character varying(20),
     type character varying(40) DEFAULT 'dewar'::character varying NOT NULL,
     name character varying(80) NOT NULL,
     "externalId" integer,
@@ -649,7 +649,7 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-c5d0b0fbc1e4
+e94891b3282a
 \.
 
 
@@ -725,6 +725,14 @@ ALTER TABLE ONLY public."Container"
 
 ALTER TABLE ONLY public."Container"
     ADD CONSTRAINT "Container_unique_name" UNIQUE (name, "shipmentId");
+
+
+--
+-- Name: Container Container_unique_registered_container; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."Container"
+    ADD CONSTRAINT "Container_unique_registered_container" UNIQUE ("registeredContainer", "shipmentId");
 
 
 --
@@ -813,6 +821,22 @@ ALTER TABLE ONLY public."TopLevelContainer"
 
 ALTER TABLE ONLY public."TopLevelContainer"
     ADD CONSTRAINT "TopLevelContainer_pkey" PRIMARY KEY ("topLevelContainerId");
+
+
+--
+-- Name: TopLevelContainer TopLevelContainer_unique_barCode; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."TopLevelContainer"
+    ADD CONSTRAINT "TopLevelContainer_unique_barCode" UNIQUE ("shipmentId", "barCode");
+
+
+--
+-- Name: TopLevelContainer TopLevelContainer_unique_code; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."TopLevelContainer"
+    ADD CONSTRAINT "TopLevelContainer_unique_code" UNIQUE ("shipmentId", code);
 
 
 --
@@ -1049,5 +1073,5 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict oEh9AANNObdfLMroz9f9vqJCF7b7SqNCubiM4gNgNwnsRzmKHcUIkaOXNveYeMO
+\unrestrict 9zPQY51R4zMqbFomzbZ0SYJUCdDxftNa8Uer4g48d4DoBkesrJGibEUwIy6XeBh
 

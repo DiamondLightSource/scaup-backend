@@ -53,7 +53,8 @@ class SessionType(Base):
     id: Mapped[int] = mapped_column("sessionTypeId", primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(40), index=True, unique=True)
     sampleCapacity: Mapped[int] = mapped_column(
-        SmallInteger, comment="Number of samples that can be loaded in a session of this type"
+        SmallInteger,
+        comment="Number of samples that can be loaded in a session of this type",
     )
 
     shipments: Mapped["Shipment"] = relationship("Shipment", back_populates="sessionType")
@@ -61,7 +62,11 @@ class SessionType(Base):
 
 class TopLevelContainer(Base, BaseColumns):
     __tablename__ = "TopLevelContainer"
-    __table_args__ = (UniqueConstraint("name", "shipmentId"),)
+    __table_args__ = (
+        UniqueConstraint("name", "shipmentId"),
+        UniqueConstraint("shipmentId", "code", name="TopLevelContainer_unique_code"),
+        UniqueConstraint("shipmentId", "barCode", name="TopLevelContainer_unique_barCode"),
+    )
 
     id: Mapped[int] = mapped_column("topLevelContainerId", primary_key=True, index=True)
     shipment: Mapped["Shipment"] = relationship(back_populates="children")
@@ -85,6 +90,11 @@ class Container(Base, BaseColumns):
     __table_args__ = (
         UniqueConstraint("name", "shipmentId", name="Container_unique_name"),
         UniqueConstraint("location", "parentId", name="Container_unique_location"),
+        UniqueConstraint(
+            "registeredContainer",
+            "shipmentId",
+            name="Container_unique_registered_container",
+        ),
     )
 
     id: Mapped[int] = mapped_column("containerId", primary_key=True, index=True)
