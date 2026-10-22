@@ -55,6 +55,8 @@ def test_create_push_to_external_db(client):
     assert new_sample.externalId == 1
     assert json.loads(resp_post.calls[0].request.body.decode()) == {
         "comments": None,
+        "crystal": None,
+        "diffractionPlan": None,
         "source": "eBIC-Scaup",
         "subLocation": None,
         "location": None,

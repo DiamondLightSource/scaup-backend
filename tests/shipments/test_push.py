@@ -24,9 +24,9 @@ def test_push_unassigned(client):
 
     assert resp.status_code == 200
 
-    assert (
-        expeye_resp.calls[0].request.body
-        == b'{"comments": null, "source": "eBIC-Scaup", "subLocation": null, "location": null, "name": "Sample_02"}'
+    assert expeye_resp.calls[0].request.body == (
+        b'{"comments": null, "source": "eBIC-Scaup", "subLocation": null, "location": null, "name": "Sample_02"'
+        b', "crystal": null, "diffractionPlan": null}'
     )
 
 
