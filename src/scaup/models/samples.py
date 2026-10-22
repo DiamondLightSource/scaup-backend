@@ -69,16 +69,15 @@ class SampleExternal(BaseExternal):
     subLocation: Optional[int]
     location: Optional[int]
     name: str
-    crystal: dict
-    diffractionPlan: dict
+    crystal: dict | None = None
+    diffractionPlan: dict | None = None
 
     @model_validator(mode="before")
     @classmethod
     def build_diffraction_plan_and_crystal(cls, data: Sample) -> Any:
-        new_data = SampleOut.model_validate(data, from_attributes=True).model_dump()
-        details = data.details or {}
+        if "anomalous" in (details := (data.details or {})):
+            new_data = SampleOut.model_validate(data, from_attributes=True).model_dump()
 
-        if "anomalous" in details:
             # This is an MX sample - we need to populate crystals and diffraction plans
             def clean(key: str) -> Any:
                 v = details.get(key)
