@@ -75,41 +75,43 @@ class SampleExternal(BaseExternal):
     @model_validator(mode="before")
     @classmethod
     def build_diffraction_plan_and_crystal(cls, data: Sample) -> Any:
-        if "anomalous" in (details := (data.details or {})):
-            new_data = SampleOut.model_validate(data, from_attributes=True).model_dump()
+        if "anomalous" not in (details := (data.details or {})):
+            return data
 
-            # This is an MX sample - we need to populate crystals and diffraction plans
-            def clean(key: str) -> Any:
-                v = details.get(key)
-                return None if v == "" else v
+        new_data = SampleOut.model_validate(data, from_attributes=True).model_dump()
 
-            new_data["crystal"] = {
-                "spaceGroup": clean("spacegroup"),
-                "name": data.name,
-                "cellA": clean("unitCell_a"),
-                "cellB": clean("unitCell_b"),
-                "cellC": clean("unitCell_c"),
-                "cellAlpha": clean("unitCell_alpha"),
-                "cellBeta": clean("unitCell_beta"),
-                "cellGamma": clean("unitCell_gamma"),
-                "proteinId": data.proteinId,
-            }
+        # This is an MX sample - we need to populate crystals and diffraction plans
+        def clean(key: str) -> Any:
+            v = details.get(key)
+            return None if v == "" else v
 
-            new_data["diffractionPlan"] = {
-                "name": data.name,
-                "anomalousScatterer": clean("anomalous"),
-                "comments": clean("comment"),
-                "energy": clean("energy"),
-                "experimentKind": clean("experimentKind"),
-                "userPath": clean("userPath"),
-                "minimalResolution": clean("minimumResolution"),
-                "requiredResolution": clean("requiredResolution"),
-                "strategyOption": {
-                    "sample_group": clean("sampleGroup"),
-                    "screen": STRATEGY_OPTION_MAP.get(clean("screeningMethod"), None),
-                    "collect_samples": (int(clean("numberToCollect")) if clean("numberToCollect") else None),
-                },
-            }
+        new_data["crystal"] = {
+            "spaceGroup": clean("spacegroup"),
+            "name": data.name,
+            "cellA": clean("unitCell_a"),
+            "cellB": clean("unitCell_b"),
+            "cellC": clean("unitCell_c"),
+            "cellAlpha": clean("unitCell_alpha"),
+            "cellBeta": clean("unitCell_beta"),
+            "cellGamma": clean("unitCell_gamma"),
+            "proteinId": data.proteinId,
+        }
+
+        new_data["diffractionPlan"] = {
+            "name": data.name,
+            "anomalousScatterer": clean("anomalous"),
+            "comments": clean("comment"),
+            "energy": clean("energy"),
+            "experimentKind": clean("experimentKind"),
+            "userPath": clean("userPath"),
+            "minimalResolution": clean("minimumResolution"),
+            "requiredResolution": clean("requiredResolution"),
+            "strategyOption": {
+                "sample_group": clean("sampleGroup"),
+                "screen": STRATEGY_OPTION_MAP.get(clean("screeningMethod"), None),
+                "collect_samples": (int(clean("numberToCollect")) if clean("numberToCollect") else None),
+            },
+        }
         return new_data
 
 
