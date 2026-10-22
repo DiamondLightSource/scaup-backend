@@ -1,9 +1,12 @@
 from dataclasses import dataclass
 from typing import Any, List, Optional
 
-from pydantic import AliasChoices, AliasPath, BaseModel, Field
+from pydantic import AliasChoices, AliasPath, BaseModel, Field, model_validator
 
+from ..models.inner_db.tables import Sample
 from ..utils.models import BaseExternal, BaseModelWithNameValidator
+
+STRATEGY_OPTION_MAP = {"Better Than": "all", "Best N": "best", "None": None}
 
 
 @dataclass(slots=True)
@@ -66,6 +69,49 @@ class SampleExternal(BaseExternal):
     subLocation: Optional[int]
     location: Optional[int]
     name: str
+    crystal: dict
+    diffractionPlan: dict
+
+    @model_validator(mode="before")
+    @classmethod
+    def build_diffraction_plan_and_crystal(cls, data: Sample) -> Any:
+        new_data = SampleOut.model_validate(data, from_attributes=True).model_dump()
+        details = data.details or {}
+
+        if "anomalous" in details:
+            # This is an MX sample - we need to populate crystals and diffraction plans
+            def clean(key: str) -> Any:
+                v = details.get(key)
+                return None if v == "" else v
+
+            new_data["crystal"] = {
+                "spaceGroup": clean("spacegroup"),
+                "name": data.name,
+                "cellA": clean("unitCell_a"),
+                "cellB": clean("unitCell_b"),
+                "cellC": clean("unitCell_c"),
+                "cellAlpha": clean("unitCell_alpha"),
+                "cellBeta": clean("unitCell_beta"),
+                "cellGamma": clean("unitCell_gamma"),
+                "proteinId": data.proteinId,
+            }
+
+            new_data["diffractionPlan"] = {
+                "name": data.name,
+                "anomalousScatterer": clean("anomalous"),
+                "comments": clean("comment"),
+                "energy": clean("energy"),
+                "experimentKind": clean("experimentKind"),
+                "userPath": clean("userPath"),
+                "minimalResolution": clean("minimumResolution"),
+                "requiredResolution": clean("requiredResolution"),
+                "strategyOption": {
+                    "sample_group": clean("sampleGroup"),
+                    "screen": STRATEGY_OPTION_MAP.get(clean("screeningMethod"), None),
+                    "collect_samples": (int(clean("numberToCollect")) if clean("numberToCollect") else None),
+                },
+            }
+        return new_data
 
 
 class SublocationAssignment(BaseModel):
