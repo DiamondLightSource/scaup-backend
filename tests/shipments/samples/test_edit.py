@@ -93,14 +93,15 @@ def test_auto_location(client):
 
 @responses.activate
 def test_auto_location_no_container(client):
-    """Should throw error if autoLocation is set to true but no containerId is provided"""
+    """Should not populate location automatically if autoLocation is set to true but containerId is not provided"""
 
     resp = client.patch(
         "/samples/2?autoLocation=true",
         json={"containerId": None},
     )
 
-    assert resp.status_code == 400
+    assert resp.status_code == 200
+    assert resp.json()["location"] is None
 
 
 @responses.activate
