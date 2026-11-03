@@ -127,6 +127,10 @@ def create_sample(
         False, description="Push sample to external DB. May create orphan samples (samples without a container)"
     ),
     includeSuffix: bool = Query(True, description="Include ordinal suffix in sample's name"),
+    autoLocation: bool = Query(
+        False,
+        description="Automatically assign the lowest available location in the container if location not provided",
+    ),
 ):
     """Create new sample in shipment"""
     return sample_crud.create_sample(
@@ -135,6 +139,7 @@ def create_sample(
         token=token.credentials,
         push_to_external_db=pushToExternalDb,
         include_suffix=includeSuffix,
+        auto_location=autoLocation,
     )
 
 

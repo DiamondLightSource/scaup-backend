@@ -44,6 +44,7 @@ def create_sample(
     token: str,
     push_to_external_db: bool = False,
     include_suffix: bool = True,
+    auto_location: bool = False,
 ):
     upstream_compound = _get_protein(params.proteinId, token)
 
@@ -72,6 +73,15 @@ def create_sample(
         if not params.name.startswith(clean_name):
             params.name = f"{clean_name}_{params.name}"
 
+    if params.containerId is not None:
+        container_sid = inner_db.session.scalar(select(Container.shipmentId).filter(Container.id == params.containerId))
+        if container_sid != shipmentId:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Container not found",
+            )
+
+    # TODO: limit based on container type
     if params.copies and params.copies > 12:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -86,11 +96,17 @@ def create_sample(
             detail="Combination of macromolecule prefix and name must not be longer than 43 characters.",
         )
 
+    new_location = params.location
+    if auto_location and params.containerId is not None and params.location is None:
+        locations = inner_db.session.scalars(select(Sample.location).filter(Sample.containerId == params.containerId))
+        new_location = lowest_missing([0, *locations])
+
     samples_json = [
         {
             "shipmentId": shipmentId,
-            **params.model_dump(exclude_unset=True, exclude={"copies", "parents"}),
+            **params.model_dump(exclude_unset=True, exclude={"copies", "parents", "location"}),
             "name": (f"{params.name}_{i + sample_count}" if include_suffix else params.name),
+            "location": new_location + i if new_location is not None else None,
         }
         for i in range(params.copies)
     ]
@@ -121,12 +137,7 @@ def edit_sample(sampleId: int, params: OptionalSample, token: str, auto_location
         # TODO: check with eBIC if they'd like to overwrite the user provided name on protein changes
         _get_protein(params.proteinId, token)
 
-    if auto_location:
-        if params.containerId is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot auto-assign location without a containerId",
-            )
+    if auto_location and params.location is None and params.containerId is not None:
         locations = inner_db.session.scalars(select(Sample.location).filter(Sample.containerId == params.containerId))
         new_location = lowest_missing([0, *locations])
 

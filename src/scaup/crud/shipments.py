@@ -268,7 +268,7 @@ def build_shipment_request(shipmentId: int, token: str, push=True, user: Generic
                     "gross_weight": 2,
                     "net_weight": 2,
                     "external_id": tlc.externalId,
-                    "description": tlc.type,
+                    "description": tlc.type or "dewar",
                 }
             )
 

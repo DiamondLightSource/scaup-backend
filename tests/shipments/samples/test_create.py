@@ -201,6 +201,31 @@ def test_create_invalid_container(client):
 
 
 @responses.activate
+def test_create_unauthorised_container(client):
+    """Should not create new sample when provided parent container that does not belong to the shipment"""
+
+    resp = client.post(
+        "/shipments/1/samples",
+        json={"proteinId": 4407, "containerId": 776},
+    )
+
+    assert resp.status_code == 404
+
+
+@responses.activate
+def test_autolocation(client):
+    """Should assign location automatically if location not provided and autoLocation is set to true"""
+
+    resp = client.post(
+        "/shipments/1/samples?autoLocation=true",
+        json={"containerId": 4, "proteinId": 4407, "name": "Test"},
+    )
+
+    assert resp.status_code == 201
+    assert resp.json()["items"][0]["location"] == 2
+
+
+@responses.activate
 def test_duplicate_location(client):
     """Should reset location from old sample if another sample already occupies that position"""
 
