@@ -75,6 +75,7 @@ class SlotOwnership(BaseModel):
     proposalCode: str
     proposalNumber: int
 
+
 class ContainerOut(BaseContainer):
     shipmentId: int | None = None
     id: int = Field(validation_alias=AliasChoices("containerId", "id"))
