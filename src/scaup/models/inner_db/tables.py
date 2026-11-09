@@ -126,7 +126,22 @@ class Container(Base, BaseColumns):
     topLevelContainer: Mapped[Optional["TopLevelContainer"]] = relationship(back_populates="children")
     children: Mapped[List["Container"] | None] = relationship("Container", back_populates="parent")
     samples: Mapped[List["Sample"] | None] = relationship(back_populates="container")
+    slotOwnership: Mapped[List["ContainerSlotOwnership"] | None] = relationship(back_populates="container")
 
+class ContainerSlotOwnership(Base):
+    """Determines which proposal owns which slot in a container; eBIC only feature"""
+    __tablename__ = "ContainerSlotOwnership"
+    __table_args__ = (UniqueConstraint("containerId", "slot", name="Container_slot_unique_owner"),)
+
+    id: Mapped[int] = mapped_column("containerSlotOwnershipId", primary_key=True)
+    containerId: Mapped[int] = mapped_column(
+            ForeignKey("Container.containerId"), index=True
+    )
+    slot: Mapped[int] = mapped_column(SmallInteger)
+    proposalCode: Mapped[str] = mapped_column(String(10))
+    proposalNumber: Mapped[int] = mapped_column()
+
+    container: Mapped[Optional["Container"]] = relationship(back_populates="slotOwnership")
 
 class SampleParentChild(Base):
     """Determines relationships between parent samples and the samples that were derived from them"""

@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from pydantic import (
     AliasChoices,
@@ -68,6 +68,13 @@ class OptionalContainer(BaseContainer):
     isInternal: Optional[bool] = None
 
 
+class SlotOwnership(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    slot: int
+    proposalCode: str
+    proposalNumber: int
+
 class ContainerOut(BaseContainer):
     shipmentId: int | None = None
     id: int = Field(validation_alias=AliasChoices("containerId", "id"))
@@ -80,6 +87,8 @@ class ContainerOut(BaseContainer):
             "Internal storage container this container is currently in." + "Only set if this is stored in the facility"
         ),
     )
+
+    slotOwnership: List[SlotOwnership] | None = None
 
 
 class ContainerExternal(BaseExternal):
