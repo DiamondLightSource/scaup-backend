@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict 9zPQY51R4zMqbFomzbZ0SYJUCdDxftNa8Uer4g48d4DoBkesrJGibEUwIy6XeBh
+\restrict 8kIyDcelwj6uY7g34jVjgRMe9GAQkzdFGmVKKZAmEUV7gU2yHYK6x66ZUJgbGkx
 
 -- Dumped from database version 17.6 (Debian 17.6-2.pgdg13+1)
--- Dumped by pg_dump version 18.4
+-- Dumped by pg_dump version 18.6
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -85,6 +85,43 @@ COMMENT ON COLUMN public."Container"."isInternal" IS 'Whether this container is 
 --
 
 COMMENT ON COLUMN public."Container"."isCurrent" IS 'Whether container position is current';
+
+
+--
+-- Name: ContainerSlotOwnership; Type: TABLE; Schema: public; Owner: sample_handling
+--
+
+CREATE TABLE public."ContainerSlotOwnership" (
+    "containerSlotOwnershipId" integer NOT NULL,
+    "containerId" integer NOT NULL,
+    slot smallint NOT NULL,
+    "proposalCode" character varying(10) NOT NULL,
+    "proposalNumber" integer NOT NULL
+);
+
+
+ALTER TABLE public."ContainerSlotOwnership" OWNER TO sample_handling;
+
+--
+-- Name: ContainerSlotOwnership_containerSlotOwnershipId_seq; Type: SEQUENCE; Schema: public; Owner: sample_handling
+--
+
+CREATE SEQUENCE public."ContainerSlotOwnership_containerSlotOwnershipId_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."ContainerSlotOwnership_containerSlotOwnershipId_seq" OWNER TO sample_handling;
+
+--
+-- Name: ContainerSlotOwnership_containerSlotOwnershipId_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sample_handling
+--
+
+ALTER SEQUENCE public."ContainerSlotOwnership_containerSlotOwnershipId_seq" OWNED BY public."ContainerSlotOwnership"."containerSlotOwnershipId";
 
 
 --
@@ -412,6 +449,13 @@ ALTER TABLE ONLY public."Container" ALTER COLUMN "containerId" SET DEFAULT nextv
 
 
 --
+-- Name: ContainerSlotOwnership containerSlotOwnershipId; Type: DEFAULT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."ContainerSlotOwnership" ALTER COLUMN "containerSlotOwnershipId" SET DEFAULT nextval('public."ContainerSlotOwnership_containerSlotOwnershipId_seq"'::regclass);
+
+
+--
 -- Name: PreSession preSessionId; Type: DEFAULT; Schema: public; Owner: sample_handling
 --
 
@@ -538,6 +582,23 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 2314	309	989	\N	puck	\N	\N	{}	f	\N	test2	372665		f	f	auto	2026-03-17 11:12:31.214055+00
 2253	\N	\N	2248	gridBox	\N	1	null	f	\N	Gridbox_1_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
 2313	309	\N	2314	gridBox	\N	1	{"c-clip": "Anti-Clockwise (facing left with respect to notch)", "store": false}	f	\N	test	372666		f	f	auto	2026-03-17 11:12:17.496318+00
+2248	\N	988	\N	puck	\N	\N	null	f	\N	1	\N	\N	t	f	2	2026-03-17 11:11:37.395377+00
+2253	\N	\N	\N	gridBox	\N	\N	null	f	\N	Gridbox_1_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
+776	117	\N	2248	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	303613		f	f	\N	2025-01-10 08:54:42.073855+00
+\.
+
+
+--
+-- Data for Name: ContainerSlotOwnership; Type: TABLE DATA; Schema: public; Owner: sample_handling
+--
+
+COPY public."ContainerSlotOwnership" ("containerSlotOwnershipId", "containerId", slot, "proposalCode", "proposalNumber") FROM stdin;
+1	2248	0	bi	23047
+2	2248	1	bi	23041
+3	2248	2	bi	23040
+4	2248	3	bi	23040
+5	2248	4	bi	23041
+6	2248	5	bi	23047
 \.
 
 
@@ -649,8 +710,15 @@ COPY public."TopLevelContainer" ("topLevelContainerId", "shipmentId", details, c
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-e94891b3282a
+028202deb099
 \.
+
+
+--
+-- Name: ContainerSlotOwnership_containerSlotOwnershipId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
+--
+
+SELECT pg_catalog.setval('public."ContainerSlotOwnership_containerSlotOwnershipId_seq"', 6, true);
 
 
 --
@@ -696,6 +764,14 @@ SELECT pg_catalog.setval('public."TopLevelContainer_topLevelContainerId_seq"', 9
 
 
 --
+-- Name: ContainerSlotOwnership ContainerSlotOwnership_pkey; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."ContainerSlotOwnership"
+    ADD CONSTRAINT "ContainerSlotOwnership_pkey" PRIMARY KEY ("containerSlotOwnershipId");
+
+
+--
 -- Name: Container Container_externalId_key; Type: CONSTRAINT; Schema: public; Owner: sample_handling
 --
 
@@ -709,6 +785,14 @@ ALTER TABLE ONLY public."Container"
 
 ALTER TABLE ONLY public."Container"
     ADD CONSTRAINT "Container_pkey" PRIMARY KEY ("containerId");
+
+
+--
+-- Name: ContainerSlotOwnership Container_slot_unique_owner; Type: CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."ContainerSlotOwnership"
+    ADD CONSTRAINT "Container_slot_unique_owner" UNIQUE ("containerId", slot);
 
 
 --
@@ -856,6 +940,13 @@ ALTER TABLE ONLY public."SampleParentChild"
 
 
 --
+-- Name: ix_ContainerSlotOwnership_containerId; Type: INDEX; Schema: public; Owner: sample_handling
+--
+
+CREATE INDEX "ix_ContainerSlotOwnership_containerId" ON public."ContainerSlotOwnership" USING btree ("containerId");
+
+
+--
 -- Name: ix_Container_containerId; Type: INDEX; Schema: public; Owner: sample_handling
 --
 
@@ -982,6 +1073,14 @@ CREATE INDEX "ix_TopLevelContainer_topLevelContainerId" ON public."TopLevelConta
 
 
 --
+-- Name: ContainerSlotOwnership ContainerSlotOwnership_containerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sample_handling
+--
+
+ALTER TABLE ONLY public."ContainerSlotOwnership"
+    ADD CONSTRAINT "ContainerSlotOwnership_containerId_fkey" FOREIGN KEY ("containerId") REFERENCES public."Container"("containerId");
+
+
+--
 -- Name: Container Container_parentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sample_handling
 --
 
@@ -1073,5 +1172,5 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 9zPQY51R4zMqbFomzbZ0SYJUCdDxftNa8Uer4g48d4DoBkesrJGibEUwIy6XeBh
+\unrestrict 8kIyDcelwj6uY7g34jVjgRMe9GAQkzdFGmVKKZAmEUV7gU2yHYK6x66ZUJgbGkx
 
