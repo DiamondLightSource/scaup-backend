@@ -584,7 +584,7 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 2313	309	\N	2314	gridBox	\N	1	{"c-clip": "Anti-Clockwise (facing left with respect to notch)", "store": false}	f	\N	test	372666		f	f	auto	2026-03-17 11:12:17.496318+00
 2248	\N	988	\N	puck	\N	\N	null	f	\N	1	\N	\N	t	f	2	2026-03-17 11:11:37.395377+00
 2253	\N	\N	\N	gridBox	\N	\N	null	f	\N	Gridbox_1_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
-776	117	\N	2248	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	303613		f	f	\N	2025-01-10 08:54:42.073855+00
+776	117	\N	2248	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	30700		f	f	\N	2025-01-10 08:54:42.073855+00
 \.
 
 
