@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 8kIyDcelwj6uY7g34jVjgRMe9GAQkzdFGmVKKZAmEUV7gU2yHYK6x66ZUJgbGkx
+\restrict T955nJLgelGAvNxyzBqm3xBSFqGvKYaBz1DXc18NVF02fA8PUa3yFyHLGYh5CTr
 
 -- Dumped from database version 17.6 (Debian 17.6-2.pgdg13+1)
 -- Dumped by pg_dump version 18.6
@@ -582,9 +582,6 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 2314	309	989	\N	puck	\N	\N	{}	f	\N	test2	372665		f	f	auto	2026-03-17 11:12:31.214055+00
 2253	\N	\N	2248	gridBox	\N	1	null	f	\N	Gridbox_1_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
 2313	309	\N	2314	gridBox	\N	1	{"c-clip": "Anti-Clockwise (facing left with respect to notch)", "store": false}	f	\N	test	372666		f	f	auto	2026-03-17 11:12:17.496318+00
-2248	\N	988	\N	puck	\N	\N	null	f	\N	1	\N	\N	t	f	2	2026-03-17 11:11:37.395377+00
-2253	\N	\N	\N	gridBox	\N	\N	null	f	\N	Gridbox_1_Puck_1	\N	\N	t	f	auto	2026-03-17 11:11:37.395377+00
-776	117	\N	2248	gridBox	4	1	{"lid": "Screw", "fibSession": false, "store": false}	f	\N	Grid_Box_1	30700		f	f	\N	2025-01-10 08:54:42.073855+00
 \.
 
 
@@ -593,12 +590,6 @@ COPY public."Container" ("containerId", "shipmentId", "topLevelContainerId", "pa
 --
 
 COPY public."ContainerSlotOwnership" ("containerSlotOwnershipId", "containerId", slot, "proposalCode", "proposalNumber") FROM stdin;
-1	2248	0	bi	23047
-2	2248	1	bi	23041
-3	2248	2	bi	23040
-4	2248	3	bi	23040
-5	2248	4	bi	23041
-6	2248	5	bi	23047
 \.
 
 
@@ -718,7 +709,7 @@ COPY public.alembic_version (version_num) FROM stdin;
 -- Name: ContainerSlotOwnership_containerSlotOwnershipId_seq; Type: SEQUENCE SET; Schema: public; Owner: sample_handling
 --
 
-SELECT pg_catalog.setval('public."ContainerSlotOwnership_containerSlotOwnershipId_seq"', 6, true);
+SELECT pg_catalog.setval('public."ContainerSlotOwnership_containerSlotOwnershipId_seq"', 1, false);
 
 
 --
@@ -1172,5 +1163,5 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 8kIyDcelwj6uY7g34jVjgRMe9GAQkzdFGmVKKZAmEUV7gU2yHYK6x66ZUJgbGkx
+\unrestrict T955nJLgelGAvNxyzBqm3xBSFqGvKYaBz1DXc18NVF02fA8PUa3yFyHLGYh5CTr
 
