@@ -89,7 +89,7 @@ def test_create_no_prefix(client):
 
     assert resp.status_code == 201
 
-    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "foo")) is not None
+    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "foo_1")) is not None
 
 
 @responses.activate
