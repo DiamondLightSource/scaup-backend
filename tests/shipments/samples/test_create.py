@@ -79,6 +79,20 @@ def test_create_no_suffix(client):
 
 
 @responses.activate
+def test_create_no_prefix(client):
+    """Should not prepend prefix if search param is passed"""
+
+    resp = client.post(
+        "/shipments/1/samples?includePrefix=false",
+        json={"name": "foo", "proteinId": 4407},
+    )
+
+    assert resp.status_code == 201
+
+    assert inner_db.session.scalar(select(Sample).filter(Sample.name == "foo_1")) is not None
+
+
+@responses.activate
 def test_create_name_with_suffix(client):
     """Should automatically increment ordinal suffix when item already exists in shipment"""
 
