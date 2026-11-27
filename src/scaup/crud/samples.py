@@ -45,6 +45,7 @@ def create_sample(
     push_to_external_db: bool = False,
     include_suffix: bool = True,
     auto_location: bool = False,
+    include_prefix: bool = True,
 ):
     upstream_compound = _get_protein(params.proteinId, token)
 
@@ -68,7 +69,7 @@ def create_sample(
 
     if not (params.name):
         params.name = clean_name
-    else:
+    elif include_prefix:
         # Prefix with compound name regardless
         if not params.name.startswith(clean_name):
             params.name = f"{clean_name}_{params.name}"
